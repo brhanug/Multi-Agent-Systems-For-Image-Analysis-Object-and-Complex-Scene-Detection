@@ -1,0 +1,56 @@
+project:
+  base_dir: "/data/brhanu/thesis_project"
+  data_dir: "data/colibri/images/data"
+  working_dir: "results_full_pipeline"
+  final_dataset_dir: "final_dataset"
+  logs_dir: "logs"
+
+resources:
+  gpu_map:
+    cyclegan: 0
+    restoration: 1
+    captioning: 0
+    detection: 1
+    llava: 2
+    yolo_train: 3
+
+models:
+  cyclegan:
+    checkpoint_dir: "pytorch-CycleGAN-and-pix2pix/checkpoints"
+    name: "auto"
+  realesrgan:
+    weights: "Real-ESRGAN/weights/RealESRGAN_x4plus.pth"
+  yolo:
+    weights: "yolo11m.pt"
+  kosmos:
+    model_id: "microsoft/kosmos-2.5"
+    prompt: "<grounding> An image of"
+
+self_training:
+  iterations: 3
+  confidence_threshold: 0.7
+  consensus_threshold: 0.5
+  teacher_weights: "runs/detect/teacher_10class_v1/weights/best.pt"
+
+pipeline_steps:
+  run_cyclegan: true
+  run_restoration: true
+  run_blip: false
+  run_groundingdino: true
+  run_owlvit: false
+  run_yolo_train: true
+  finalize_dataset: true
+
+multi_agent:
+  object_weight: 0.25
+  agreement_weight: 0.20
+  scene_weight: 0.15
+  vlm_weight: 0.15
+  document_weight: 0.10
+  restoration_weight: 0.15
+  min_agents_required: 3
+  uncertainty_threshold: 0.20
+  uncertainty_threshold_quantile: 0.90
+  realism_threshold: 0.50
+  object_count_saturation: 3
+  document_char_saturation: 80

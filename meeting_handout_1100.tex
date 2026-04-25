@@ -1,0 +1,77 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{margin=0.75in}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+
+% --- Custom Colors ---
+\definecolor{primary}{RGB}{0, 51, 102}
+\definecolor{secondary}{RGB}{102, 102, 102}
+
+% --- Headers ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textbf{Meeting Handout: Thesis Status Update}}
+\rhead{April 7, 2026 | 11:00 AM}
+\lfoot{Brhanu Atsbaha}
+\cfoot{\thepage}
+
+\begin{document}
+
+\begin{center}
+    {\large \textbf{Multi agent systems for image analysis: object and complex scene detection}} \\
+    \vspace{0.1cm}
+    \textit{Reducing Hallucinations in Historical Illustrations via Cross-Modal Agreement}
+\end{center}
+
+\vspace{0.3cm}
+
+\section*{1. Multi-Agent Framing \& Conceptual Goal}
+The project has evolved into a \textbf{Multi-Agent System} where the existing object detection pipeline serves as a core agent, complemented by other modal "validators" (CLIP Scene Classification, LLaVA-OneVision VQA, and Kosmos-2.5 Layout Analysis).
+\begin{itemize}[noitemsep]
+    \item \textbf{Scenario:} High visual noise in archival scans triggers "hallucinations" in foundational VLMs.
+    \item \textbf{System Fix:} Require strict \textit{agreement} between independent signals (spatial, semantic, textural) before accepting a detection as realistic. This suppresses false positives and ensures scene-level consistency.
+\end{itemize}
+
+\section*{2. Research Questions (RQs)}
+As requested by Shereen, current focus is on the following four inquiries:
+\begin{enumerate}[noitemsep]
+    \item \textbf{RQ1: Domain Adaptation}: How can generative restoration tiers normalize archival noise to enable modern foundational feature extraction?
+    \item \textbf{RQ2: Multi-Agent Distillation}: Can an ensemble of "heavy" VLMs (LLaVA-OneVision, Florence-2) be effectively distilled into a real-time YOLO agent for large-scale indexing?
+    \item \textbf{RQ3: Semantic Completeness}: To what extent does the fusion of bounding boxes, scene graphs, and OCR provide a verifiable "visual index" for archival researchers?
+    \item \textbf{RQ4: Comparative Verification}: How does automated multi-agent consensus perform compared to expert human archival baselines?
+\end{enumerate}
+
+\section*{3. Evaluation Infrastructure}
+\begin{itemize}[noitemsep]
+    \item \textbf{Scene-Aware Agreement (SAA)}: Our primary metric fusing IoUoverlap with CLIP-derived visual and semantic similarity scores.
+    \item \textbf{Human Baseline Audit (Tier 3)}: Current next step. A stratified sample (2,000 images) categorized by "VQA object density" to be manually audited for gold-standard validation.
+    \item \textbf{Global Mean Agreement (GMA)}: Recent v8 update achieved a GMA of \textbf{0.4704} across 37 discovered classes.
+\end{itemize}
+
+\section*{4. Technical Milestone Summary}
+\begin{table}[h!]
+\centering
+\small
+\begin{tabular}{lp{10cm}}
+\toprule
+\textbf{Component} & \textbf{Current Status / Impact} \\
+\midrule
+Restoration Tier & CycleGAN + Real-ESRGAN + SDXL Refiner completed for full benchmark. \\
+VLM Ensemble & Florence-2 and GroundingDINO integrated; achieved \textbf{+11.4\%} consensus boost. \\
+YOLO Distillation & Final Student trained on 8,212 consensus-verified images (mAP50: \textbf{0.989}). \\
+Taxonomy & Transitioned to 37 "AI-Discovered" Open-Vocab classes to remove bias. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.3cm}
+\noindent \textbf{Topic for Discussion:} Finalizing the sampling logic for the Tier 3 Human Audit—balancing "High Complexity" (dense 19th-century crowds) vs "Empty Archives" (landscapes).
+
+\end{document}

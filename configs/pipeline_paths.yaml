@@ -1,0 +1,7 @@
+paths:
+  cyclegan_output: "/data/brhanu/thesis_project/results/cyclegan_output"
+  groundingdino_output: "/data/brhanu/thesis_project/results/groundingdino_output"
+  owlvit_output: "/data/brhanu/thesis_project/results/owlvit_output"
+  blip2_output: "/data/brhanu/thesis_project/results/blip2_output"
+  yolo_output: "/data/brhanu/thesis_project/results/yolo_training"
+  weights_dir: "/data/brhanu/thesis_project/weights"

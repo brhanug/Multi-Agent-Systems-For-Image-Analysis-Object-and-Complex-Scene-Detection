@@ -1,0 +1,29 @@
+{
+  "name": "thesis_project",
+  "version": "1.0.0",
+  "description": "This dataset was created as part of the thesis: **\"Visual Historian: Multi-Modal Restoration and Analysis of Historical Image Archives\"**.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brhanug/historical-image-analysis-thesis.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/brhanug/historical-image-analysis-thesis/issues"
+  },
+  "homepage": "https://github.com/brhanug/historical-image-analysis-thesis#readme",
+  "dependencies": {
+    "@zapier/zapier-sdk": "^0.40.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@zapier/zapier-sdk-cli": "^0.39.3",
+    "typescript": "^6.0.2"
+  }
+}

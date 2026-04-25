@@ -1,0 +1,136 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage{comment} 
+\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\begin{document}
+\begin{flushright}
+\includegraphics[width=2.5cm]{logoUHi.jpg}\\
+\end{flushright}
+\vspace{-2cm}
+\noindent 
+\LARGE\textbf{THESIS PROPOSAL}\\
+\textbf{Computer Vision for Historic Archives: Enhancing Object and Relation Detection with VLMs and Student-Teacher Learning} \\
+\large
+\textbf{STUDENT}: Brhanu Atsbaha\\
+\textbf{COMPANY}: University of Hildesheim\\
+\textbf{SUPERVISOR}: Prof. Dr. Thomas Mandl \hfill Date: \today \\  
+
+\section*{Motivation \& Formal Problem Statement}
+\textbf{Context \& Motivation:} Digitized historical illustration collections represent a significant portion of our global cultural heritage. These collections serve as critical primary sources for historians, sociologists, and cultural researchers to study social changes, architectural evolution, and daily life. However, the sheer volume of these digitized archives (e.g., the Colibri Historical Image Collection containing over 53,000 illustrations) makes manual cataloging impossible. Consequently, massive collections remain under-indexed, and without automated dual-modality (visual and textual) searchability, finding specific historical events or figures within them is incredibly challenging.
+
+\textbf{Formal Problem Statement:} 
+We address the fundamental challenge of automated object detection and semantic indexing in unlabelled historical illustration archives. Classical off-the-shelf object detectors, such as YOLO trained on modern datasets like COCO or OpenImages, completely fail when applied directly to historical scans, achieving a near-zero Object Detection mAP of roughly $\sim 0.004$. This dramatic performance drop occurs because modern baselines rely on high-fidelity features (color consistency, stable textures, sharp edges). In contrast, historical illustrations exist in a extreme "low-fidelity" regime characterized by a massive \textit{visual domain gap}: varying degrees of film grain, chemical artifacts, monochromatic and sepia capture, fading, and focal blur. Bridging this domain gap to accurately extract reliable textual concepts and semantic bounding boxes from noisy legacy visual media remains an unsolved challenge.
+
+\section*{State of the Art (Related Work)}
+Recent methodological developments in computer vision have seen two major shifts aimed at addressing domain gaps and enabling open-vocabulary detection:
+\begin{itemize}
+    \item \textbf{Generative Domain Translation:} Works such as Kim et al. (2024) have explored object detection in historical illustrations by styling modern datasets (like COCO) into historical domains using CycleGAN to train detectors. However, adapting the training data often still leaves the models vulnerable to the unique noise of real archival scans. Most state-of-the-art strategies adapt the modern data rather than attempting to normalize the noisy archive itself to a modern standard.
+    \item \textbf{Vision-Language Models (VLMs):} Foundational multimodal models operating on contrastive alignment, like \textbf{GroundingDINO (2023)} and \textbf{Florence-2 (2023)}, allow for open-vocabulary detection without requiring explicit task-specific training. Furthermore, advances like \textbf{LLaVA-OneVision (2024)} provide complex scene-level reasoning and visual QA. Yet, when these zero-shot models are applied directly to noisy historical archives without adaptation, they suffer from severe hallucination and "epistemic uncertainty"—guessing modern concepts incorrectly due to distorted historical edges and textures.
+\end{itemize}
+Currently, there is no unified, production-grade pipeline blending restorative domain normalization with advanced VLM ensembles capable of reliably indexing unlabelled archives at scale.
+
+\section*{Research Idea: What We Are Doing and Why}
+\textbf{What we are doing:} I propose the ``Visual Historian'' pipeline — a comprehensive, multi-stage architecture that integrates generative image restoration, foundational Vision-Language Models, and iterative self-training distillation.
+
+\textbf{Why we are doing this:} To transform raw archival noise into rich, searchable semantic repositories at a scalable institutional level. Running massive VLMs on 53,000 images is computationally infeasible and error-prone due to noise. We intend to first normalize the image noise, leverage the deep zero-shot knowledge of slow massive VLMs to understand the image, and then distill that verified knowledge into a fast, computationally inexpensive real-time model.
+
+The core methodology follows a "Pure Pipeline" approach:
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning, fit, backgrounds}
+
+% ... [existing content] ...
+
+The core methodology follows a "Pure Pipeline" approach, visualized below:
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[
+    node distance=1.5cm and 1cm,
+    font=\sffamily\small,
+    % Define styles
+    block/.style={rectangle, draw, rounded corners, fill=white, text width=3.5cm, text centered, minimum height=1.2cm, thick},
+    data/.style={trapezium, trapezium left angle=70, trapezium right angle=110, draw, fill=gray!10, text width=2.5cm, text centered, minimum height=1cm, thick},
+    decision/.style={diamond, aspect=2, draw, fill=orange!10, text width=2cm, text centered, thick},
+    arrow/.style={thick,->,>=stealth},
+    % Colors
+    restoration/.style={fill=blue!10, draw=blue!80},
+    vlm/.style={fill=green!10, draw=green!80},
+    consensus/.style={fill=purple!10, draw=purple!80},
+    student/.style={fill=red!10, draw=red!80}
+]
+
+% Nodes
+\node (raw) [data] {Raw Archival Scans};
+
+\node (cyclegan) [block, restoration, below=of raw] {\textbf{CycleGAN}\\(Colorization)};
+\node (esrgan) [block, restoration, right=of cyclegan] {\textbf{Real-ESRGAN}\\(4x Super-Res)};
+\node (sd) [block, restoration, right=of esrgan] {\textbf{Stable Diffusion}\\(Texture Refine)};
+
+\node (florence) [block, vlm, below=of esrgan, xshift=-2cm] {\textbf{Florence-2}\\(Dense Grounding)};
+\node (dino) [block, vlm, below=of esrgan, xshift=2cm] {\textbf{GroundingDINO}\\(Phrase Grounding)};
+
+\node (saa) [decision, consensus, below=of esrgan, yshift=-1.5cm] {\textbf{SAA Matrix}\\IoU + CLIP};
+
+\node (yolo) [block, student, below=of saa] {\textbf{YOLOv11}\\(Student Distillation)};
+\node (output) [data, below=of yolo] {Enriched Semantic Meta-Archive};
+
+% Background boxes for grouping
+\begin{scope}[on background layer]
+    \node[fill=blue!5, rounded corners, draw=blue!30, dashed, fit=(cyclegan) (esrgan) (sd), inner sep=10pt] (restoration_box) {};
+    \node[above=0pt of restoration_box, text=blue!80] {\textbf{Tier 1: Generative Restoration}};
+
+    \node[fill=green!5, rounded corners, draw=green!30, dashed, fit=(florence) (dino), inner sep=10pt] (vlm_box) {};
+    \node[above=0pt of vlm_box, text=green!80] {\textbf{Tier 2: Multimodal Teacher Ensemble}};
+\end{scope}
+
+% Arrows
+\draw [arrow] (raw) -- (cyclegan);
+\draw [arrow] (cyclegan) -- (esrgan);
+\draw [arrow] (esrgan) -- (sd);
+
+\draw [arrow] (sd.south) -- ++(0,-0.5) -| (florence.north);
+\draw [arrow] (sd.south) -- ++(0,-0.5) -| (dino.north);
+
+\draw [arrow] (florence.south) -- ++(0,-0.5) -| (saa.north);
+\draw [arrow] (dino.south) -- ++(0,-0.5) -| (saa.north);
+
+\draw [arrow] (saa.south) -- node[right, anchor=west] {Verified Labels ($>0.45$)} (yolo.north);
+\draw [arrow] (yolo.south) -- (output.north);
+
+\end{tikzpicture}
+\caption{Visual representation of the ``Visual Historian'' multi-stage pipeline. The architecture translates noisy scans into a modern feature space before applying zero-shot VLMs and distilling them into a real-time YOLO detector.}
+\label{fig:pipeline_flow}
+\end{figure}
+
+\section*{Experimental Protocols \& Data Foundation}
+\textbf{Datasets:} We will utilize the \textbf{Colibri Historical Image Collection} (over 53,000 digitized legacy scans) provided by the University of Hildesheim. To systematically validate our approach and ensure the model generalizes across temporal and geographic diversity, we will stratify this into the \textbf{Visual Historian Dataset v1.0}, partitioned temporally into:
+\begin{itemize}
+    \item \textbf{Tier 1 (High-Throughput Archival Data):} 12,110 unlabelled raw images, used to test large-scale inference and metadata extraction (like Kosmos-2.5 OCR layout parsing).
+    \item \textbf{Tier 2 (Refined VLM Subset):} ~6,480 images. This acts as the fundamental training baseline where labels are explicitly generated via the strict Dual-Teacher SAA consensus ensemble to prevent semantic drift. Furthermore, we rely on an empirical \textit{Open-Vocabulary Taxonomy} of 37 classes (e.g., boy, hat, furniture, tree) discovered by VLMs to avoid mapping rigid modern biases onto historical truths.
+    \item \textbf{Tier 3 (Human Baseline Audit):} A rigorously curated validation set of 2,000 images (stratified by object density and complexity) reviewed manually to establish a definitive, gold-standard human baseline against which we will benchmark our AI pipeline's mAP.
+\end{itemize}
+
+\section*{Proposed Plan of Action}
+To manage this complex architecture effectively, the timeline is divided into discrete implementation phases:
+\begin{itemize}
+    \item \textbf{Phase 1 (Weeks 1-4): Domain Analysis \& Restoration Architecture.} Literature investigation, formalizing the empirical Open-Vocabulary 37-class taxonomy, and building and optimizing the Generative Restoration tier (CycleGAN/Diffusion pipeline) to normalize scans.
+    \item \textbf{Phase 2 (Weeks 5-8): VLM Ensemble \& Consensus Logic.} Integrating the Vision-Language Model ensemble (Florence-2, GroundingDINO) and actively developing, weighting, and validating the Scene-Aware Agreement filtering algorithms.
+    \item \textbf{Phase 3 (Weeks 9-14): Distillation \& Self-Training.} Generating pseudo-labels across Tier 2, followed by distilling the consensus labels into the YOLOv11 student model via iterative self-training loops. Tuning hyperparameters (Mosaic mixup, Task-Aligned Assigner) for optimal mAP.
+    \item \textbf{Phase 4 (Weeks 15-20): Evaluation \& Publication.} Execution of the manual audit of the Tier 3 Human Baseline. Final quantitative evaluations (mAP benchmarking, latency tests), dataset publication preparations to Zenodo with proper semantic metadata schema, and finalizing the thesis text.
+\end{itemize}
+
+\section*{Resources needed}
+The architecture relies on high-VRAM deep learning hardware, specifically requiring an NVIDIA RTX A6000 48GB GPU (or equivalent environment) to run parallel massive VLM ensembles (LLaVA, Florence-2) and Stable Diffusion simultaneously. The software stack extensively leverages PyTorch 2.5, Hugging Face Transformers, Ultralytics YOLO, and Diffusers. Local institutional access to the Colibri archive dataset is already secured.
+
+\begin{thebibliography}{9}
+\bibitem{cyclegan2017} J.-Y. Zhu et al., ``Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks,'' \emph{ICCV}, 2017.
+\bibitem{groundingdino2023} S. Liu et al., ``Grounding DINO: Marrying DINO with Grounded Pre-Training for Open-Set Object Detection,'' \emph{ECCV}, 2023.
+\bibitem{florence2_2023} B. Xiao et al., ``Florence-2: Advancing a Unified Representation for a Variety of Vision Tasks,'' \emph{CVPR}, 2023.
+\bibitem{kim2024} Kim et al., ``Object Detection in Historical Images,'' \emph{Recent Advances in Computer Vision}, 2024.
+\bibitem{yolov11} Ultralytics, ``YOLOv11: State-of-the-Art Object Detection,'' 2024.
+\bibitem{llava2024} Li et al., ``LLaVA-OneVision: Easy Visual Instruction Tuning,'' 2024.
+\end{thebibliography}
+
+\end{document}

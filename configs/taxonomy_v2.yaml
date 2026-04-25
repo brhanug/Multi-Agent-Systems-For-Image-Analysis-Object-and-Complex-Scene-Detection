@@ -1,0 +1,85 @@
+# Expanded Taxonomy Configuration for Professor Mandl's Requirements
+# Version 2.0 - December 2025
+
+# Object-Level Classes (10 total)
+object_classes:
+  - person
+  - child
+  - horse
+  - building
+  - weapon
+  - vehicle
+  - tree
+  - clothing
+  - text
+  - animal  # Replacing "family" which is scene-level
+
+# Scene-Level Classes (5 total)
+scene_classes:
+  - teaching
+  - family
+  - playing
+  - landscape
+  - drawing
+
+# GroundingDINO Prompts (Expanded)
+groundingdino_prompts:
+  # Core entities
+  - "person . child . adult . man . woman"
+  - "horse . donkey . mule . animal"
+  
+  # Structures
+  - "building . house . church . castle . structure"
+  - "tree . forest . vegetation . plant"
+  
+  # Objects
+  - "weapon . rifle . sword . gun . cannon"
+  - "vehicle . carriage . cart . wagon . bicycle"
+  - "clothing . uniform . dress . traditional costume"
+  - "text . sign . document . inscription . writing"
+  
+  # Contextual scenes (for pseudo-labels)
+  - "family portrait . group photo"
+  - "children playing . game . sport"
+  - "teaching scene . classroom . instruction"
+  - "landscape view . outdoor scene . nature"
+  - "drawing . sketch . artistic work"
+
+# Class Mapping (for alignment across models)
+class_mapping:
+  # Map old 4-class to new 10-class
+  old_to_new:
+    "person": "person"
+    "child": "child"
+    "horse": "horse"
+    "family": "family"  # Now scene-level
+    "man": "person"
+    "woman": "person"
+    "historical photo": null  # Remove meta-class
+  
+  # COCO to custom mapping (for YOLO pre-training)
+  coco_to_custom:
+    0: "person"      # COCO person
+    17: "horse"      # COCO horse
+    2: "vehicle"     # COCO car
+    3: "vehicle"     # COCO motorcycle
+    5: "vehicle"     # COCO bus
+    7: "vehicle"     # COCO truck
+
+# Detection Thresholds
+thresholds:
+  groundingdino:
+    box_threshold: 0.30
+    text_threshold: 0.25
+  yolo:
+    conf_threshold: 0.10
+    iou_threshold: 0.45
+  owlvit:
+    score_threshold: 0.10
+
+# Dataset Split Configuration
+dataset:
+  train_ratio: 0.7
+  val_ratio: 0.2
+  test_ratio: 0.1
+  min_samples_per_class: 5

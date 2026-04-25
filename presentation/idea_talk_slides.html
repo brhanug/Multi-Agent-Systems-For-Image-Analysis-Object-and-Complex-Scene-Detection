@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visual Historian – First Idea Talk</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --blue:   #3b82f6;
+    --green:  #22c55e;
+    --purple: #a855f7;
+    --red:    #ef4444;
+    --orange: #f97316;
+    --gold:   #eab308;
+    --bg:     #0f172a;
+    --surface:#1e293b;
+    --card:   #27364b;
+    --text:   #e2e8f0;
+    --muted:  #94a3b8;
+  }
+  .reveal { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+  .reveal h1, .reveal h2, .reveal h3, .reveal h4 { 
+    font-family: 'Inter', sans-serif; 
+    text-transform: none; 
+    letter-spacing: -0.5px;
+  }
+  .reveal section { padding: 0; }
+
+  /* --- Slide base --- */
+  .slide-inner { 
+    width: 100%; height: 100vh; 
+    display: flex; flex-direction: column; 
+    justify-content: center; align-items: center;
+    padding: 40px 60px; box-sizing: border-box;
+  }
+
+  /* --- Tags & pills --- */
+  .pill {
+    display: inline-block; padding: 4px 14px; border-radius: 999px;
+    font-size: 0.7em; font-weight: 600; letter-spacing: 0.5px;
+    text-transform: uppercase; margin-bottom: 12px;
+  }
+  .pill-blue   { background: rgba(59,130,246,0.2); color: var(--blue);   border: 1px solid var(--blue); }
+  .pill-green  { background: rgba(34,197,94,0.2);  color: var(--green);  border: 1px solid var(--green); }
+  .pill-purple { background: rgba(168,85,247,0.2); color: var(--purple); border: 1px solid var(--purple); }
+  .pill-red    { background: rgba(239,68,68,0.2);  color: var(--red);    border: 1px solid var(--red); }
+  .pill-orange { background: rgba(249,115,22,0.2); color: var(--orange); border: 1px solid var(--orange); }
+
+  /* --- Cards --- */
+  .card {
+    background: var(--card); border-radius: 16px; padding: 24px;
+    border: 1px solid rgba(255,255,255,0.07);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+  .card-blue   { border-left: 3px solid var(--blue); }
+  .card-green  { border-left: 3px solid var(--green); }
+  .card-purple { border-left: 3px solid var(--purple); }
+  .card-red    { border-left: 3px solid var(--red); }
+
+  /* --- Grid layouts --- */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; width: 100%; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; width: 100%; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; width: 100%; }
+
+  /* --- Big stat numbers --- */
+  .big-stat { font-size: 3em; font-weight: 900; line-height: 1; }
+  .stat-bad  { color: var(--red); }
+  .stat-good { color: var(--green); }
+  .stat-mid  { color: var(--orange); }
+  .stat-label { color: var(--muted); font-size: 0.8em; margin-top: 4px; }
+
+  /* --- Slide title bar --- */
+  .slide-title {
+    font-size: 1.6em; font-weight: 700; 
+    margin-bottom: 30px; text-align: left; width: 100%;
+    border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 14px;
+  }
+
+  /* --- Pipeline diagram --- */
+  .pipeline {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0; width: 100%; margin-top: 10px;
+  }
+  .pipe-stage {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 8px; position: relative; flex: 1;
+  }
+  .pipe-box {
+    background: var(--surface); border-radius: 12px; padding: 14px 10px;
+    text-align: center; font-size: 0.75em; font-weight: 600;
+    border: 2px solid transparent; width: 100%;
+    transition: all 0.4s ease; cursor: pointer;
+    position: relative;
+  }
+  .pipe-box:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+  .pipe-box .icon { font-size: 1.8em; margin-bottom: 6px; display: block; }
+  .pipe-box .name { font-size: 0.95em; font-weight: 700; margin-bottom: 4px; }
+  .pipe-box .sub  { font-size: 0.75em; color: var(--muted); line-height: 1.3; }
+  .pipe-box.stage-1 { border-color: var(--blue);   background: rgba(59,130,246,0.1); }
+  .pipe-box.stage-2 { border-color: var(--green);  background: rgba(34,197,94,0.1); }
+  .pipe-box.stage-3 { border-color: var(--purple); background: rgba(168,85,247,0.1); }
+  .pipe-box.stage-4 { border-color: var(--red);    background: rgba(239,68,68,0.1); }
+  .pipe-box.stage-5 { border-color: var(--gold);   background: rgba(234,179,8,0.1); }
+  .pipe-arrow {
+    font-size: 1.4em; color: var(--muted); padding: 0 4px; flex-shrink: 0;
+  }
+  .tier-label {
+    position: absolute; top: -24px; left: 0; right: 0;
+    text-align: center; font-size: 0.6em; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    padding: 2px 6px; border-radius: 4px;
+  }
+  .tier-1 { color: var(--blue);   }
+  .tier-2 { color: var(--green);  }
+  .tier-3 { color: var(--purple); }
+  .tier-4 { color: var(--red);    }
+
+  /* --- Alert box --- */
+  .alert-box {
+    background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.4);
+    border-radius: 12px; padding: 16px 20px; margin-top: 16px;
+    font-size: 0.82em; color: #fca5a5;
+  }
+  .success-box {
+    background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.4);
+    border-radius: 12px; padding: 16px 20px; margin-top: 16px;
+    font-size: 0.82em; color: #86efac;
+  }
+
+  /* --- Progress bar --- */
+  .progress-bar {
+    height: 8px; border-radius: 4px; background: var(--surface); 
+    width: 100%; margin-top: 6px; overflow: hidden;
+  }
+  .progress-fill { height: 100%; border-radius: 4px; transition: width 1.5s ease; }
+
+  /* --- Image frame --- */
+  .img-frame {
+    border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+  }
+  .img-frame img { width: 100%; display: block; }
+  .img-caption { font-size: 0.65em; color: var(--muted); margin-top: 8px; text-align: center; font-style: italic; }
+
+  /* --- Table --- */
+  .results-table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+  .results-table th { background: var(--surface); padding: 10px 14px; text-align: left; font-weight: 600; color: var(--muted); border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .results-table td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .results-table tr:last-child td { border-bottom: none; }
+  .results-table tr:hover td { background: rgba(255,255,255,0.03); }
+  .val-bad  { color: var(--red);   font-weight: 700; }
+  .val-mid  { color: var(--orange); font-weight: 700; }
+  .val-good { color: var(--green); font-weight: 700; }
+
+  /* --- Bullet list --- */
+  .bullet-list { list-style: none; padding: 0; margin: 0; font-size: 0.85em; line-height: 1.7; }
+  .bullet-list li::before { content: "▸ "; color: var(--blue); font-weight: 700; }
+  .bullet-list li { margin-bottom: 6px; }
+
+  /* --- Title slide --- */
+  .title-slide {
+    width: 100%; height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; align-items: flex-start; padding: 60px 80px;
+    background: radial-gradient(ellipse at top right, rgba(59,130,246,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at bottom left, rgba(168,85,247,0.1) 0%, transparent 60%),
+                var(--bg);
+    box-sizing: border-box;
+  }
+  .title-slide h1 { font-size: 2.4em; font-weight: 900; line-height: 1.15; margin-bottom: 20px; }
+  .title-slide h1 span { color: var(--blue); }
+  .title-slide .subtitle-text { font-size: 1em; color: var(--muted); max-width: 700px; margin-bottom: 40px; }
+  .meta-row { display: flex; gap: 40px; font-size: 0.82em; color: var(--muted); }
+  .meta-item strong { color: var(--text); display: block; margin-bottom: 2px; }
+  .title-logo { position: absolute; top: 40px; right: 60px; width: 70px; opacity: 0.9; }
+
+  /* --- SAA formula --- */
+  .formula {
+    background: var(--surface); border-radius: 10px; padding: 16px 24px;
+    font-family: 'Courier New', monospace; font-size: 0.9em;
+    border: 1px solid rgba(168,85,247,0.3); text-align: center; color: var(--purple);
+    margin: 12px 0;
+  }
+
+  /* --- Timeline --- */
+  .timeline { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+  .timeline-item { display: flex; gap: 16px; align-items: flex-start; }
+  .timeline-dot { 
+    width: 36px; height: 36px; border-radius: 50%; 
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8em; font-weight: 700; flex-shrink: 0;
+  }
+  .timeline-content { flex: 1; }
+  .timeline-period { font-weight: 700; font-size: 0.85em; margin-bottom: 2px; }
+  .timeline-desc { font-size: 0.78em; color: var(--muted); line-height: 1.4; }
+
+  /* Beamer-style box */
+  .section-box {
+    background: var(--surface); border-radius: 14px; padding: 20px 24px;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .section-box h4 { margin: 0 0 10px; font-size: 0.95em; font-weight: 700; }
+
+  /* Fragment animations */
+  .reveal .fragment.highlight-box {
+    opacity: 1;
+  }
+  .reveal .fragment.highlight-box.visible .pipe-stage {
+    animation: pulse-in 0.5s forwards;
+  }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ================================================== -->
+<!-- SLIDE 1: TITLE                                     -->
+<!-- ================================================== -->
+<section>
+  <div class="title-slide">
+    <img class="title-logo" src="images/logoUHi.png" alt="University of Hildesheim">
+    <div class="pill pill-blue">Master Thesis · First Idea Talk</div>
+    <h1>Computer Vision for<br><span>Historic Archives</span></h1>
+    <p class="subtitle-text">
+      Enhancing Object and Relation Detection with Vision-Language Models and the Student-Teacher Learning Approach
+    </p>
+    <div class="meta-row">
+      <div class="meta-item"><strong>Student</strong>Brhanu Atsbaha</div>
+      <div class="meta-item"><strong>Supervisor</strong>Prof. Dr. Thomas Mandl</div>
+      <div class="meta-item"><strong>Institution</strong>University of Hildesheim</div>
+      <div class="meta-item"><strong>Date</strong>March 2026</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== -->
+<!-- SLIDE 2: MOTIVATION with image                     -->
+<!-- ================================================== -->
+<section>
+  <div class="slide-inner">
+    <div class="slide-title">🏛️ Motivation: The Archival Challenge</div>
+    <div class="grid-2" style="align-items:start;">
+      <div>
+        <div class="pill pill-orange">Problem Context</div>
+        <ul class="bullet-list">
+          <li>Digitized historical archives are <strong>critical primary sources</strong> for historians, sociologists, and cultural researchers.</li>
+          <li>The <strong>Colibri Collection</strong> contains over <strong>53,000 historical illustrations</strong> from the University of Hildesheim.</li>
+          <li>Manual cataloging at this scale is <strong>impossible</strong>.</li>
+          <li>Archives remain under-indexed — preventing dual-modality (visual + textual) search.</li>
+        </ul>
+        <div class="alert-box" style="margin-top:20px;">
+          ⚠️ Off-the-shelf YOLO applied directly to raw scans achieves <strong>mAP ≈ 0.004</strong> — effectively blind.
+        </div>
+      </div>
+      <div>
+        <div class="img-frame">
+          <img src="images/colibri_degraded_motivation.jpg" alt="Raw archival scan">
+        </div>
+        <p class="img-caption">A raw degraded illustration from the Colibri archive — heavy film grain, chemical artifacts, and near-monochromatic tone make automated detection impossible.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== -->
+<!-- SLIDE 3: BEFORE / AFTER                           -->
+<!-- ================================================== -->
+<section>
+  <div class="slide-inner">
+    <div class="slide-title">🔬 The Visual Domain Gap</div>
+    <div class="grid-2">
+      <div>
+        <div class="pill pill-red">BEFORE — Raw Scan</div>
+        <div class="img-frame">
+          <img src="images/colibri_raw_scan_before.png" alt="Before">
+        </div>
+        <div style="display:flex;gap:16px;margin-top:12px;">
+          <span style="font-size:0.72em;color:var(--muted)">Film grain · Sepia · Blur · Chemical damage</span>
+        </div>
+        <div class="alert-box" style="font-size:0.75em;margin-top:10px;">❌ Standard YOLO mAP: <strong>0.004</strong></div>
+      </div>
+      <div>
+        <div class="pill pill-green">AFTER — Domain Normalized</div>
+        <div class="img-frame">
+          <img src="images/colibri_restored_after.png" alt="After">
+        </div>
+        <div style="display:flex;gap:16px;margin-top:12px;">
+          <span style="font-size:0.72em;color:var(--muted)">Colorized · 4x super-resolution · Texture refined</span>
+        </div>
+        <div class="success-box" style="font-size:0.75em;margin-top:10px;">✅ VLMs can now reliably detect objects</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== -->
+<!-- SLIDE 4: STATE OF THE ART                         -->
+<!-- ================================================== -->
+<section>
+  <div class="slide-inner">
+    <div class="slide-title">📚 State of the Art</div>
+    <div class="grid-3">
+      <div class="card card-blue fragment fade-up">
+        <div class="pill pill-blue">Work 1</div>
+        <h4 style="font-size:0.95em;margin-bottom:8px;">Generative Domain Translation</h4>
+        <p style="font-size:0.78em;color:var(--muted);line-height:1.5;">Mandl et al. (2024): CycleGAN translates modern training data into historical visual style to train detectors.</p>
+        <p style="font-size:0.75em;color:var(--red);margin-top:10px;">⚠️ Adapts <em>training data</em> — does not normalize the real noisy archive itself.</p>
+      </div>
+      <div class="card card-green fragment fade-up">
+        <div class="pill pill-green">Work 2</div>
+        <h4 style="font-size:0.95em;margin-bottom:8px;">Vision-Language Models (VLMs)</h4>
+        <p style="font-size:0.78em;color:var(--muted);line-height:1.5;">Florence-2, GroundingDINO, LLaVA-OneVision (2023–24) enable zero-shot open-vocabulary detection.</p>
+        <p style="font-size:0.75em;color:var(--red);margin-top:10px;">⚠️ Applied to noisy scans: severe hallucination due to epistemic uncertainty.</p>
+      </div>
+      <div class="card card-purple fragment fade-up">
+        <div class="pill pill-purple">Work 3</div>
+        <h4 style="font-size:0.95em;margin-bottom:8px;">Survey: OD in Visual Art</h4>
+        <p style="font-size:0.78em;color:var(--muted);line-height:1.5;">Bengamra et al. (2024): Three persistent obstacles — Depictive Domain Gap, Annotation Ambiguity, Metric Instability.</p>
+        <p style="font-size:0.75em;color:var(--purple);margin-top:10px;">💡 These map directly onto archival images — validating our approach.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== -->
+<!-- SLIDE 5: PIPELINE OVERVIEW                        -->
+<!-- ================================================== -->
+<section>
+  <div class="slide-inner">
+    <div class="slide-title">⚙️ The "Visual Historian" Pipeline</div>
+    <div class="pipeline" style="margin-bottom:24px;">
+
+      <div class="pipe-stage fragment fade-right" style="position:relative;padding-top:28px;">
+        <div class="tier-label tier-1" style="top:-4px">Input</div>
+        <div class="pipe-box stage-1">
+          <span class="icon">📷</span>
+          <div class="name">Raw Archival<br>Scans</div>
+          <div class="sub">Colibri Collection<br>53,000+ images</div>
+        </div>
+      </div>
+
+      <div class="pipe-arrow fragment fade-right">→</div>
+
+      <div class="pipe-stage fragment fade-right" style="position:relative;padding-top:28px;">
+        <div class="tier-label tier-1" style="top:-4px; color:var(--blue);">Tier 1: Normalization</div>
+        <div class="pipe-box stage-1">
+          <span class="icon">🎨</span>
+          <div class="name">Generative<br>Restoration</div>
+          <div class="sub">CycleGAN<br>Real-ESRGAN<br>Stable Diffusion</div>
+        </div>
+      </div>
+
+      <div class="pipe-arrow fragment fade-right">→</div>
+
+      <div class="pipe-stage fragment fade-right" style="position:relative;padding-top:28px;">
+        <div class="tier-label tier-2" style="top:-4px;">Tier 2: Teacher Ensemble</div>
+        <div class="pipe-box stage-2">
+          <span class="icon">🧠</span>
+          <div class="name">VLM Ensemble</div>
+          <div class="sub">Florence-2<br>GroundingDINO</div>
+        </div>
+      </div>
+
+      <div class="pipe-arrow fragment fade-right">→</div>
+
+      <div class="pipe-stage fragment fade-right" style="position:relative;padding-top:28px;">
+        <div class="tier-label tier-3" style="top:-4px;">Novel: SAA Filter</div>
+        <div class="pipe-box stage-3">
+          <span class="icon">🔍</span>
+          <div class="name">Consensus<br>Filter</div>
+          <div class="sub">IoU + CLIP<br>Conf &gt; 0.45</div>
+        </div>
+      </div>
+
+      <div class="pipe-arrow fragment fade-right">→</div>
+
+      <div class="pipe-stage fragment fade-right" style="position:relative;padding-top:28px;">
+        <div class="tier-label tier-4" style="top:-4px;">Tier 3: Distillation</div>
+        <div class="pipe-box stage-4">
+          <span class="icon">⚡</span>
+          <div class="name">YOLOv11<br>Student</div>
+          <div class="sub">Real-time<br>0.02s / image</div>
+        </div>
+      </div>
+
+      <div class="pipe-arrow fragment fade-right">→</div>
+
+      <div class="pipe-stage fragment fade-right" style="position:relative;padding-top:28px;">
+        <div class="tier-label" style="top:-4px; color:var(--gold);">Output</div>
+        <div class="pipe-box stage-5">
+          <span class="icon">🗄️</span>
+          <div class="name">Semantic<br>Meta-Archive</div>
+          <div class="sub">Searchable<br>Index</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="grid-3" style="font-size:0.75em;margin-top:12px;">
+      <div style="text-align:center;color:var(--blue);">🔵 Forensic Restoration<br><span style="color:var(--muted)">Bridges visual domain gap</span></div>
+      <div style="text-align:center;color:var(--green);">🟢 Dual-Teacher Grounding<br><span style="color:var(--muted)">Zero-shot open-vocabulary</span></div>
+      <div style="text-align:center;color:var(--red);">🔴 Knowledge Distillation<br><span style="color:var(--muted)">Fast deployment at scale</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== -->
+<!-- SLIDE 6: VLM TRIPTYCH                             -->
+<!-- ================================================== -->
+<section>
+  <div class="slide-inner">
+    <div class="slide-title">🔬 VLM Ensemble in Action</div>
+    <div style="width:100%;">
+      <div class="img-frame">
+        <img src="images/triptych_example_new.jpg" alt="Triptych" style="max-height:400px;width:100%;object-fit:cover;">
+      </div>
+      <p class="img-caption">Left: Florence-2 dense grounding &nbsp;|&nbsp; Center: GroundingDINO phrase grounding &nbsp;|&nbsp; Right: YOLOv11 Student final output.<br>
+      Each model contributes a unique semantic perspective — only cross-verified detections are used for training.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== -->
+<!-- SLIDE 7: NOVEL CONTRIBUTIONS                      -->
+<!-- ================================================== -->
+<section>
+  <div class="slide-inner">
+    <div class="slide-title">🚀 Three Novel Contributions</div>
+    <div class="grid-3">
+      <div class="card card-blue fragment zoom-in">
+        <div style="font-size:2.2em;margin-bottom:8px;">📐</div>
+        <h4 style="font-size:1.2em;margin-bottom:10px;">Scene-Aware Agreement (SAA)</h4>
+        <div class="formula" style="font-size:0.9em;padding:12px 16px;">S<sub>SAA</sub> = α·IoU + β·cos(θ<sub>vis</sub>) + γ·cos(θ<sub>txt</sub>)</div>
+        <p style="font-size:0.92em;color:var(--muted);margin-top:10px;line-height:1.55;">A <strong>novel cross-model verification metric</strong> combining three signals: <strong>(1)</strong> spatial IoU overlap, <strong>(2)</strong> CLIP <em>visual</em> embedding similarity of the cropped region, and <strong>(3)</strong> CLIP <em>textual</em> similarity of the predicted labels. A detection only passes when all three signals agree — actively suppressing hallucinations caused by archival noise and low-fidelity image quality.</p>
+      </div>
+      <div class="card card-green fragment zoom-in">
+        <div style="font-size:2.2em;margin-bottom:8px;">🔄</div>
+        <h4 style="font-size:1.2em;margin-bottom:10px;">Inference Domain Normalization</h4>
+        <p style="font-size:0.92em;color:var(--muted);line-height:1.55;">We forensically restore archive illustrations to a modern visual domain <em>before</em> detection — rather than training on artificially degraded fake-historical data as in Kim, Im &amp; Mandl (2024). The restoration chain: CycleGAN → Real-ESRGAN → Stable Diffusion inpainting.</p>
+        <p style="font-size:0.92em;color:var(--green);margin-top:12px;font-weight:600;">✅ Normalizes inference, not training.</p>
+      </div>
+      <div class="card card-purple fragment zoom-in">
+        <div style="font-size:2.2em;margin-bottom:8px;">🔡</div>
+        <h4 style="font-size:1.2em;margin-bottom:10px;">Empirical Open-Vocab Taxonomy</h4>
+        <p style="font-size:0.92em;color:var(--muted);line-height:1.55;">Instead of imposing COCO-style classes, BLIP-2 free-text descriptions of the archive were mined to discover the <strong>37 most frequent native objects</strong> (boy, hat, sack, rooster, sword…). This eliminates human class-selection bias and directly reflects archival reality.</p>
+        <p style="font-size:0.92em;color:var(--purple);margin-top:12px;font-weight:600;">💡 Bias-free semantic discovery.</p>
+      </div>
+    </div>
+    <div class="img-frame" style="margin-top:18px;">
+      <img src="images/pairwise_agreement_heatmap_v8.png" alt="Heatmap" style="height:140px;width:100%;object-fit:cover;">
+    </div>
+    <p class="img-caption">Pairwise SAA Agreement Heatmap — cross-model consistency between Florence-2, GroundingDINO, and YOLOv11 Student.</p>
+  </div>
+</section>
+
+<!-- ================================================== -->
+<!-- SLIDE 8: RESULTS — THE METRIC LEAP                -->
+<!-- ================================================== -->
+<section>
+  <div class="slide-inner">
+    <div class="slide-title">📊 Early Results: The Metric Leap</div>
+    <div class="grid-2" style="align-items:start;">
+      <div>
+        <table class="results-table">
+          <thead>
+            <tr><th>Configuration</th><th>mAP50 (val)</th><th>Precision</th><th>Recall</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>YOLO (Raw Scans, No Pipeline)</td><td class="val-bad">0.0047</td><td class="val-bad">0.008</td><td class="val-bad">0.028</td></tr>
+            <tr><td>Teacher Bootstrap (207 images)</td><td class="val-mid">0.3418</td><td>0.731</td><td>—</td></tr>
+            <tr><td>Student Iteration 1 (314 images)</td><td class="val-mid">0.3804</td><td>0.652</td><td>—</td></tr>
+            <tr style="background:rgba(34,197,94,0.05)"><td><strong>Final Student (8,212 images)</strong></td><td class="val-good">0.9890</td><td class="val-good">0.953</td><td class="val-good">0.932</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.65em;color:var(--muted);margin-top:8px;font-style:italic;">Note: Final mAP on Tier 2 SAA pseudo-label val split. Tier 3 Human Baseline ongoing.</p>
+
+        <div class="grid-3" style="margin-top:20px;text-align:center;">
+          <div class="card">
+            <div class="big-stat stat-bad">0.004</div>
+            <div class="stat-label">Baseline mAP<br>(no pipeline)</div>
+          </div>
+          <div class="card" style="display:flex;flex-direction:column;justify-content:center;">
+            <div style="font-size:2.5em;color:var(--blue);">→</div>
+            <div style="font-size:0.7em;color:var(--muted);">39× more data<br>+11.4% agreement</div>
+          </div>
+          <div class="card">
+            <div class="big-stat stat-good">0.989</div>
+            <div class="stat-label">Final Student mAP<br>(full pipeline)</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="img-frame">
+          <img src="images/yolo_results_open_vocab.png" alt="Training curves">
+        </div>
+        <p class="img-caption">YOLOv11 Final Student — training convergence. Loss (Box + Cls) drops sharply in first 20 epochs then plateaus — demonstrating successful generalization without overfitting.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== -->
+<!-- SLIDE 9: PR CURVE + CONFUSION MATRIX              -->
+<!-- ================================================== -->
+<section>
+  <div class="slide-inner">
+    <div class="slide-title">📈 Model Performance Deep-Dive</div>
+    <div class="grid-2">
+      <div>
+        <div class="pill pill-green">Precision-Recall Curve</div>
+        <div class="img-frame">
+          <img src="images/yolo_pr_curve_open_vocab.png" alt="PR Curve">
+        </div>
+        <p class="img-caption">High precision (&gt;0.85) maintained at high recall — critical for archival search where both accuracy and completeness matter.</p>
+      </div>
+      <div>
+        <div class="pill pill-purple">37-Class Confusion Matrix</div>
+        <div class="img-frame">
+          <img src="images/yolo_confusion_matrix_open_vocab.png" alt="Confusion Matrix">
+        </div>
+        <p class="img-caption">Strong diagonal for dominant classes (boy, hat). Off-diagonal confusion limited to visually similar minority classes — expected in imbalanced archival data.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== -->
+<!-- SLIDE 10: DETECTION EXAMPLES                       -->
+<!-- ================================================== -->
+<section>
+  <div class="slide-inner">
+    <div class="slide-title">🖼️ Detection Examples from the Archive</div>
+    <div class="grid-2">
+      <div>
+        <div class="pill pill-blue">Complex Crowd Scene</div>
+        <div class="img-frame">
+          <img src="images/yolo_detection_example_1_alt.jpg" alt="Detection 1">
+        </div>
+        <p class="img-caption">Individual instance disambiguation in dense historical street scenes — a key challenge for archival indexing.</p>
+      </div>
+      <div>
+        <div class="pill pill-green">Institutional Record</div>
+        <div class="img-frame">
+          <img src="images/yolo_detection_example_2_alt.jpg" alt="Detection 2">
+        </div>
+        <p class="img-caption">Precise boxes for portraits, furniture, and document elements — enabling semantic searchability of archival records.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== -->
+<!-- SLIDE 11: TEACHER vs STUDENT TRAINING             -->
+<!-- ================================================== -->
+<section>
+  <div class="slide-inner">
+    <div class="slide-title">🧩 Self-Training Evolution: Teacher → Student</div>
+    <div class="grid-2">
+      <div>
+        <div class="pill pill-orange">Teacher Bootstrap (207 imgs)</div>
+        <div class="img-frame">
+          <img src="images/self_training_teacher_results.png" alt="Teacher">
+        </div>
+        <p class="img-caption">Limited annotation density. Rapid early convergence but lower final mAP ceiling.</p>
+      </div>
+      <div>
+        <div class="pill pill-green">Final Student (8,212 imgs · 39×)</div>
+        <div class="img-frame">
+          <img src="images/self_training_student_results.png" alt="Student">
+        </div>
+        <p class="img-caption">Smooth loss curve. Strong mAP plateau. Self-training effectively expands supervision by 39× with zero manual labeling.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== -->
+<!-- SLIDE 12: AGREEMENT ANALYSIS                      -->
+<!-- ================================================== -->
+<section>
+  <div class="slide-inner">
+    <div class="slide-title">🤝 Cross-Model Agreement Analysis</div>
+    <div class="grid-2">
+      <div>
+        <div class="pill pill-purple">Pairwise Heatmap</div>
+        <div class="img-frame">
+          <img src="images/pairwise_agreement_heatmap_v8.png" alt="Heatmap">
+        </div>
+        <p class="img-caption">Florence-2 ↔ DINO agreement rose by <strong>+11.4%</strong> after domain normalization. Student surpasses teacher alignment.</p>
+      </div>
+      <div>
+        <div class="pill pill-blue">Per-Scene Agreement</div>
+        <div class="img-frame">
+          <img src="images/scene_agreement_barplot_v8.png" alt="Scene Agreement">
+        </div>
+        <p class="img-caption">Agreement broken down by 5 scene contexts. Landscape scenes show highest confidence — reinforcing the SAA metric's sensitivity to visual context.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== -->
+<!-- SLIDE 13: DATA FOUNDATION                         -->
+<!-- ================================================== -->
+<section>
+  <div class="slide-inner">
+    <div class="slide-title">🗂️ Data Foundation: Visual Historian Dataset v1.0</div>
+    <div class="grid-2" style="align-items:start;">
+      <div>
+        <div class="grid-3" style="gap:12px;margin-bottom:20px;">
+          <div class="card card-blue" style="text-align:center;">
+            <div class="big-stat" style="color:var(--blue);font-size:2em;">12,110</div>
+            <div class="stat-label">Tier 1<br>High-Throughput</div>
+          </div>
+          <div class="card card-green" style="text-align:center;">
+            <div class="big-stat" style="color:var(--green);font-size:2em;">6,480</div>
+            <div class="stat-label">Tier 2<br>SAA Labeled</div>
+          </div>
+          <div class="card card-purple" style="text-align:center;">
+            <div class="big-stat" style="color:var(--purple);font-size:2em;">2,000</div>
+            <div class="stat-label">Tier 3<br>Human Audit</div>
+          </div>
+        </div>
+        <ul class="bullet-list" style="font-size:0.8em;">
+          <li><strong>Tier 1:</strong> Full LLaVA scene graphs + Kosmos-2.5 OCR layout metadata.</li>
+          <li><strong>Tier 2:</strong> Strict Dual-Teacher SAA consensus. 37 open-vocabulary classes. Zero manual labels.</li>
+          <li><strong>Tier 3:</strong> Stratified 40% High / 40% Low / 20% Random by object density. Gold-standard ground truth.</li>
+        </ul>
+        <div class="success-box" style="margin-top:16px;font-size:0.75em;">
+          📦 To be published on <strong>Zenodo</strong> for open-science community access.
+        </div>
+      </div>
+      <div>
+        <div class="img-frame">
+          <img src="images/dataset_distribution_latest.jpg" alt="Dataset distribution">
+        </div>
+        <p class="img-caption">37-class label distribution across the Colibri archive. The dominance of <em>boy</em> and <em>hat</em> reflects genuine archival reality, not model bias.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== -->
+<!-- SLIDE 14: TIMELINE                                -->
+<!-- ================================================== -->
+<section>
+  <div class="slide-inner">
+    <div class="slide-title">🗓️ Proposed Plan of Action</div>
+    <div class="grid-2" style="align-items:start;">
+      <div class="timeline">
+        <div class="timeline-item fragment fade-up">
+          <div class="timeline-dot" style="background:rgba(59,130,246,0.2);border:2px solid var(--blue);color:var(--blue);">1</div>
+          <div class="timeline-content">
+            <div class="timeline-period" style="color:var(--blue);">Weeks 1–4 · Domain Analysis & Restoration</div>
+            <div class="timeline-desc">Literature study, Open-Vocabulary taxonomy definition, Generative Restoration tier implementation (CycleGAN / Stable Diffusion).</div>
+          </div>
+        </div>
+        <div class="timeline-item fragment fade-up">
+          <div class="timeline-dot" style="background:rgba(34,197,94,0.2);border:2px solid var(--green);color:var(--green);">2</div>
+          <div class="timeline-content">
+            <div class="timeline-period" style="color:var(--green);">Weeks 5–8 · VLM Ensemble & SAA Development</div>
+            <div class="timeline-desc">Florence-2 + GroundingDINO integration. Scene-Aware Agreement algorithm development & validation.</div>
+          </div>
+        </div>
+        <div class="timeline-item fragment fade-up">
+          <div class="timeline-dot" style="background:rgba(168,85,247,0.2);border:2px solid var(--purple);color:var(--purple);">3</div>
+          <div class="timeline-content">
+            <div class="timeline-period" style="color:var(--purple);">Weeks 9–14 · Self-Training Distillation</div>
+            <div class="timeline-desc">Pseudo-label generation at scale (Tier 2). YOLOv11 Student iterative self-training loops and hyperparameter tuning.</div>
+          </div>
+        </div>
+        <div class="timeline-item fragment fade-up">
+          <div class="timeline-dot" style="background:rgba(239,68,68,0.2);border:2px solid var(--red);color:var(--red);">4</div>
+          <div class="timeline-content">
+            <div class="timeline-period" style="color:var(--red);">Weeks 15–20 · Evaluation & Publication</div>
+            <div class="timeline-desc">Tier 3 Human Baseline Audit, mAP benchmarking, Zenodo publication, thesis writing.</div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding:24px;">
+        <h4 style="font-size:0.9em;margin-bottom:16px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Required Resources</h4>
+        <div style="display:flex;flex-direction:column;gap:12px;font-size:0.82em;">
+          <div>🖥️ <strong>Hardware</strong><br><span style="color:var(--muted)">NVIDIA RTX A6000 GPU (48 GB VRAM) — Local institutional access</span></div>
+          <div>🐍 <strong>Deep Learning Stack</strong><br><span style="color:var(--muted)">PyTorch 2.5, Hugging Face Transformers, Ultralytics YOLOv11, Diffusers</span></div>
+          <div>🗃️ <strong>Data</strong><br><span style="color:var(--muted)">Colibri Historical Illustration &amp; Image Collection — Institutional access secured</span></div>
+          <div>📡 <strong>Publication</strong><br><span style="color:var(--muted)">Zenodo open-science repository (planned open dataset release)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== -->
+<!-- SLIDE 15: CONCLUSION                              -->
+<!-- ================================================== -->
+<section>
+  <div class="title-slide" style="align-items:center;text-align:center;">
+    <div style="font-size:3em;margin-bottom:16px;">🏛️</div>
+    <div class="pill pill-green" style="margin-bottom:16px;">First Idea Talk · University of Hildesheim</div>
+    <h1 style="font-size:2em;">Thank You</h1>
+    <p class="subtitle-text" style="text-align:center;margin:0 auto 30px;">Open for Questions & Discussion</p>
+    <div class="grid-3" style="max-width:700px;font-size:0.78em;text-align:left;">
+      <div class="card"><strong style="color:var(--blue);">Novel SAA Metric</strong><br>IoU + CLIP cross-model verification</div>
+      <div class="card"><strong style="color:var(--green);">Domain Normalization</strong><br>Restore the archive, not fake the data</div>
+      <div class="card"><strong style="color:var(--purple);">Open-Vocab Taxonomy</strong><br>37 AI-discovered historical classes</div>
+    </div>
+  </div>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: true,
+    transition: 'slide',
+    transitionSpeed: 'default',
+    backgroundTransition: 'fade',
+    fragments: true,
+    controls: true,
+    progress: true,
+    center: false,
+    width: 1600,
+    height: 900,
+    margin: 0,
+  });
+</script>
+</body>
+</html>

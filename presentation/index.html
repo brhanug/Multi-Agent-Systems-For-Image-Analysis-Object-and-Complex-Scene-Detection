@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thesis: Multi-modal Historical Image Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/night.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        .reveal .slides section { padding: 20px; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; }
+        .highlight { color: #fbbf24; font-weight: bold; }
+        .stat-card { transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-5px); border-color: #fbbf24; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            
+            <!-- Slide 1: Title -->
+            <section class="text-center">
+                <h1 class="text-4xl font-bold mb-4">Object Detection and Relational Understanding in Historical Archives</h1>
+                <p class="text-xl text-gray-400 mb-8">An Advanced Multimodal Pipeline Combining Foundational VLMs, Diffusion Restoration, and Self-Training</p>
+                <div class="glass p-6 inline-block">
+                    <p class="text-lg">Brhanu Atsbaha | Master's Thesis</p>
+                    <p class="text-sm text-gray-400">University of Hildesheim | 2024-2025</p>
+                </div>
+            </section>
+
+            <!-- Slide 2: The Core Challenge -->
+            <section>
+                <h3>The Archival "Dark Data" Challenge</h3>
+                <div class="grid grid-cols-2 gap-8 mt-10">
+                    <div class="glass p-6">
+                        <h4 class="text-amber-400 mb-4 text-left">The Problem</h4>
+                        <ul class="text-left text-lg space-y-4">
+                            <li>53,000+ digitized historical scans</li>
+                            <li>< 5% manual indexing coverage</li>
+                            <li>Severe "Low-Fidelity" degradation</li>
+                        </ul>
+                    </div>
+                    <div class="glass p-6">
+                        <h4 class="text-amber-400 mb-4 text-left">The Visual Regime</h4>
+                        <ul class="text-left text-lg space-y-4">
+                            <li>Grayscale & Sepia noise</li>
+                            <li>Chemical stains & Cracks</li>
+                            <li>Motion blur & Aberrations</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 3: The "Pure Pipeline" -->
+            <section>
+                <h3>The "Pure Pipeline" Architecture</h3>
+                <div class="mt-8 relative h-64 flex items-center justify-between">
+                    <div class="stat-card glass p-4 w-40 text-sm">Raw Input</div>
+                    <div class="text-amber-500 font-bold">→</div>
+                    <div class="stat-card glass p-4 w-40 text-sm border-blue-500">Restoration<br>(CycleGAN/ESRGAN)</div>
+                    <div class="text-amber-500 font-bold">→</div>
+                    <div class="stat-card glass p-4 w-40 text-sm border-purple-500">Ensemble Detection<br>(DINO/Florence)</div>
+                    <div class="text-amber-500 font-bold">→</div>
+                    <div class="stat-card glass p-4 w-40 text-sm border-green-500">Distillation<br>(YOLOv11 Student)</div>
+                </div>
+                <p class="mt-10 text-gray-300 italic">"From raw archival artifacts to structured semantic datasets."</p>
+            </section>
+
+            <!-- Slide 4: Restoration Showcase -->
+            <section>
+                <h3>Generative Image Restoration</h3>
+                <div class="grid grid-cols-3 gap-4 mt-8">
+                    <div class="glass p-4">
+                        <p class="text-xs mb-2">CycleGAN</p>
+                        <p class="text-sm">Historical → Modern Translation</p>
+                    </div>
+                    <div class="glass p-4">
+                        <p class="text-xs mb-2">Real-ESRGAN</p>
+                        <p class="text-sm">4x Latent Super-Resolution</p>
+                    </div>
+                    <div class="glass p-4">
+                        <p class="text-xs mb-2">Stable Diffusion</p>
+                        <p class="text-sm">Consistent Texture Refinement</p>
+                    </div>
+                </div>
+                <p class="mt-10 text-lg">Achieved a <span class="highlight">Semantic Restoration Score (SRS)</span> improvement for labeling accuracy.</p>
+            </section>
+
+            <!-- Slide 5: VLM Ensemble Consensus -->
+            <section>
+                <h3>Foundational VLM Ensemble</h3>
+                <div class="grid grid-cols-2 gap-8 items-center">
+                    <div>
+                        <img src="assets/pairwise_agreement_heatmap_v8.png" class="rounded-lg shadow-2xl">
+                    </div>
+                    <div class="text-left space-y-4">
+                        <div class="glass p-4">
+                            <h4 class="text-amber-400">GroundingDINO + Florence-2</h4>
+                            <p class="text-lg">Strongest consensus: <span class="highlight">0.672</span></p>
+                        </div>
+                        <div class="glass p-4">
+                            <h4 class="text-amber-400">Dino-YOLO Distillation</h4>
+                            <p class="text-lg">Improved from 0.404 → <span class="highlight">0.424</span></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 6: Self-Training Evolution -->
+            <section>
+                <h3>Iterative Self-Training Progress</h3>
+                <div class="h-80 w-full mt-8">
+                    <canvas id="metricsChart"></canvas>
+                </div>
+                <div class="grid grid-cols-3 gap-4 mt-8">
+                    <div class="glass p-4">
+                        <p class="text-xs">Precision</p>
+                        <p class="text-2xl font-bold highlight">0.990</p>
+                    </div>
+                    <div class="glass p-4">
+                        <p class="text-xs">mAP50</p>
+                        <p class="text-2xl font-bold highlight">0.994</p>
+                    </div>
+                    <div class="glass p-4">
+                        <p class="text-xs">mAP50-95</p>
+                        <p class="text-2xl font-bold highlight">0.975</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 7: Scene Graphs & VQA -->
+            <section>
+                <h3>Beyond Detection: Scene Graphs</h3>
+                <div class="glass p-8 mt-8 text-left font-mono">
+                    <p class="text-amber-400 mb-4">// LLaVA-OneVision Relational Triplets</p>
+                    <p>(person, riding, horse)</p>
+                    <p>(child, standing next to, horse)</p>
+                    <p>(castle, located in, landscape)</p>
+                </div>
+                <div class="mt-8 text-lg">
+                    Integrated <span class="highlight">Kosmos-2.5</span> for full Markdown grounding and OCR.
+                </div>
+            </section>
+
+            <!-- Slide 8: The Golden Path -->
+            <section>
+                <h3>The Final "Golden Path"</h3>
+                <div class="grid grid-cols-4 gap-4 mt-10">
+                    <div class="glass p-4 stat-card">
+                        <p class="text-xs uppercase tracking-widest text-gray-500">Dataset</p>
+                        <p class="text-xl font-bold">12,110 Images</p>
+                    </div>
+                    <div class="glass p-4 stat-card">
+                        <p class="text-xs uppercase tracking-widest text-gray-500">Taxonomy</p>
+                        <p class="text-xl font-bold">10+5 Classes</p>
+                    </div>
+                    <div class="glass p-4 stat-card">
+                        <p class="text-xs uppercase tracking-widest text-gray-500">Inference</p>
+                        <p class="text-xl font-bold">0.02s / img</p>
+                    </div>
+                    <div class="glass p-4 stat-card">
+                        <p class="text-xs uppercase tracking-widest text-gray-500">Agreement</p>
+                        <p class="text-xl font-bold">> 0.47 Mean</p>
+                    </div>
+                </div>
+                <p class="mt-12 text-2xl text-amber-400 font-bold italic">"Ready for Archival Preservation."</p>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            controls: true,
+            progress: true,
+            center: true,
+            transition: 'slide',
+            margin: 0.1
+        });
+
+        // Initialize Metrics Chart
+        const ctx = document.getElementById('metricsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Teacher', 'Student v1', 'Student v2', 'Student v3'],
+                datasets: [{
+                    label: 'mAP50',
+                    data: [0.34, 0.97, 0.99, 0.99],
+                    borderColor: '#60a5fa',
+                    tension: 0.1,
+                    fill: false
+                }, {
+                    label: 'Precision',
+                    data: [0.73, 0.95, 0.98, 0.99],
+                    borderColor: '#f472b6',
+                    tension: 0.1,
+                    fill: false
+                }, {
+                    label: 'mAP50-95',
+                    data: [0.16, 0.89, 0.95, 0.97],
+                    borderColor: '#fbbf24',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        ticks: { color: '#9ca3af' }
+                    },
+                    x: {
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        ticks: { color: '#9ca3af' }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: '#e5e7eb' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

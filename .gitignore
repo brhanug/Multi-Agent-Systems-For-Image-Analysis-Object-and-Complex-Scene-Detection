@@ -1,0 +1,57 @@
+# Virtual Environment
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Datasets and Large Data
+archive/
+data/
+final_dataset/
+final_dataset_v1_refresh/
+results/
+results_v1/
+runs/
+
+# Model Weights
+weights/
+*.pt
+*.pth
+*.ckpt
+
+# Temporary/Cache Files
+.ipynb_checkpoints/
+.gradio/
+logs/
+checkpoints/
+
+# Third Party (Should be managed separately or via submodules)
+GroundingDINO/
+src/groundingdino/
+Real-ESRGAN/
+pytorch-CycleGAN-and-pix2pix/
+
+# OS Specific
+.DS_Store
+Thumbs.db
+
+# IDE Specific
+.vscode/
+.idea/
+
+# Logs and Runtime
+*.log
+*.pid
+ngrok.yml
+results_full_pipeline/
+human_baseline_subset/
+cloudflared
+cvat_upload_temp/
+node_modules
+human_baseline_gold_v2/
