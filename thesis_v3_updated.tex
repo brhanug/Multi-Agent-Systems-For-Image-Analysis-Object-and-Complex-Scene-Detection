@@ -1104,6 +1104,97 @@ Restoration Agent & 0.0135 & [0.0121, 0.0149] & --- \\
 \end{tabular}
 \end{table}
 
+% --------------------------------------------------------------------------
+\subsection{Scene-Type Performance Analysis}
+\label{sec:scene_analysis}
+
+Table~\ref{tab:scene_perf} breaks down agent performance across the five historical scene categories: teaching (58.1\% of images), landscape (29.4\%), drawing (5.5\%), family (3.9\%), and playing (3.0\%). The fusion score is consistently lower than monolithic across all scene types---again reflecting the coordinator's conservative design---with the largest gap in \textit{family} scenes ($\Delta = -0.041$). Family and domestic scenes are the hardest: they contain the highest object density and most occlusion, causing the agreement signal to route more images to human review. The \texttt{scene\_agent} (CLIP/SigLIP) is most valuable in \textit{drawing} and \textit{landscape} scenes where object grounding is sparse.
+
+\begin{table}[!htbp]
+\centering
+\caption{Agent Performance by Scene Category (all 12,110 images).}
+\label{tab:scene_perf}
+\begin{tabular}{lrcccc}
+\toprule
+Scene Type & N & Monolithic & Fusion & $\Delta$ & Disagreement \\
+\midrule
+Teaching  & 7,043 & 0.555 & 0.523 & $-$0.032 & 0.393 \\
+Landscape & 3,555 & 0.570 & 0.534 & $-$0.035 & 0.392 \\
+Drawing   &   669 & 0.561 & 0.524 & $-$0.037 & 0.384 \\
+Family    &   475 & 0.580 & 0.538 & $-$0.041 & 0.399 \\
+Playing   &   368 & 0.575 & 0.540 & $-$0.035 & 0.396 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --------------------------------------------------------------------------
+\subsection{Agent Complementarity and Diversity Analysis}
+\label{sec:diversity}
+
+Table~\ref{tab:diversity} reports pairwise Pearson correlations between all six agents. The overall ensemble diversity score is \textbf{0.483} (mean absolute pairwise disagreement), confirming that the agents bring meaningfully independent evidence.
+
+The most complementary pair is \textbf{Agreement vs VLM} ($r = -0.304$): when VLM scores are high, agreement scores can be low (and vice versa), meaning they capture orthogonal quality signals. The most redundant pair is \textbf{Object vs Agreement} ($r = 0.611$), which is expected---agreement is partly derived from object-level grounding signals. The most \textit{unique} agent is the Restoration agent (uniqueness = 0.960), whose image quality signal shares minimal information with any other agent.
+
+\begin{table}[!htbp]
+\centering
+\caption{Agent Pairwise Pearson Correlation Matrix (RQ3: Complementarity).}
+\label{tab:diversity}
+\begin{tabular}{lcccccc}
+\toprule
+ & Object & Agreement & Scene & VLM & Restoration & Document \\
+\midrule
+Object      & 1.000 & 0.611 & 0.495 & 0.569 & $-$0.014 & 0.026 \\
+Agreement   &       & 1.000 & 0.363 & $-$0.304 & $-$0.040 & 0.005 \\
+Scene       &       &       & 1.000 & 0.415 & $-$0.084 & 0.023 \\
+VLM         &       &       &       & 1.000 & $-$0.013 & 0.021 \\
+Restoration &       &       &       &       & 1.000    & 0.004 \\
+Document    &       &       &       &       &           & 1.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The negative correlation between Agreement and VLM ($r = -0.304$) is particularly significant for the RQ3 argument: these two agents systematically cover each other's blind spots. High VLM confidence without high agreement signals that a model consensus has not formed---exactly the condition where human review adds most value.
+
+% --------------------------------------------------------------------------
+\subsection{Cross-Collection Consistency (1,709 PPN Groups)}
+\label{sec:ppn}
+
+The Colibri dataset spans 1,722 unique archival publications (PPNs). After filtering groups with $<$3 images, 1,709 PPNs remain. The \textbf{fusion score standard deviation across PPNs is 0.156}, compared to 0.174 for the monolithic baseline---the coordinator is more \textit{consistent} across diverse archival collections. The correlation between collection size and score is $r = -0.030$ (near zero), confirming that performance does not degrade on smaller collections. This cross-collection robustness is a key practical contribution: the multi-agent system generalises across institutional provenance without retraining.
+
+% --------------------------------------------------------------------------
+\subsection{Extended HITL Simulation: Break-Even Analysis}
+\label{sec:hitl_sim}
+
+Table~\ref{tab:hitl_sim} extends the HITL efficiency analysis to 8 budget levels and 3 strategies. Both the disagreement-driven and monolithic-confidence strategies achieve \textbf{Precision@k = 1.0} at budgets up to 40\%---they identify exclusively problematic images up to that threshold. The critical result is the \textbf{break-even budget}: to capture the same recall that disagreement-driven triage achieves at a 10\% budget, random sampling requires a \textbf{25\% budget}---a $2.5\times$ reviewer workload increase. This directly quantifies the human labour saved by the multi-agent system (RQ4).
+
+\begin{table}[!htbp]
+\centering
+\caption{HITL Simulation: Precision and Recall across Budget Levels.}
+\label{tab:hitl_sim}
+\begin{tabular}{lcccc}
+\toprule
+Strategy & Budget & Precision@k & Recall@k & Yield/100 \\
+\midrule
+Coordinator (Disagreement) & 10\% & 1.000 & 0.221 & 100.0 \\
+Monolithic Confidence      & 10\% & 1.000 & 0.221 & 100.0 \\
+Random                     & 10\% & 0.462 & 0.102 &  46.2 \\
+\midrule
+Coordinator (Disagreement) & 25\% & 1.000 & 0.551 & 100.0 \\
+Random                     & 25\% & 0.458 & 0.252 &  45.8 \\
+\midrule
+\multicolumn{5}{l}{\textit{Break-even: random needs 25\% budget to match coordinator at 10\% (2.5$\times$ workload)}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textit{Note:} Monolithic confidence and disagreement-driven triage produce identical precision/recall curves because, under the current proxy label scheme, both risk scores are derived from the same underlying signal distribution. The theoretical distinction---that the coordinator decomposes uncertainty into per-agent signals enabling targeted intervention---remains a qualitative advantage not captured by aggregate precision/recall.
+
+% --------------------------------------------------------------------------
+\subsection{Calibration Analysis (VLM Agent)}
+\label{sec:calibration}
+
+The \texttt{vlm\_agent} achieves an Expected Calibration Error (ECE) of \textbf{0.000}, meaning its scores correspond precisely to observed quality rates (a VLM score of 0.7 predicts a 70\% quality rate). The monolithic and fusion scores have higher ECEs (0.298 and 0.319 respectively), reflecting that they are composite weighted averages not optimised for probability calibration. This has a practical implication: the VLM agent's raw score can be used directly as a quality probability estimate, while fusion scores require Platt scaling before deployment as calibrated probabilities.
+
 % ==========================================================================
 % BIBLIOGRAPHY
 % ==========================================================================

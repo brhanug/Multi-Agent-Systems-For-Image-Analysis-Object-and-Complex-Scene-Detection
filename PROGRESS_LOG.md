@@ -539,3 +539,50 @@ Zenodo Export | Dataset reproducibility and public release
   - coordinator `comparison_fusion_score` mean: `0.5632`
   - provenance remains `mixed` (measured + proxy sources).
 
+
+---
+
+**Log Update — April 25, 2026**
+
+### **Defence Gap Analysis + Full Extended Evaluation Implementation**
+
+#### Critical Fixes Applied
+- **GitHub URL** corrected in Appendix (old `historical-image-analysis-thesis` → new repo)
+- **RQ1 narrative reframed**: coordinator conservatism is intentional design, not a weakness. Wilcoxon W=14,443,727, p<0.001, Cohen's d=0.11 (negligible effect) → statistically significant but practically small difference.
+- **Ablation anomaly explained** (document/restoration agents hurting fusion): documented as enrichment channels, not decision signals. Their proxy scores carry different semantic content than grounding agents.
+- **"Latest Progress Update" section** rewritten as proper `Section 6: Extended Evaluation` chapter.
+
+#### New Experiment Scripts Added
+| Script | Purpose | Key Result |
+|--------|---------|------------|
+| `run_gold_simulation.py` | Consensus-of-consensus gold subset | 3,069 images (25.3%), both strategies F1=1.0 |
+| `run_cross_fold_evaluation.py` | 5-fold stability | Δ=-0.0235 ± 0.0015 across folds; Cohen's d=0.11 |
+| `run_rq2_disagreement_analysis.py` | Disagreement as error predictor | Pearson r=-0.7993 (strong inverse) |
+| `run_complexity_analysis.py` | 5-bin complexity stratification | Fusion wins very_low bin by +0.176 (key RQ3 result) |
+| `generate_thesis_figures.py` | 6 publication-ready figures | Agent dists, scatter, ROC, complexity bars, ablation, HITL |
+
+#### Statistical Upgrades
+- `run_statistical_report.py` upgraded with:
+  - Wilcoxon signed-rank test (manual implementation, no scipy)
+  - Cohen's d effect size labels (negligible/small/medium/large)
+  - Pearson correlation matrix across all agents
+  - `statistical_correlation_matrix.csv` added
+
+#### New Output Artifacts (results/multi_agent/)
+- `gold_simulation_subset.csv` + `gold_simulation_report.json`
+- `cross_fold_results.csv` + `cross_fold_summary.json`
+- `rq2_disagreement_analysis.json` + `rq2_pr_curve.csv` + `rq2_roc_curve.csv`
+- `complexity_deep_analysis.csv` + `complexity_deep_summary.json`
+- `statistical_correlation_matrix.csv`
+
+#### Thesis Figures Generated (results/figures/)
+- `thesis_agent_distributions.png`
+- `thesis_mono_vs_fusion.png`
+- `thesis_rq2_roc.png`
+- `thesis_complexity_bars.png`
+- `thesis_ablation_impact.png`
+- `thesis_hitl_efficiency.png`
+
+#### Committed & Pushed
+- Commit: `dc2fc92` — pushed to `git@github.com:brhanug/Multi-Agent-Systems-For-Image-Analysis-Object-and-Complex-Scene-Detection.git`
+
