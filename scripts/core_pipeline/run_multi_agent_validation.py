@@ -479,23 +479,28 @@ def main() -> None:
         }
         active_count = sum(int(v) for v in active_flags.values())
 
-        weighted_sum = (
-            obj_score * mac.object_weight
+        # Dynamic weighting based on SRS (Restoration Score)
+        # If rest_score < 0.4, penalize object detection and boost VLM
+        dyn_object_weight = mac.object_weight
+        dyn_vlm_weight = mac.vlm_weight
+        if rest_score < 0.4:
+            penalty = 0.5 * (0.4 - rest_score) / 0.4 # up to 50% penalty
+            dyn_object_weight *= (1.0 - penalty)
+            dyn_vlm_weight *= (1.0 + penalty)
+
+        validation_weighted_sum = (
+            obj_score * dyn_object_weight
             + agr_score * mac.agreement_weight
             + scene_score * mac.scene_weight
-            + vlm_score * mac.vlm_weight
-            + doc_score * mac.document_weight
-            + rest_score * mac.restoration_weight
+            + vlm_score * dyn_vlm_weight
         )
-        weight_total = (
-            mac.object_weight
+        validation_weight_total = (
+            dyn_object_weight
             + mac.agreement_weight
             + mac.scene_weight
-            + mac.vlm_weight
-            + mac.document_weight
-            + mac.restoration_weight
+            + dyn_vlm_weight
         )
-        realism = weighted_sum / weight_total if weight_total > 0 else 0.0
+        realism = validation_weighted_sum / validation_weight_total if validation_weight_total > 0 else 0.0
 
         uncertainty = pstdev(list(agent_scores.values())) if len(agent_scores) > 1 else 0.0
         row_candidates.append(

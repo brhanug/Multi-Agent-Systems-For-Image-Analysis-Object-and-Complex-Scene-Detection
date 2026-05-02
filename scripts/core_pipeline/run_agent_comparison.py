@@ -189,24 +189,23 @@ def main() -> None:
             agreement_source_row = agreement_source
 
         # Monolithic baseline: no agreement agent (single opaque pipeline)
-        mono_w = {k: v for k, v in weights.items() if k != "agreement"}
+        # Decoupled enrichment: exclude restoration and document
+        mono_w = {k: v for k, v in weights.items() if k not in ("agreement", "restoration", "document")}
         mono_total = sum(mono_w.values()) or 1.0
         monolithic_pipeline_agent = (
             mono_w["object"] / mono_total * existing_agent
             + mono_w["scene"] / mono_total * scene_agent
             + mono_w["vlm"] / mono_total * vlm_agent
-            + mono_w["restoration"] / mono_total * restoration_agent
-            + mono_w["document"] / mono_total * document_agent
         )
 
-        # Coordinator fusion: all agents including agreement
+        # Coordinator fusion: validation agents only
+        fusion_w = {k: v for k, v in weights.items() if k not in ("restoration", "document")}
+        fusion_total = sum(fusion_w.values()) or 1.0
         comparison_fusion = (
-            weights["object"] * existing_agent
-            + weights["agreement"] * agreement_agent
-            + weights["scene"] * scene_agent
-            + weights["vlm"] * vlm_agent
-            + weights["restoration"] * restoration_agent
-            + weights["document"] * document_agent
+            fusion_w["object"] / fusion_total * existing_agent
+            + fusion_w["agreement"] / fusion_total * agreement_agent
+            + fusion_w["scene"] / fusion_total * scene_agent
+            + fusion_w["vlm"] / fusion_total * vlm_agent
         )
 
         rows.append({
