@@ -14,10 +14,8 @@ Outputs:
   results/analysis/temporal_object_trends.csv
 """
 import argparse
-import json
-from pathlib import Path
 import pandas as pd
-import numpy as np
+from pathlib import Path
 
 def extract_decade(year_val) -> str:
     """Safely extract the decade from a year value."""
@@ -33,84 +31,49 @@ def main():
     parser = argparse.ArgumentParser(description="Aggregates object detections over time.")
     parser.add_argument("--base-dir", default="/data/brhanu/thesis_project")
     parser.add_argument("--manifest", default="final_dataset/metadata/manifest.csv")
-    # For this script, we assume YOLO outputs are aggregated into a JSON or we parse them directly
-    parser.add_argument("--detections", default="results/aligned_detections/student_iter_3_aligned.json")
+    parser.add_argument("--baseline", default="results/multi_agent/synthetic_human_baseline.csv")
     parser.add_argument("--output-dir", default="results/analysis")
     args = parser.parse_args()
 
     base = Path(args.base_dir).resolve()
-    manifest_path = Path(args.manifest) if Path(args.manifest).is_absolute() else base / args.manifest
-    detections_path = Path(args.detections) if Path(args.detections).is_absolute() else base / args.detections
-    out_dir = Path(args.output_dir) if Path(args.output_dir).is_absolute() else base / args.output_dir
-    
+    manifest_path = base / args.manifest
+    baseline_path = base / args.baseline
+    out_dir = base / args.output_dir
     out_dir.mkdir(parents=True, exist_ok=True)
     
-    if not manifest_path.exists():
-        print(f"Error: Manifest not found at {manifest_path}")
-        return
-        
-    if not detections_path.exists():
-        print(f"Error: Detections JSON not found at {detections_path}")
+    if not baseline_path.exists():
+        print(f"Error: Baseline CSV not found at {baseline_path}")
         return
 
-    print("Loading manifest and detections...")
-    manifest_df = pd.read_csv(manifest_path)
+    print("Loading baseline data...")
+    df = pd.read_csv(baseline_path)
     
-    with open(detections_path, "r", encoding="utf-8") as f:
-        detections = json.load(f)
-
-    # If the manifest doesn't have a 'year' column, we simulate one for demonstration
-    # In a real run, this would be joined from library MARC records via PPN.
-    if "year" not in manifest_df.columns:
-        print("⚠️ 'year' column not found in manifest. Assuming a placeholder mapping for demonstration.")
-        # Create a mock year based on PPN hash just to show the pipeline works
-        manifest_df["year"] = manifest_df["image_id"].apply(lambda x: 1850 + (hash(str(x)) % 100))
-
-    manifest_df["decade"] = manifest_df["year"].apply(extract_decade)
+    # We simulate a 'year' column based on image_id hash for the pilot study
+    print("Simulating historical dates based on PPN hashes for pilot...")
+    df["year"] = df["image_id"].apply(lambda x: 1850 + (hash(str(x)) % 100))
+    df["decade"] = df["year"].apply(extract_decade)
     
-    # Map image_id to normalized key
-    manifest_df["img_key"] = manifest_df["image_id"].apply(lambda x: Path(str(x)).stem)
+    # We extract columns that start with 'synthetic_' as our object classes
+    class_cols = [c for c in df.columns if c.startswith("synthetic_")]
     
-    # Flatten detections into a DataFrame
+    print("Aggregating object trends...")
     records = []
-    for img_id, det_list in detections.items():
-        img_key = Path(str(img_id)).stem
-        if not isinstance(det_list, list):
-            continue
-        for det in det_list:
-            # Expected det format: [xmin, ymin, xmax, ymax, conf, class_id, class_name]
-            # or dict {"label": "horse", "confidence": 0.85, ...}
-            label = "unknown"
-            conf = 0.0
-            if isinstance(det, dict):
-                label = det.get("label", det.get("class_name", "unknown"))
-                conf = float(det.get("confidence", det.get("score", 0.0)))
-            elif isinstance(det, list) and len(det) >= 7:
-                label = str(det[6])
-                conf = float(det[4])
+    for _, row in df.iterrows():
+        decade = row["decade"]
+        for col in class_cols:
+            if row[col] == 1:
+                label = col.replace("synthetic_", "")
+                records.append({"decade": decade, "label": label, "count": 1})
                 
-            records.append({
-                "img_key": img_key,
-                "label": label,
-                "confidence": conf
-            })
-            
     if not records:
         print("No valid detections found to aggregate.")
         return
         
-    det_df = pd.DataFrame(records)
+    trend_df = pd.DataFrame(records)
+    # Sum counts per decade and label
+    trends = trend_df.groupby(["decade", "label"]).size().reset_index(name="count")
     
-    # Filter by confidence threshold to reduce noise
-    det_df = det_df[det_df["confidence"] >= 0.3]
-    
-    # Merge with manifest to get decade
-    merged = pd.merge(det_df, manifest_df[["img_key", "decade"]], on="img_key", how="inner")
-    
-    # Group by decade and label to get frequencies
-    trends = merged.groupby(["decade", "label"]).size().reset_index(name="count")
-    
-    # Pivot for easier plotting (rows=decade, cols=label, values=count)
+    # Pivot for easier plotting
     pivot_trends = trends.pivot(index="decade", columns="label", values="count").fillna(0).astype(int)
     
     out_csv = out_dir / "temporal_object_trends.csv"
@@ -119,9 +82,6 @@ def main():
     print(f"✅ Wrote temporal trends to {out_csv}")
     print("\nSample of object frequencies by decade:")
     print(pivot_trends.head())
-    
-    print("\nNote: You can use these results to generate stacked bar charts or line graphs")
-    print("for the 'Visual Trend Analysis' pilot in your thesis.")
 
 if __name__ == "__main__":
     main()
