@@ -1,13 +1,12 @@
-# Historical Image Restoration & Analysis Dataset
+# Historical Image Multi-Agent Analysis Dataset
 
 ## Overview
-This dataset was created as part of the thesis: "Visual Historian: Multi-Modal Restoration and Analysis of Historical Image Archives".
+This dataset was created as part of the thesis: "Multi-Agent System for Image Analysis: Object and Complex Scene Detection".
 
-It comprises 12,110 historical images (with ~300 domain-translated samples) processed through a comprehensive pipeline including:
+It comprises 12,110 historical images processed through a comprehensive multi-agent pipeline including:
 
-- **Restoration**: CycleGAN (Domain Translation) + Real-ESRGAN (Super-Resolution).
-- **Analysis**: Object Detection (YOLO, GroundingDINO, OWL-ViT) + Scene Classification (CLIP/SigLIP).
-- **Captioning**: Vision-Language Models (BLIP-2, LLaVA).
+- **Validation Agents**: Object Detection (YOLOv11, GroundingDINO, Florence-2), Scene Classification (CLIP/SigLIP), Vision-Language Models (LLaVA-OneVision), and Scene-Aware Agreement (SAA).
+- **Enrichment Agents**: Document Indexing & OCR (Kosmos-2.5) and Generative Restoration (Real-ESRGAN, CycleGAN).
 
 ## 📂 Directory Structure
 ```
