@@ -24,18 +24,24 @@ import yaml
 
 @dataclass
 class MultiAgentConfig:
+    # Validation agent weights (will be renormalized to 1.0 internally)
     object_weight: float
     agreement_weight: float
     scene_weight: float
     vlm_weight: float
-    document_weight: float
-    restoration_weight: float
+    # Enrichment agents — NOT included in realism score
+    document_weight: float      # kept for config compat; ignored in fusion
+    restoration_weight: float   # kept for config compat; ignored in fusion
     min_agents_required: int
     uncertainty_threshold: float
     uncertainty_threshold_quantile: float | None
     realism_threshold: float
     object_count_saturation: int
     document_char_saturation: int
+    # Dynamic weight shift when image is highly degraded (high SRS)
+    degradation_threshold: float = 0.7   # SRS above this → shift weights
+    degradation_object_penalty: float = 0.10  # reduce object weight by this
+    degradation_vlm_bonus: float = 0.10        # increase vlm weight by this
 
 
 def load_config(config_path: Path) -> tuple[Path, MultiAgentConfig]:
@@ -461,47 +467,61 @@ def main() -> None:
         if has_restoration:
             coverage["restoration"] += 1
 
-        agent_scores = {
-            "object_agent_score": obj_score,
+        # ---- Validation agents only ----
+        validation_scores = {
+            "object_agent_score":    obj_score,
             "agreement_agent_score": agr_score,
-            "scene_agent_score": scene_score,
-            "vlm_agent_score": vlm_score,
-            "document_agent_score": doc_score,
-            "restoration_agent_score": rest_score,
+            "scene_agent_score":     scene_score,
+            "vlm_agent_score":       vlm_score,
         }
+        # ---- Enrichment metadata (not blended into realism) ----
+        enrichment_scores = {
+            "enrichment_document_score":    doc_score,
+            "enrichment_restoration_score": rest_score,
+        }
+
         active_flags = {
-            "object": has_object,
-            "agreement": has_agreement,
-            "scene": has_scene,
-            "vlm": has_vlm,
-            "document": has_document,
+            "object":      has_object,
+            "agreement":   has_agreement,
+            "scene":       has_scene,
+            "vlm":         has_vlm,
+            "document":    has_document,
             "restoration": has_restoration,
         }
+        # Min-agents check counts VALIDATION agents only
+        active_validation = sum(int(v) for k, v in active_flags.items()
+                                if k in {"object", "agreement", "scene", "vlm"})
         active_count = sum(int(v) for v in active_flags.values())
 
-        weighted_sum = (
-            obj_score * mac.object_weight
-            + agr_score * mac.agreement_weight
-            + scene_score * mac.scene_weight
-            + vlm_score * mac.vlm_weight
-            + doc_score * mac.document_weight
-            + rest_score * mac.restoration_weight
-        )
-        weight_total = (
-            mac.object_weight
-            + mac.agreement_weight
-            + mac.scene_weight
-            + mac.vlm_weight
-            + mac.document_weight
-            + mac.restoration_weight
-        )
-        realism = weighted_sum / weight_total if weight_total > 0 else 0.0
+        # ---- Dynamic weighting (Phase 5) --------------------------------
+        # If image is highly degraded (high SRS), trust VLM more, object less
+        obj_w  = mac.object_weight
+        vlm_w  = mac.vlm_weight
+        if rest_score >= mac.degradation_threshold:
+            obj_w  = max(0.0, obj_w  - mac.degradation_object_penalty)
+            vlm_w  = min(1.0, vlm_w  + mac.degradation_vlm_bonus)
 
-        uncertainty = pstdev(list(agent_scores.values())) if len(agent_scores) > 1 else 0.0
+        # ---- Validation-only fusion (E3 fix) ----------------------------
+        val_weight_total = obj_w + mac.agreement_weight + mac.scene_weight + vlm_w
+        if val_weight_total > 0:
+            realism = (
+                obj_score  * obj_w
+                + agr_score  * mac.agreement_weight
+                + scene_score* mac.scene_weight
+                + vlm_score  * vlm_w
+            ) / val_weight_total
+        else:
+            realism = 0.0
+
+        agent_scores = {**validation_scores, **enrichment_scores}
+
+        # Uncertainty computed only from the 4 validation agents
+        uncertainty = pstdev(list(validation_scores.values())) if len(validation_scores) > 1 else 0.0
         row_candidates.append(
             {
                 "image_id": img,
-                **agent_scores,
+                **validation_scores,
+                **enrichment_scores,
                 "agreement_source": agreement_source,
                 "object_source": object_source,
                 "scene_source": scene_source,
@@ -510,14 +530,17 @@ def main() -> None:
                 "restoration_source": restoration_source,
                 "metric_source": "mixed" if "proxy" in {agreement_source, object_source, scene_source, vqa_source, document_source, restoration_source} else "measured",
                 "overall_realism_score": round(realism, 6),
+                "validation_only_score": round(realism, 6),  # explicit alias
                 "uncertainty_score": round(uncertainty, 6),
                 "active_agents": active_count,
+                "active_validation_agents": active_validation,
                 "active_object_agent": int(has_object),
                 "active_agreement_agent": int(has_agreement),
                 "active_scene_agent": int(has_scene),
                 "active_vlm_agent": int(has_vlm),
                 "active_document_agent": int(has_document),
                 "active_restoration_agent": int(has_restoration),
+                "dynamic_weights_applied": int(rest_score >= mac.degradation_threshold),
             }
         )
 
@@ -530,7 +553,8 @@ def main() -> None:
 
     rows = []
     for row in row_candidates:
-        reason_min_agents = row["active_agents"] < mac.min_agents_required
+        # E3: use validation-only agent count for HITL trigger
+        reason_min_agents = row["active_validation_agents"] < mac.min_agents_required
         reason_uncertainty = row["uncertainty_score"] >= effective_uncertainty_threshold
         reason_low_realism = row["overall_realism_score"] < mac.realism_threshold
         needs_review = reason_min_agents or reason_uncertainty or reason_low_realism

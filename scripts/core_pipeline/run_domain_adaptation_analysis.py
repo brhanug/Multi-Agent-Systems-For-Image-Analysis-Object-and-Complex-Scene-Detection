@@ -104,10 +104,10 @@ def main():
         row = {
             "stratum":         label,
             "n_images":        int(mask.sum()),
-            "mean_srs_gain":   round(float(srs_gain[mask].mean()), 4),
-            "obj_agent_mean":  round(float(sub["existing_pipeline_agent"].mean()), 4),
-            "vlm_agent_mean":  round(float(sub["vlm_agent"].mean()), 4),
-            "fusion_mean":     round(float(sub["comparison_fusion_score"].mean()), 4),
+            "mean_srs_gain":   round(float(srs_gain[mask].mean()), 4) if mask.sum() > 0 else 0.0,
+            "obj_agent_mean":  round(float(sub["existing_pipeline_agent"].mean()), 4) if mask.sum() > 0 else 0.0,
+            "vlm_agent_mean":  round(float(sub["vlm_agent"].mean()), 4) if mask.sum() > 0 else 0.0,
+            "fusion_mean":     round(float(sub["comparison_fusion_score"].mean()), 4) if mask.sum() > 0 else 0.0,
         }
         strat_rows.append(row)
         print(f"  {label}: n={row['n_images']} | srs_gain={row['mean_srs_gain']:+.3f} | "

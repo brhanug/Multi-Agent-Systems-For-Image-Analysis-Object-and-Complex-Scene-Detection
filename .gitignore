@@ -1,57 +1,44 @@
-# Virtual Environment
-.venv/
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
-*.pyd
-.Python
-env/
+.venv/
 venv/
-pip-log.txt
-pip-delete-this-directory.txt
+*.egg-info/
+dist/
+build/
 
-# Datasets and Large Data
-archive/
-data/
+# Data & model weights (too large for git)
 final_dataset/
-final_dataset_v1_refresh/
-results/
-results_v1/
-runs/
-
-# Model Weights
-weights/
 *.pt
 *.pth
-*.ckpt
+*.bin
+*.safetensors
 
-# Temporary/Cache Files
-.ipynb_checkpoints/
-.gradio/
+# Generated results
+results/
+runs/
 logs/
-checkpoints/
+*.log
 
-# Third Party (Should be managed separately or via submodules)
-GroundingDINO/
-src/groundingdino/
-Real-ESRGAN/
-pytorch-CycleGAN-and-pix2pix/
+# Jupyter checkpoints
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
 
-# OS Specific
+# OS
 .DS_Store
 Thumbs.db
 
-# IDE Specific
-.vscode/
-.idea/
+# Node
+node_modules/
+.next/
 
-# Logs and Runtime
-*.log
-*.pid
-ngrok.yml
-results_full_pipeline/
-human_baseline_subset/
-cloudflared
-cvat_upload_temp/
-node_modules
-human_baseline_gold_v2/
+# Secrets / API keys
+.env
+*.env.local
+
+# Large assets that should be stored in a registry (e.g. Zenodo, DVC)
+latex_assets/*.png
+latex_assets/*.jpg
+presentation/images/
+thesis_site/public/images/
