@@ -170,6 +170,13 @@ Their work reveals that pose estimators trained on natural photographs fail to g
 
 While this thesis focuses on object detection and relational reasoning, pose-oriented datasets provide motivation for future expansion. Integrating articulated human representations could enable higher-level semantic inference, such as activity recognition or social interaction modeling in historical scenes.
 
+\subsubsection{Multi-Agent Object Detection Paradigms}
+Parallel to the rise of foundation models, recent research has explored multi-agent architectures to overcome the limitations of monolithic object detectors. Kalušev et al.~\cite{kalusev_multiagent} proposed a hardware-integrated framework combining a Raspberry Pi YOLO detector with a Slack-Ollama natural language interface, demonstrating how modular agents can bridge the gap between visual detection and conversational querying. Similarly, Coelho et al.~\cite{coelho2023multiagent} designed a multi-agent system for multimodal machine learning object detection, highlighting the advantages of distributed, collaborative intelligence over single-model pipelines in complex environments.
+
+In the domain of autonomous driving and 3D perception, Xia et al.~\cite{xia2025dota} introduced DOtA, an unsupervised method for learning to detect objects from multi-agent LiDAR scans without manual labels. By leveraging shared, unlabeled observations among collaborative agents, their system automatically generates and refines preliminary labels through label-internal contrastive learning, circumventing the need for expensive manual annotation.
+
+While these works validate the multi-agent paradigm in domains such as robotics, medical imaging, and autonomous driving, this thesis extends the multi-agent consensus model to the unique challenges of cultural heritage preservation. By decoupling validation and enrichment roles (Section~\ref{sec:e3_decoupling}) and routing uncertainty-driven conflicts to human reviewers, our framework specifically targets the epistemic ambiguity inherent in historical visual archives.
+
 \subsubsection{Synthesis: Positioning of Visual Historian-MAS}
 Across these studies, several converging themes emerge:
 
