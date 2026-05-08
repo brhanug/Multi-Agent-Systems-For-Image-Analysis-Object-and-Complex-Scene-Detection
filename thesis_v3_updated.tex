@@ -175,19 +175,18 @@ Parallel to the rise of foundation models, recent research has explored multi-ag
 
 In the domain of autonomous driving and 3D perception, Xia et al.~\cite{xia2025dota} introduced DOtA, an unsupervised method for learning to detect objects from multi-agent LiDAR scans without manual labels. By leveraging shared, unlabeled observations among collaborative agents, their system automatically generates and refines preliminary labels through label-internal contrastive learning, circumventing the need for expensive manual annotation.
 
-While these works validate the multi-agent paradigm in domains such as robotics, medical imaging, and autonomous driving, this thesis extends the multi-agent consensus model to the unique challenges of cultural heritage preservation. By decoupling validation and enrichment roles (Section~\ref{sec:e3_decoupling}) and routing uncertainty-driven conflicts to human reviewers, our framework specifically targets the epistemic ambiguity inherent in historical visual archives.
+Further advancing multimodal systems, \textit{PixelCraft} \cite{pixelcraft2025} recently introduced a multi-agent orchestrator utilizing a managed ''cognitive whiteboard'' to perform non-linear reasoning on structured digital charts. While PixelCraft demonstrates significant improvements via a fine-tuned Qwen2.5-VL-3B grounding model, the authors note critical limitations regarding backbone latency, reliance on clean synthetic data, and the need for rigorous inter-agent communication protocols.
 
-\subsubsection{Synthesis: Positioning of Visual Historian-MAS}
-Across these studies, several converging themes emerge:
+\subsubsection{Synthesis: Resolving the SOTA Limitations}
+Across these studies, several converging themes emerge. Crucially, the \textit{Visual Historian-MAS} architecture is positioned not just as an application of these paradigms, but as a structural solution to the frontier limitations explicitly identified in recent SOTA research (e.g., PixelCraft):
 
 \begin{itemize}
-    \item Domain shift is the dominant failure mode in cultural heritage vision tasks.
-    \item Generative models function as domain alignment mechanisms rather than aesthetic tools.
-    \item Foundation models introduce epistemic considerations beyond pure accuracy metrics.
-    \item Human-centric understanding requires structured representations beyond detection.
+    \item \textbf{Efficiency and Backbone Dependency}: Where models like PixelCraft suffer from extreme latency (e.g., 16s per image) due to reliance on massive planner agents, Visual Historian-MAS utilizes \textit{Stage 5 Knowledge Distillation}. By transferring the slow, massive VLM ensemble consensus into a highly efficient YOLOv11 student model, we eliminate inference latency bottlenecks.
+    \item \textbf{Real-World Robustness}: While recent MLLM agents optimize for clean digital charts, Visual Historian-MAS integrates a \textit{Generative Restoration Layer} (CycleGAN, Real-ESRGAN, Stable Diffusion) designed explicitly to handle severe, real-world archival degradation.
+    \item \textbf{Standardized Communication Protocols}: Addressing the task-decomposition failures seen in weaker backbones, our pipeline abandons unstructured chat in favor of rigid JSON schemas, Binary VQA checklists, and the mathematical \textit{Scene-Aware Agreement (SAA)} metric.
 \end{itemize}
 
-Visual Historian-MAS synthesizes these principles into a unified architecture. Generative restoration resolves visual domain incompatibility, VLM ensembles mitigate semantic variance, and coordinator-driven consensus filtering operationalizes epistemic uncertainty. The resulting system therefore represents not merely an engineering solution, but a methodological framework for trustworthy AI-assisted archival research.
+Visual Historian-MAS synthesizes these principles into a unified architecture. Generative restoration resolves visual domain incompatibility, VLM distillation mitigates latency, and coordinator-driven consensus filtering operationalizes epistemic uncertainty. The resulting system therefore represents not merely an engineering solution, but a highly optimized methodological framework for trustworthy AI-assisted archival research.
 % ==========================================================================
 % SECTION 2: THE PURE PIPELINE ARCHITECTURE
 % ==========================================================================
