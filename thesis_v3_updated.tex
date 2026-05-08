@@ -873,7 +873,7 @@ This textual grounding layer ensures that the digitized archive is not just visu
 After establishing the v7 multi-modal baseline, we conducted an efficiency audit to identify computational bottlenecks and model redundancies. This analysis is critical for scaling the pipeline to the full 53,533 image collection.
 
 \subsubsection{The Removal of OWL-ViT (Redundancy)}
-Empirical results from the v7 agreement analysis revealed that the dual-model ensemble of \textbf{GroundingDINO and Florence-2} provides superior precision with lower cumulative noise. The DINO-FLO pairwise agreement reached \textbf{0.584}, while pairs involving OWL-ViT remained below 0.45. By removing OWL-ViT, we reduce VLM inference latency by 22\% without degrading consensus quality.
+Empirical results from the v7 agreement analysis revealed that the dual-model ensemble of \textbf{GroundingDINO and Florence-2} provides superior precision with lower cumulative noise. The DINO-FLO pairwise agreement reached \textbf{0.584}, while pairs involving OWL-ViT remained below 0.45. By removing OWL-ViT, we reduce VLM inference latency by 22\% without degrading consensus quality. Consequently, OWL-ViT is restricted strictly to the exploratory Phase A architecture and is explicitly excluded from the validation agent set in the formal E3 evaluation and Shapley analysis.
 
 \subsubsection{Restoration Throughput and Stable Diffusion}
 Stable Diffusion inference cost (3.2s per image) makes it unsuitable for full-collection processing. We proposed a cascaded restoration model where CycleGAN and Real-ESRGAN handle bulk processing, reserving Stable Diffusion for a high-priority "Gallery Subset."
@@ -897,7 +897,7 @@ By aggregating detections across a temporal axis, we performed a \textit{Visual 
 
 \begin{table}[!htbp]
 \centering
-\caption{Visual Trend Analysis: Object Frequency by Decade.}
+\caption{Visual Trend Analysis: Object Frequency by Decade. [Provenance: Pilot/Synthetic]}
 \label{tab:temporal_trends}
 \begin{tabular}{lrrrrrrrr}
 \toprule
@@ -1029,7 +1029,7 @@ Table~\ref{tab:rq_eval_core} summarizes the latest core comparison between the m
 
 \begin{table}[!htbp]
 \centering
-\caption{Core comparison metrics from the refreshed 12,110-image run.}
+\caption{Core comparison metrics from the refreshed 12,110-image run. [Provenance: Mixed (Synthetic Proxy)]}
 \label{tab:rq_eval_core}
 \begin{tabular}{lcc}
 \toprule
@@ -1052,7 +1052,7 @@ For RQ3 (agent complementarity), Table~\ref{tab:rq_eval_ablation} reports leave-
 
 \begin{table}[!htbp]
 \centering
-\caption{Ablation impact on coordinator fusion mean score.}
+\caption{Ablation impact on coordinator fusion mean score. [Provenance: Mixed (Synthetic Proxy)]}
 \label{tab:rq_eval_ablation}
 \begin{tabular}{lc}
 \toprule
@@ -1074,7 +1074,7 @@ For RQ4 (HITL efficiency), disagreement/risk-based triage substantially outperfo
 
 \begin{table}[!htbp]
 \centering
-\caption{HITL triage efficiency compared to random baseline.}
+\caption{HITL triage efficiency compared to random baseline. [Provenance: Measured]}
 \label{tab:rq_eval_hitl}
 \begin{tabular}{lccc}
 \toprule
@@ -1617,7 +1617,7 @@ Table~\ref{tab:gold_eval_e2} reports precision, recall, and F1 for each validati
 
 \begin{table}[!htbp]
 \centering
-\caption{E2: Agent F1 Ablation vs Gold Labels ($n=500$, synthetic baseline). Best F1 per column highlighted.}
+\caption{E2: Agent F1 Ablation vs Gold Labels ($n=500$, synthetic baseline) [Provenance: Synthetic Proxy]. Best F1 per column highlighted.}
 \label{tab:gold_eval_e2}
 \begin{tabular}{lcccc}
 \toprule
@@ -1644,7 +1644,7 @@ Table~\ref{tab:gold_eval_e4} reports agent F1 broken down by 5 scene complexity 
 
 \begin{table}[!htbp]
 \centering
-\caption{E4: Agent F1 by Scene Complexity Bin (synthetic labels, $n=500$).}
+\caption{E4: Agent F1 by Scene Complexity Bin (synthetic labels, $n=500$) [Provenance: Synthetic Proxy].}
 \label{tab:gold_eval_e4}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lrcccccc}
