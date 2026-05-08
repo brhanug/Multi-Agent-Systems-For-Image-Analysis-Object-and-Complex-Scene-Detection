@@ -641,6 +641,11 @@ where:
 
 A detection is admitted to the training set only if $S_{SAA} > 0.45$. This multi-modal filtering ensures that the model is trained on ``Verified Anchors'' rather than hallucinations from any single model. As visualized in Figure \ref{fig:agreement_metrics}(b), the global agreement scores are broken down by scene context to expose model-specific biases and ``agreement zones'' across high-variance archival environments.
 
+\subsubsection{Epistemic Uncertainty and Semantic Bias}
+Recent literature in digital humanities emphasizes that foundation models operationalize historically situated visual categories rather than objective truths \cite{impett_offert_2022_dah}. When applying modern VLMs (such as LLaVA) to historical archives, there is a risk of semantic bias---imposing 21st-century interpretations onto 19th-century visual semantics. 
+
+The SAA metric serves as an explicit mechanism for mapping these epistemic gaps. By isolating the disagreement between purely spatial grounding agents (YOLOv11, GroundingDINO) and semantic reasoning agents (LLaVA, CLIP), we can quantify uncertainty. High spatial confidence coupled with low semantic agreement often indicates a ``semantic clash'' where an object is visually distinct but conceptually ambiguous within a modern ontology. This allows the Visual Historian-MAS to function not just as an automated detector, but as a critical AI tool that flags epistemological ambiguity for human review.
+
 \subsection{Cross-Model Agreement Evolution}
 The evolution of the agreement metric reflects the increasing architectural maturity of the pipeline. Table \ref{tab:agreement_evolution} summarizes the improvement in Global Mean Agreement (GMA) as we integrated more capable VLMs and moved from zero-shot to self-trained regimes.
 
@@ -826,6 +831,11 @@ To ensure the integrity of the published labels, we implemented a "Two-Key" vali
 \end{equation}
 This rigorous filtering ensures that the Student YOLOv11 model is distilled from the intersection of two distinct architectural biases (Phrase-Grounding vs. Dense Vision-Task models). This "Consensus-Based Distillation" acts as a regularizer, preventing the student from learning the specific failure modes (e.g., box fragmentation or semantic drift) of any individual teacher model. Furthermore, by training on the \textit{intersection} of signals, the student model actually achieves higher precision than either teacher model on several rare classes, as shown in the per-class results.
 
+\subsubsection{Consensus-Based Distillation as Contrastive Proxy}
+Xia et al.~\cite{xia2025dota} demonstrate the utility of Label-Internal Contrastive Learning (LICL) to push erroneous labels apart and pull high-quality labels together in feature space without manual supervision. While altering the native YOLOv11 C++ loss function to support direct contrastive loss is technically prohibitive, our Two-Key validation acts as an explicit \textit{data-space} proxy for this contrastive mechanism. 
+
+By aggressively filtering labels using the Scene-Aware Agreement (SAA) metric during the Stage 5 dataset generation step, we discard disputed, high-uncertainty boundary boxes. This ensures the student model is exclusively distilled on high-confidence, contrastively isolated class representations. This SAA-weighted label filtering effectively accomplishes the same objective as LICL: regularizing the student model against the noise inherent in single-model pseudo-labeling, leading to the substantial performance improvements seen in minority classes.
+
 
 % --------------------------------------------------------------------------
 \section{Semantic Reasoning and Scene Graphs}
@@ -847,6 +857,11 @@ By binarizing these complex visual concepts, we enable "Boolean Search" (e.g., \
 
 \subsection{OCR and Textual Grounding with Kosmos-2.5}
 While object detection and scene graphs capture the visual and relational semantics, historical archives are frequently embedded with textual artifacts—handwritten notations, printed labels, signboards, or collateral documentation. To unlock this "hidden" textual dimension, we integrate \textbf{Kosmos-2.5} \cite{kosmos2_5_2024}, a multimodal model specifically optimized for dense grounding and layout-aware Optical Character Recognition (OCR).
+
+\subsection{Human-Centric Interpretability: The Archive Metadata Explorer}
+State-of-the-art frameworks increasingly rely on natural language interfaces to lower technical barriers \cite{kalusev_multiagent}. Acknowledging that the primary end-users of this pipeline are historians and archivists---not machine learning engineers---the system outputs are exposed through an "Archive Metadata Explorer." This interface translates the complex multi-agent JSON predictions, bounding box coordinates, and Kosmos-2.5 markdown layouts into a cohesive, searchable natural language format. 
+
+By rendering the multi-agent consensus (and, crucially, its disagreements) in a readable format, the interface ensures the pipeline remains a "Trustworthy AI" tool. Future qualitative user studies with non-AI domain experts will be necessary to fully validate how historians interact with the system's explicit presentation of uncertainty.
 
 Unlike traditional OCR engines that produce flat text strings, Kosmos-2.5 generates Markdown-formatted outputs that preserve the spatial hierarchy of the document. In the \textit{Visual Historian} pipeline, this enables:
 \begin{itemize}

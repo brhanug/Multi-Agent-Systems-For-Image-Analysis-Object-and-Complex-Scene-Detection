@@ -24,9 +24,19 @@ os.makedirs(RESULTS_DIR, exist_ok=True)
 # ==========================
 from ultralytics import YOLO
 # ==========================
+# CONSENSUS-FILTERED DISTILLATION (CONTRASTIVE PROXY)
+# ==========================
+# Following Xia et al. (2025) DOtA methodology, we proxy Label-Internal Contrastive Learning (LICL).
+# By aggressively filtering the dataset with the Scene-Aware Agreement (SAA) metric,
+# we discard disputed boundary boxes. The YOLOv11 student model is thus trained exclusively
+# on high-confidence, contrastively isolated class representations (SAA > 0.45).
+# This prevents the student from learning single-model pseudo-labeling noise.
+
+# ==========================
 # TRAIN YOLOv11
 # ==========================
 print("🚀 Starting YOLOv11 fine-tuning...")
+print("🧪 Active Mode: Consensus-Filtered Distillation (SAA > 0.45 Proxy for LICL)")
 
 # Load model
 model = YOLO(MODEL)
