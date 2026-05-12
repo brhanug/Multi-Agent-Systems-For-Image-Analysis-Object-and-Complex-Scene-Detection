@@ -93,20 +93,5 @@ ppn_images = df[df['image_id'].str.startswith('PPN1752245350')]
 ```
 For complete documentation, see `final_dataset_structure.md`.
 
-## 🚀 Usage
 
-### Loading the Manifest
-The `metadata/manifest.csv` file is the entry point. It maps a unique `image_id` to all corresponding assets.
 
-```python
-import pandas as pd
-df = pd.read_csv("metadata/manifest.csv")
-print(df.head())
-# Columns: image_id, original_path, restored_path, cyclegan_path, blip2_caption, scene_tags_clip
-```
-
-## 📜 Citation
-[Placeholder for Citation]
-
-## ⚖️ License
-[Placeholder for License]
