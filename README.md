@@ -75,23 +75,5 @@ final_dataset/
 - **Manifest-Driven**: `manifest.csv` is the single source of truth for querying and analysis
 - **Multi-Modal**: Combines visual, textual, and semantic annotations
 
-## Quick Start
-```python
-import pandas as pd
-
-# Load master manifest
-df = pd.read_csv('final_dataset/metadata/manifest.csv')
-
-# Get all restored images
-restored = df[df['restored_path'].notna()]
-
-# Find images with captions
-captioned = df[df['blip2_caption'].notna()]
-
-# Query specific PPN
-ppn_images = df[df['image_id'].str.startswith('PPN1752245350')]
-```
-For complete documentation, see `final_dataset_structure.md`.
-
 
 
