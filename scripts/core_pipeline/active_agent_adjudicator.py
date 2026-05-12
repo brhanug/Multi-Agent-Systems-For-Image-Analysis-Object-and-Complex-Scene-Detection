@@ -59,7 +59,13 @@ DISAGREEMENT_THRESHOLD = 0.25  # std dev across validation agents to flag confli
 def find_conflicts(df: pd.DataFrame, top_n: int) -> pd.DataFrame:
     """Return the top-n images with highest inter-agent disagreement."""
     valid = df[[c for c in VALIDATION_COLS if c in df.columns]].copy()
-    df["conflict_score"] = valid.std(axis=1)
+    
+    # Priority A: Unified Uncertainty Fusion Score
+    # U = alpha * sigma_agents + beta * (1 - c_bar)
+    sigma_agents = valid.std(axis=1).fillna(0)
+    c_bar = valid.mean(axis=1).fillna(0)
+    df["conflict_score"] = (0.6 * sigma_agents) + (0.4 * (1 - c_bar))
+    
     conflicts = df[df["conflict_score"] >= DISAGREEMENT_THRESHOLD].copy()
     conflicts = conflicts.sort_values("conflict_score", ascending=False).head(top_n)
     print(f"⚠️  Found {len(df[df['conflict_score'] >= DISAGREEMENT_THRESHOLD])} conflicted images "
