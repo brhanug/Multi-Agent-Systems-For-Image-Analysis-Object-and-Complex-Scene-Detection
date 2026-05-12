@@ -1,0 +1,12 @@
+Gold-Label Dataset Evaluation Report
+Images Annotated: 512
+
+Cohen's Kappa (Inter-Annotator Agreement):
+  Person     : 0.5584
+  Child      : 0.4351
+  Building   : 0.4688
+  Horse      : 0.4307
+
+Pearson r (Human Ambiguity vs YOLO): 0.6644
+Pearson r (Human Ambiguity vs Coordinator U): 0.8292
+Improvement: 24.8%
