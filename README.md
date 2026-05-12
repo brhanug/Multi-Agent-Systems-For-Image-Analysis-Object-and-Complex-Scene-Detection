@@ -3,10 +3,16 @@
 ## Overview
 This dataset was created as part of the thesis: "Multi-Agent System for Image Analysis: Object and Complex Scene Detection".
 
-It comprises 12,110 historical images processed through a comprehensive multi-agent pipeline including:
+It comprises 12,110 historical images processed through a comprehensive **6-Agent System**:
 
-- **Validation Agents**: Object Detection (YOLOv11, GroundingDINO, Florence-2), Scene Classification (CLIP/SigLIP), Vision-Language Models (LLaVA-OneVision), and Scene-Aware Agreement (SAA).
-- **Enrichment Agents**: Document Indexing & OCR (Kosmos-2.5) and Generative Restoration (Real-ESRGAN, CycleGAN).
+- **Agent 0 (Foundational CV Pipeline)**: Generative Restoration (CycleGAN, Real-ESRGAN, Stable Diffusion), Object Grounding (GroundingDINO, Florence-2, YOLOv11), Scene Classification (CLIP/SigLIP), and text extraction (Kosmos-2.5).
+- **Agent 1 (Temporal Historian)**: Tracks object-class drift across institutional PPN decades.
+- **Agent 2 (Retrieval Agent)**: RAG semantic search across archival imagery.
+- **Agent 3 (Hallucination Critic)**: Evaluates conflict between VQA semantics and spatial bounding boxes.
+- **Agent 4 (Demographic Profiler)**: Computes social composition scores (persons/children/clothing).
+- **Agent 5 (Geospatial Analyst)**: Classifies images on an urban/rural/institutional spectrum.
+
+A central **Coordinator** fuses these 6 agents, routing high-uncertainty images to a Human-in-the-Loop review queue.
 
 ## 📂 Directory Structure
 ```
