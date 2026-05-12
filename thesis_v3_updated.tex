@@ -73,7 +73,7 @@ Supervised by: Prof. Dr. Thomas Mandl \\
 \begin{abstract}
 This thesis addresses automated object and complex scene detection in historical archives under severe domain shift, sparse labels, and heterogeneous degradation. Rather than treating the task as a single-model prediction problem, we formulate it as a \textbf{multi-agent validation system} in which complementary modalities provide independent evidence of scene realism and semantic consistency.
 
-We introduce \textit{Visual Historian-MAS}, a coordinated architecture composed of specialized agents: (i) restoration agents (CycleGAN \cite{cyclegan2017}, Real-ESRGAN \cite{realesrgan2021}, diffusion refinement \cite{stable_diffusion2022}), (ii) object-grounding agents (GroundingDINO \cite{groundingdino2023}, Florence-2 \cite{florence2_2023}, YOLOv11 student \cite{yolov11_2024}), (iii) scene and reasoning agents (CLIP/SigLIP scene priors \cite{clip2021,siglip2023}, LLaVA-OneVision), and (iv) a document/layout agent (Kosmos-2.5 \cite{kosmos2_5_2024}). A coordinator fuses agent outputs via agreement- and uncertainty-aware scoring and routes ambiguous samples to human review.
+We introduce \textit{Visual Historian-MAS}, a 6-agent coordinated architecture. We encapsulate the core computer vision pipeline---comprising restoration (CycleGAN, Real-ESRGAN, Stable Diffusion), object grounding (GroundingDINO, Florence-2, YOLOv11), scene classification (CLIP/SigLIP), and text extraction (Kosmos-2.5)---as a single foundational \textbf{Agent 0}. Surrounding this foundation are five independent analytical agents: a Temporal Historian (\textbf{Agent 1}), a Retrieval Agent (\textbf{Agent 2}), a Hallucination Critic (\textbf{Agent 3}), a Demographic Profiler (\textbf{Agent 4}), and a Geospatial Analyst (\textbf{Agent 5}). A central coordinator fuses their outputs via agreement- and uncertainty-aware scoring, routing ambiguous samples to human review.
 
 The central contribution is a validation-centric protocol for complex archival scenes: realism is inferred from cross-agent agreement patterns, disagreement is used as an uncertainty signal, and human-in-the-loop triage is prioritized by agent conflict. This enables robust indexing beyond detector confidence alone and supports reproducible archival analytics across 12,110 images.
 
@@ -191,7 +191,20 @@ Visual Historian-MAS synthesizes these principles into a unified architecture. G
 % SECTION 2: THE PURE PIPELINE ARCHITECTURE
 % ==========================================================================
 \section{Multi-Agent Architecture}
-This chapter defines the architectural framework of the \textit{Visual Historian-MAS} platform. We model archival analysis as a cooperative system of specialized agents rather than a single linear predictor. The core philosophy is that robust indexing in legacy archives requires cross-modal validation, where each agent contributes partial evidence and the coordinator estimates realism and uncertainty from agreement patterns.
+This chapter defines the architectural framework of the \textit{Visual Historian-MAS} platform. We model archival analysis as a cooperative system of specialized agents rather than a single linear predictor. 
+
+The architecture is framed as a \textbf{6-Agent System}. The comprehensive, multi-stage computer vision pipeline---ranging from generative restoration to bounding box detection and VQA---is encapsulated as a single foundational unit (\textbf{Agent 0}). Operating downstream from this foundation are five independent analytical agents, each providing specialized historiographic analysis:
+
+\begin{itemize}
+    \item \textbf{Agent 0: Visual Historian Pipeline}. The core feature extraction mechanism (Restoration $\to$ YOLOv11 $\to$ LLaVA $\to$ Kosmos-2.5).
+    \item \textbf{Agent 1: Temporal Historian}. Tracks object-class drift across the archive's decades based on institutional PPN groupings.
+    \item \textbf{Agent 2: Retrieval Agent (RAG)}. Utilizes FAISS indexing over caption embeddings to surface semantically similar archival imagery.
+    \item \textbf{Agent 3: Hallucination Critic}. Cross-checks VQA answers against YOLO spatial detections, flagging semantic conflicts.
+    \item \textbf{Agent 4: Demographic Profiler}. Extracts human clustering (persons, children) and clothing details to compute a Social Composition Score.
+    \item \textbf{Agent 5: Geospatial Analyst}. Evaluates the intersection of buildings, nature, and scene types to classify images on an urban/rural/institutional spectrum.
+\end{itemize}
+
+The core philosophy is that robust indexing in legacy archives requires cross-modal validation, where each agent contributes partial evidence and the central coordinator estimates realism and uncertainty from agreement patterns.
 
 \begin{figure}[!htbp]
 \centering

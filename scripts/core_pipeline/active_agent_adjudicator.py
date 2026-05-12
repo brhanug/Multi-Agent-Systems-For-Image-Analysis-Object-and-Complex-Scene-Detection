@@ -47,6 +47,8 @@ VALIDATION_COLS = [
     "agreement_agent",
     "scene_agent",
     "vlm_agent",
+    "social_composition_score", # demographic
+    "geospatial_score",         # geospatial
 ]
 
 DISAGREEMENT_THRESHOLD = 0.25  # std dev across validation agents to flag conflict
@@ -83,7 +85,9 @@ def build_prompt(row: pd.Series) -> str:
         f"  - Object detector confidence: {object_v:.2f}\n"
         f"  - VLM content score:          {vlm_v:.2f}\n"
         f"  - Scene classifier score:     {scene_v:.2f}\n"
-        f"  - Agreement metric score:     {agr_v:.2f}\n\n"
+        f"  - Agreement metric score:     {agr_v:.2f}\n"
+        f"  - Demographic profile score:  {float(row.get('social_composition_score', 0.5)):.2f}\n"
+        f"  - Geospatial analyst score:   {float(row.get('geospatial_score', 0.5)):.2f}\n\n"
         f"The {dominant} (score {dominant_v:.2f}) strongly disagrees with the "
         f"{minority} (score {minority_v:.2f}).\n\n"
         f"Based on the image content, which agent is more likely correct?\n"
@@ -143,6 +147,20 @@ def main() -> None:
     df = pd.read_csv(SCORES_CSV)
     df["_key"] = df["image_id"].astype(str)
     df = df.drop_duplicates("_key")
+    
+    # Merge new Agent 4 and Agent 5 scores
+    demo_csv = OUTPUT_DIR / "demographic_profile.csv"
+    geo_csv  = OUTPUT_DIR / "geospatial_analysis.csv"
+    if demo_csv.exists():
+        demo_df = pd.read_csv(demo_csv)
+        demo_df["_key"] = demo_df["image_id"].astype(str)
+        df = df.merge(demo_df[["_key", "social_composition_score"]], on="_key", how="left")
+        df["social_composition_score"] = df["social_composition_score"].fillna(0.5)
+    if geo_csv.exists():
+        geo_df = pd.read_csv(geo_csv)
+        geo_df["_key"] = geo_df["image_id"].astype(str)
+        df = df.merge(geo_df[["_key", "geospatial_score"]], on="_key", how="left")
+        df["geospatial_score"] = df["geospatial_score"].fillna(0.5)
 
     conflicts = find_conflicts(df, args.top_n)
 
@@ -173,6 +191,8 @@ def main() -> None:
             "vlm_agent":        round(float(row.get("vlm_agent", 0)), 4),
             "scene_agent":      round(float(row.get("scene_agent", 0)), 4),
             "agreement_agent":  round(float(row.get("agreement_agent", 0)), 4),
+            "demographic_agent":round(float(row.get("social_composition_score", 0)), 4),
+            "geospatial_agent": round(float(row.get("geospatial_score", 0)), 4),
             "adjudication_raw": response,
             "adjudication_winner": winner,
             "image_found":      int(img_path is not None),
