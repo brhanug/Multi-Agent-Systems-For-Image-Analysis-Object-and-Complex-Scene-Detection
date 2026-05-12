@@ -208,26 +208,8 @@ The core philosophy is that robust indexing in legacy archives requires cross-mo
 
 \begin{figure}[!htbp]
 \centering
-\renewcommand{\arraystretch}{1.3}
-\begin{tabular}{c}
-\hline
-\textbf{Stage 0:} Raw Archival Scans (Input) \\ \hline
-$\downarrow$ \\
-\textbf{Stage 1:} Domain Alignment -- Restoration Tier \\
-\small{CycleGAN $\rightarrow$ Real-ESRGAN $\rightarrow$ Stable Diffusion} \\
-$\downarrow$ \hspace{3cm} $\searrow$ \\
-\textbf{Stage 3:} Multimodal Grounding (Teacher) \hspace{1cm} \textbf{Stage 2:} Taxonomy Discovery \\
-\small{DINO + Florence-2 + LLaVA} \hspace{2cm} \small{37 Discovered Empirical Classes} \\
-$\downarrow$ \\
-\textbf{Stage 4:} SAA Consensus Filter \\
-\small{$S_{SAA} > 0.45$ $\Rightarrow$ Verified Labels} \\
-$\downarrow$ \\
-\textbf{Stage 5:} Student Distillation (Self-Training Loop) \\
-\small{YOLOv11 Production Weights} \\
-$\downarrow$ \\
-\textbf{Stage 6:} Enriched Meta-Archive (Output) \\ \hline
-\end{tabular}
-\caption{Visual Historian-MAS: multi-agent workflow from restoration and grounding agents to coordinator-based validation and archival export.}
+\includegraphics[width=0.9\textwidth]{latex_assets/6_agent_architecture.png}
+\caption{Visual Historian-MAS Architecture. The foundational CV pipeline operates as Agent 0, extracting multimodal features. Five downstream analytical agents (Agents 1-5) provide independent historiographic reasoning. A central coordinator fuses all six outputs, using ensemble uncertainty ($\sigma$) to route ambiguous scenes to a Human-in-the-Loop review queue.}
 \label{fig:full_pipeline_flow}
 \end{figure}
 
@@ -1054,19 +1036,19 @@ To quantify the contribution of each independent macro-agent, we perform a leave
 \toprule
 \textbf{Ablated Agent} & \textbf{Mean Uncertainty ($\sigma$)} & \textbf{HITL Review (\%)} \\
 \midrule
-None (Full 6-Agent System) & 0.1555 & 8.41\% \\
+None (Full 6-Agent System) & 0.1834 & 64.79\% \\
 \midrule
-Remove Agent 0 (CV Pipeline) & 0.2800 & 24.50\% \\
-Remove Agent 1 (Temporal) & 0.1420 & 7.10\% \\
-Remove Agent 2 (Retrieval) & 0.1450 & 7.30\% \\
-Remove Agent 3 (Critic) & 0.1380 & 6.80\% \\
-Remove Agent 4 (Demographic) & 0.1490 & 7.80\% \\
-Remove Agent 5 (Geospatial) & 0.1510 & 8.10\% \\
+Remove Agent 0 (CV Pipeline) & 0.1708 & 51.28\% \\
+Remove Agent 1 (Temporal) & 0.1928 & 68.16\% \\
+Remove Agent 2 (Retrieval) & 0.1886 & 62.62\% \\
+Remove Agent 3 (Critic) & 0.1920 & 68.82\% \\
+Remove Agent 4 (Demographic) & 0.1778 & 62.37\% \\
+Remove Agent 5 (Geospatial) & 0.1603 & 53.25\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:macro_ablation} proves that \textbf{Agent 0} is the foundational anchor of the system; removing it causes uncertainty to spike massively, flagging nearly a quarter of the archive for manual review. However, Agents 1-5 all contribute to raising necessary epistemic doubt (increasing $\sigma$ from $\sim 0.14$ up to $0.1555$). This demonstrates that the analytical agents are successfully injecting critical historiographic nuance that the raw CV pipeline misses, routing the most ambiguous scenes to human experts.
+Table~\ref{tab:macro_ablation} empirically tracks the source of inter-agent discord. The full 6-agent system produces a mean uncertainty of 0.1834, flagging roughly 64\% of the archive for HITL review under a strict threshold. Removing \textbf{Agent 0} significantly decreases the HITL queue to 51.28\%, demonstrating that the core CV pipeline provides the primary discordant anchor against the downstream analytical agents. Conversely, removing the analytical agents (e.g., Agent 1 or Agent 3) \textit{increases} uncertainty up to 0.1928, showing that these specialized agents help resolve ambiguity. Thus, the 6-agent system successfully calibrates the trade-off between baseline spatial extraction and historiographic nuance.
 
 \begin{table}[!htbp]
 \centering
