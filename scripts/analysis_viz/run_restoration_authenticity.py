@@ -94,10 +94,14 @@ def main():
         basename = orig_path.name
         
         # In a real run, we'd find the matching restored file
-        # For now, if we don't have dependencies, we mock it
         if HAS_DEPS and orig_path.exists():
-            # Find restored matching file (assuming flat directory for restored)
-            rest_path = DATASET_DIR / "restored" / basename
+            rel_path = orig_path.relative_to(DATASET_DIR / "original")
+            rest_path = DATASET_DIR / "restored" / rel_path
+            
+            # Check if extension is different in restored (e.g., .png)
+            if not rest_path.exists():
+                rest_path = rest_path.with_suffix('.png')
+                
             if rest_path.exists():
                 metrics = compute_metrics_real(orig_path, rest_path, loss_fn_alex)
             else:
