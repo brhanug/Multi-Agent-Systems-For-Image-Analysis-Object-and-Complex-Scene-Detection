@@ -50,9 +50,14 @@ SCENE_COL_SYNTHETIC = "vqa_primary_scene"
 # ---------------------------------------------------------------------------
 
 
-def normalize(img_id: str) -> str:
-    """Strip PPN prefix and path separators to get bare stem."""
-    return Path(str(img_id)).stem
+def normalize_id(raw: str) -> str:
+    from pathlib import Path
+    parts = Path(str(raw)).parts
+    if len(parts) >= 2:
+        if parts[-2] not in ["original", "restored", "images", "metadata", "results", "CycleGAN", "pix2pix"]:
+            return f"{parts[-2]}/{Path(parts[-1]).stem}"
+    return Path(str(raw)).stem
+
 
 
 def load_synthetic_majority(path: Path) -> pd.DataFrame:
@@ -65,7 +70,7 @@ def load_synthetic_majority(path: Path) -> pd.DataFrame:
     df = pd.read_csv(path, low_memory=False)
 
     # Normalise image key
-    df["_key"] = df["image_id"].astype(str).apply(normalize)
+    df["_key"] = df["image_id"].astype(str).apply(normalize_id)
 
     agg: dict[str, str] = {"_key": "first"}
     for col in CLASS_MAP.values():
@@ -103,8 +108,7 @@ def main() -> None:
 
     for _, row in ws.iterrows():
         # Worksheet Image_ID format: PPN.../00000047_1
-        img_key = normalize(str(row["Image_ID"]).split("/")[-1]) if "/" in str(row["Image_ID"]) \
-            else normalize(str(row["Image_ID"]))
+        img_key = normalize_id(str(row["Image_ID"]))
 
         new_row = row.copy()
         new_row["Ambiguity_Notes"] = "[SYNTHETIC — replace with human labels]"

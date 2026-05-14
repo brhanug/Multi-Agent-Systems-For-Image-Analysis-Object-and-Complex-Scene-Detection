@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  agent_0_foundation:
+    build: .
+    command: ["python3", "scripts/core_pipeline/run_agent_comparison.py"]
+    volumes:
+      - .:/app
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  agent_3_critic:
+    build: .
+    command: ["python3", "scripts/core_pipeline/run_rq2_disagreement_analysis.py"]
+    depends_on:
+      - agent_0_foundation
+    volumes:
+      - .:/app
+
+  coordinator_fusion:
+    build: .
+    command: ["python3", "scripts/core_pipeline/run_multi_agent_validation.py"]
+    depends_on:
+      - agent_3_critic
+    volumes:
+      - .:/app
+
+  message_bus:
+    image: eclipse-mosquitto:latest
+    ports:
+      - "1883:1883"
+      - "9001:9001"

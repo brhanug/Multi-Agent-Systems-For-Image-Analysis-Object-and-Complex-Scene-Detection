@@ -27,7 +27,13 @@ import numpy as np
 import pandas as pd
 
 def normalize_id(raw: str) -> str:
+    from pathlib import Path
+    parts = Path(str(raw)).parts
+    if len(parts) >= 2:
+        if parts[-2] not in ["original", "restored", "images", "metadata", "results", "CycleGAN", "pix2pix"]:
+            return f"{parts[-2]}/{Path(parts[-1]).stem}"
     return Path(str(raw)).stem
+
 
 def pearson_r(x: np.ndarray, y: np.ndarray) -> float:
     xm, ym = x - x.mean(), y - y.mean()

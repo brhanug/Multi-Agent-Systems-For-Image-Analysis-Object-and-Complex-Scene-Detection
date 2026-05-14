@@ -31,7 +31,13 @@ VLM_HIGH         = 0.70    # vlm says good
 OBJ_LOW          = 0.25    # but object agent says bad
 
 def normalize_id(raw: str) -> str:
+    from pathlib import Path
+    parts = Path(str(raw)).parts
+    if len(parts) >= 2:
+        if parts[-2] not in ["original", "restored", "images", "metadata", "results", "CycleGAN", "pix2pix"]:
+            return f"{parts[-2]}/{Path(parts[-1]).stem}"
     return Path(str(raw)).stem
+
 
 def classify_failure(row: pd.Series) -> str:
     obj   = float(row.get("existing_pipeline_agent", 0))

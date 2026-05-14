@@ -36,7 +36,13 @@ def spearman_r(x: np.ndarray, y: np.ndarray) -> float:
     return float(1.0 - 6*np.sum(d**2)/(n*(n**2-1)))
 
 def normalize_id(raw: str) -> str:
+    from pathlib import Path
+    parts = Path(str(raw)).parts
+    if len(parts) >= 2:
+        if parts[-2] not in ["original", "restored", "images", "metadata", "results", "CycleGAN", "pix2pix"]:
+            return f"{parts[-2]}/{Path(parts[-1]).stem}"
     return Path(str(raw)).stem
+
 
 def main():
     parser = argparse.ArgumentParser()

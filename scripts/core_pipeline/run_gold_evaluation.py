@@ -55,9 +55,13 @@ MONOLITHIC_COL  = "monolithic_pipeline_agent"
 # ---------------------------------------------------------------------------
 
 
-def normalize(raw: str) -> str:
-    stem = Path(str(raw).split("/")[-1]).stem
-    return stem
+def normalize_id(raw: str) -> str:
+    from pathlib import Path
+    parts = Path(str(raw)).parts
+    if len(parts) >= 2:
+        if parts[-2] not in ["original", "restored", "images", "metadata", "results", "CycleGAN", "pix2pix"]:
+            return f"{parts[-2]}/{Path(parts[-1]).stem}"
+    return Path(str(raw)).stem
 
 
 def pearson(x: list[float], y: list[float]) -> float:
@@ -100,7 +104,7 @@ def main() -> None:
         sys.exit(1)
 
     ws = pd.read_csv(WORKSHEET)
-    ws["_key"] = ws["Image_ID"].astype(str).apply(normalize)
+    ws["_key"] = ws["Image_ID"].astype(str).apply(normalize_id)
 
     is_synthetic = ws["Ambiguity_Notes"].astype(str).str.contains("SYNTHETIC", na=False).all()
     if is_synthetic:
@@ -123,7 +127,7 @@ def main() -> None:
         sys.exit(1)
 
     agents = pd.read_csv(AGENT_SCORES)
-    agents["_key"] = agents["image_id"].astype(str).apply(normalize)
+    agents["_key"] = agents["image_id"].astype(str).apply(normalize_id)
     # De-duplicate (take first occurrence per image for this evaluation)
     agents = agents.drop_duplicates("_key").set_index("_key")
 
@@ -188,7 +192,7 @@ def main() -> None:
     if COMPLEXITY.exists():
         comp = pd.read_csv(COMPLEXITY, low_memory=False)
         comp_key = "image_id" if "image_id" in comp.columns else comp.columns[0]
-        comp["_key"] = comp[comp_key].astype(str).apply(normalize)
+        comp["_key"] = comp[comp_key].astype(str).apply(normalize_id)
         comp = comp.drop_duplicates("_key").set_index("_key")
 
         complexity_col = next(
@@ -198,10 +202,15 @@ def main() -> None:
         else:
             joined_c = joined.join(comp[[complexity_col]], how="left")
             joined_c = joined_c.rename(columns={complexity_col: "complexity_index"})
+            temp_bins = pd.qcut(
+                joined_c["complexity_index"].fillna(joined_c["complexity_index"].median()),
+                q=5, duplicates="drop"
+            )
+            n_bins = len(temp_bins.cat.categories)
+            labels = ["very_low", "low", "medium", "high", "very_high"][:n_bins]
             joined_c["complexity_bin"] = pd.qcut(
                 joined_c["complexity_index"].fillna(joined_c["complexity_index"].median()),
-                q=5, labels=["very_low", "low", "medium", "high", "very_high"],
-                duplicates="drop",
+                q=5, labels=labels, duplicates="drop"
             )
             for bin_label, grp in joined_c.groupby("complexity_bin", observed=True):
                 gold_grp = grp["gold_has_objects"].astype(float)
@@ -221,7 +230,7 @@ def main() -> None:
     # ---------- 7. Uncertainty ↔ error correlation -----------------------
     if MA_SCORES.exists():
         ma = pd.read_csv(MA_SCORES, low_memory=False)
-        ma["_key"] = ma["image_id"].astype(str).apply(normalize)
+        ma["_key"] = ma["image_id"].astype(str).apply(normalize_id)
         ma = ma.drop_duplicates("_key").set_index("_key")
 
         if "uncertainty_score" in ma.columns:

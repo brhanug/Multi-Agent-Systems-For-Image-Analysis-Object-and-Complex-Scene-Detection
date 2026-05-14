@@ -35,7 +35,13 @@ import pandas as pd
 SCENE_TYPES = ["teaching", "landscape", "drawing", "family", "playing"]
 
 def normalize_id(raw: str) -> str:
+    from pathlib import Path
+    parts = Path(str(raw)).parts
+    if len(parts) >= 2:
+        if parts[-2] not in ["original", "restored", "images", "metadata", "results", "CycleGAN", "pix2pix"]:
+            return f"{parts[-2]}/{Path(parts[-1]).stem}"
     return Path(str(raw)).stem
+
 
 def try_open_clip_inference(df_sample: pd.DataFrame, base: Path, device: str = "cuda") -> pd.DataFrame | None:
     """Attempt real CLIP inference if open_clip + images available."""

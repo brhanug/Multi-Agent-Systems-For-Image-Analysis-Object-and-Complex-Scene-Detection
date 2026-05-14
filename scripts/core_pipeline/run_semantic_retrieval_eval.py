@@ -33,7 +33,13 @@ QUERIES = [
 ]
 
 def normalize_id(raw: str) -> str:
+    from pathlib import Path
+    parts = Path(str(raw)).parts
+    if len(parts) >= 2:
+        if parts[-2] not in ["original", "restored", "images", "metadata", "results", "CycleGAN", "pix2pix"]:
+            return f"{parts[-2]}/{Path(parts[-1]).stem}"
     return Path(str(raw)).stem
+
 
 def relevance_label(row: pd.Series, query: dict) -> int:
     """

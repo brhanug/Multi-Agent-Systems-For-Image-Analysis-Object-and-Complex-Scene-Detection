@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
-import os
-import sys
-import pandas as pd
-import numpy as np
-import hashlib
+import csv
+import math
 from pathlib import Path
 
 def setup_directories():
@@ -11,109 +8,89 @@ def setup_directories():
     results_dir = base_dir / "results" / "multi_agent"
     return base_dir, results_dir
 
-def simulate_macro_scores(df):
-    """
-    Simulates the 6 macro-agent scores for the Coordinator ablation.
-    Agent 0: The existing pipeline's internal fusion score
-    Agent 1-5: The analytical agents
-    """
-    # Agent 0: Baseline CV pipeline (mean of internal components)
-    df["agent_0_cv_pipeline"] = df[["existing_pipeline_agent", "vlm_agent", "scene_agent", "agreement_agent"]].mean(axis=1)
-    
-    # Generate scores for Agents 1-5
-    scores = []
-    for img_id in df["image_id"]:
-        h = int(hashlib.md5(str(img_id).encode()).hexdigest(), 16)
-        # Agent 1 (Temporal): simulated confidence in era matching
-        a1 = 0.6 + ((h % 40) / 100.0) 
-        # Agent 2 (Retrieval): RAG nearest-neighbor density
-        a2 = 0.5 + ((h % 50) / 100.0)
-        # Agent 3 (Critic): 1.0 minus the internal disagreement
-        a3 = 0.7 + ((h % 30) / 100.0)
-        scores.append([a1, a2, a3])
-        
-    sim_df = pd.DataFrame(scores, columns=["agent_1_temporal", "agent_2_retrieval", "agent_3_critic"])
-    df = pd.concat([df.reset_index(drop=True), sim_df.reset_index(drop=True)], axis=1)
-    
-    # Agent 4 & 5 (from previous CSVs if they exist, otherwise simulated)
-    base_dir, results_dir = setup_directories()
-    demo_csv = results_dir / "demographic_profile.csv"
-    geo_csv  = results_dir / "geospatial_analysis.csv"
-    
-    if demo_csv.exists():
-        demo_df = pd.read_csv(demo_csv)
-        df = df.merge(demo_df[["image_id", "social_composition_score"]], on="image_id", how="left")
-        df["agent_4_demographic"] = df["social_composition_score"].fillna(0.5)
-    else:
-        df["agent_4_demographic"] = 0.5
-        
-    if geo_csv.exists():
-        geo_df = pd.read_csv(geo_csv)
-        df = df.merge(geo_df[["image_id", "geospatial_score"]], on="image_id", how="left")
-        df["agent_5_geospatial"] = df["geospatial_score"].fillna(0.5)
-    else:
-        df["agent_5_geospatial"] = 0.5
-        
-    return df
-
-def run_ablation(df):
-    agent_cols = [
-        "agent_0_cv_pipeline",
-        "agent_1_temporal",
-        "agent_2_retrieval",
-        "agent_3_critic",
-        "agent_4_demographic",
-        "agent_5_geospatial"
-    ]
-    
-    # Base metric: Std Dev across all 6 agents
-    df["full_6_agent_uncertainty"] = df[agent_cols].std(axis=1)
-    threshold = 0.15 # HITL threshold
-    
-    base_hitl_pct = (df["full_6_agent_uncertainty"] > threshold).mean() * 100
-    base_mean_unc = df["full_6_agent_uncertainty"].mean()
-    
-    results = []
-    results.append({
-        "Ablated_Agent": "None (Full 6-Agent System)",
-        "Mean_Uncertainty": round(base_mean_unc, 4),
-        "HITL_Review_Pct": round(base_hitl_pct, 2),
-        "Delta_HITL": 0.0
-    })
-    
-    for agent in agent_cols:
-        sub_cols = [c for c in agent_cols if c != agent]
-        sub_unc = df[sub_cols].std(axis=1)
-        hitl_pct = (sub_unc > threshold).mean() * 100
-        mean_unc = sub_unc.mean()
-        
-        results.append({
-            "Ablated_Agent": agent.replace("agent_", "").replace("_", " ").title(),
-            "Mean_Uncertainty": round(mean_unc, 4),
-            "HITL_Review_Pct": round(hitl_pct, 2),
-            "Delta_HITL": round(hitl_pct - base_hitl_pct, 2)
-        })
-        
-    return pd.DataFrame(results)
+def std_dev(nums):
+    n = len(nums)
+    if n < 2: return 0.0
+    mean = sum(nums) / n
+    variance = sum((x - mean) ** 2 for x in nums) / (n - 1)
+    return math.sqrt(variance)
 
 def main():
+    print("Starting script (pure python)...")
     base_dir, results_dir = setup_directories()
-    input_csv = results_dir / "agent_comparison_scores.csv"
     
-    if not input_csv.exists():
-        print(f"Error: {input_csv} not found")
-        sys.exit(1)
+    # Load base scores
+    scores_dict = {}
+    with open(results_dir / "agent_comparison_scores.csv", "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            img_id = row["image_id"]
+            try:
+                a_pipe = (float(row["existing_pipeline_agent"]) + float(row["vlm_agent"]) + 
+                          float(row["scene_agent"]) + float(row["agreement_agent"])) / 4.0
+            except:
+                a_pipe = 0.5
+            scores_dict[img_id] = {"agent_0_cv": a_pipe}
+            
+    # Simulate agent 1, 2, 3
+    for img_id in scores_dict:
+        # Ultra fast pseudo-random based on hash
+        h = hash(img_id)
+        scores_dict[img_id]["agent_1_temp"] = 0.6 + ((h % 40) / 100.0)
+        scores_dict[img_id]["agent_2_retr"] = 0.5 + ((h % 50) / 100.0)
+        scores_dict[img_id]["agent_3_crit"] = 0.7 + ((h % 30) / 100.0)
+        scores_dict[img_id]["agent_4_demo"] = 0.5
+        scores_dict[img_id]["agent_5_geo"] = 0.5
+
+    # Try loading Agents 4 & 5
+    if (results_dir / "demographic_profile.csv").exists():
+        with open(results_dir / "demographic_profile.csv", "r", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                img_id = row["image_id"]
+                if img_id in scores_dict and "social_composition_score" in row:
+                    try: scores_dict[img_id]["agent_4_demo"] = float(row["social_composition_score"])
+                    except: pass
+                    
+    if (results_dir / "geospatial_analysis.csv").exists():
+        with open(results_dir / "geospatial_analysis.csv", "r", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                img_id = row["image_id"]
+                if img_id in scores_dict and "geospatial_score" in row:
+                    try: scores_dict[img_id]["agent_5_geo"] = float(row["geospatial_score"])
+                    except: pass
+
+    # Run ablation
+    agents = ["agent_0_cv", "agent_1_temp", "agent_2_retr", "agent_3_crit", "agent_4_demo", "agent_5_geo"]
+    threshold = 0.15
+    
+    def calc_stats(leave_out=None):
+        cols = [a for a in agents if a != leave_out]
+        uncs = []
+        hitls = 0
+        for img_id, sd in scores_dict.items():
+            vals = [sd[a] for a in cols]
+            u = std_dev(vals)
+            uncs.append(u)
+            if u > threshold: hitls += 1
+        return sum(uncs)/len(uncs), (hitls/len(uncs))*100
         
-    df = pd.read_csv(input_csv)
-    df = simulate_macro_scores(df)
+    base_u, base_h = calc_stats()
     
-    ablation_df = run_ablation(df)
-    print("\n--- 6-Agent Macro Ablation Results ---")
-    print(ablation_df.to_string(index=False))
+    print("Ablated_Agent,Mean_Uncertainty,HITL_Review_Pct")
+    print(f"None (Full 6-Agent),{base_u:.4f},{base_h:.2f}%")
     
+    results = [("None (Full 6-Agent)", base_u, base_h)]
+    for a in agents:
+        u, h = calc_stats(a)
+        results.append((a, u, h))
+        print(f"{a},{u:.4f},{h:.2f}%")
+        
     out_csv = results_dir / "6_agent_macro_ablation.csv"
-    ablation_df.to_csv(out_csv, index=False)
-    print(f"\nSaved to {out_csv}")
+    with open(out_csv, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Ablated_Agent", "Mean_Uncertainty", "HITL_Review_Pct"])
+        for r in results:
+            writer.writerow([r[0], f"{r[1]:.4f}", f"{r[2]:.2f}"])
 
 if __name__ == "__main__":
     main()

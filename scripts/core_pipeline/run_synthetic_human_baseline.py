@@ -38,6 +38,11 @@ SCENE_CLASS_PRIORS: dict[str, list[str]] = {
 }
 
 def normalize_id(raw: str) -> str:
+    from pathlib import Path
+    parts = Path(str(raw)).parts
+    if len(parts) >= 2:
+        if parts[-2] not in ["original", "restored", "images", "metadata", "results", "CycleGAN", "pix2pix"]:
+            return f"{parts[-2]}/{Path(parts[-1]).stem}"
     return Path(str(raw)).stem
 
 def infer_class_label(row: pd.Series, cls: str) -> int:
@@ -82,13 +87,12 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
 
     # Merge all signals
-    manifest["img_key"] = manifest["image_id"].apply(normalize_id)
-    scores["img_key"]   = scores["image_id"].apply(normalize_id)
-    df = scores.merge(manifest, on="img_key", how="inner", suffixes=("","_m"))
-
+    df = scores.merge(manifest, on="image_id", how="inner", suffixes=("","_m"))
+    df["img_key"] = df["image_id"]
+    
     # Focus on the 500 worksheet images
-    worksheet["img_key"] = worksheet["Image_ID"].apply(normalize_id)
-    subset = df[df["img_key"].isin(worksheet["img_key"])].copy()
+    worksheet["img_key"] = worksheet["Image_ID"]
+    subset = df[df["image_id"].isin(worksheet["Image_ID"])].copy()
     if len(subset) == 0:
         # fallback: use all images if worksheet IDs don't match exactly
         print("⚠  Worksheet images not found in scores — using full dataset sample")
@@ -103,8 +107,9 @@ def main():
     # Pipeline detection labels (from student_v3_count and agent scores)
     for cls in CLASSES:
         # Pipeline "detects" class if object count > 0 and agreement above threshold
-        subset[f"pipeline_{cls}"] = ((subset["existing_pipeline_agent"] > 0.3) &
-                                      (subset["student_v3_count"] > 0 if "student_v3_count" in subset.columns else True)).astype(int)
+        # Pipeline "detects" class if object count > 0 (or agent score > 0.3 as proxy)
+        # Use existing_pipeline_agent as proxy since student_v3_count might be sparse
+        subset[f"pipeline_{cls}"] = (subset["existing_pipeline_agent"] > 0.3).astype(int)
 
     # Per-class metrics: pipeline vs synthetic human
     class_rows = []

@@ -25,7 +25,12 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 def normalize_image_id(raw: str) -> str:
-    """Strip directory and extension from an image path/id, returning the bare stem."""
+    """Strip directory and extension, preserving PPN if present to avoid collisions."""
+    parts = Path(str(raw)).parts
+    if len(parts) >= 2:
+        # Avoid generic directory names; keep PPN-like folders
+        if parts[-2] not in ["original", "restored", "images", "metadata", "results", "CycleGAN", "pix2pix"]:
+            return f"{parts[-2]}/{Path(parts[-1]).stem}"
     return Path(str(raw)).stem
 
 

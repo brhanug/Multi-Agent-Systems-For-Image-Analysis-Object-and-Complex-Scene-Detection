@@ -29,8 +29,14 @@ OBJECT_LABEL_COLS = [
 ]
 
 
-def normalize_id(v: str) -> str:
-    return Path(str(v)).stem
+def normalize_id(raw: str) -> str:
+    from pathlib import Path
+    parts = Path(str(raw)).parts
+    if len(parts) >= 2:
+        if parts[-2] not in ["original", "restored", "images", "metadata", "results", "CycleGAN", "pix2pix"]:
+            return f"{parts[-2]}/{Path(parts[-1]).stem}"
+    return Path(str(raw)).stem
+
 
 
 def to_binary(v) -> int | None:
