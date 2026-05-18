@@ -894,6 +894,13 @@ Random         & Uniform Sampling (20\%)  & 400 \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{latex_assets/thesis_ppn_distribution.png}
+\caption{Longitudinal temporal distribution of books (PPN) across the Visual Historian dataset, illustrating archive coverage across centuries.}
+\label{fig:ppn_distribution}
+\end{figure}
+
 \subsubsection{Curation and Semantic Schema}
 Each image entry in the \textit{Visual Historian} manifest includes a high-dimensional vector of semantic information, designed to support diverse historical research questions (Table \ref{tab:metadata_schema}).
 
@@ -1166,11 +1173,26 @@ The evaluation operates over all 12,110 images in the Colibri dataset. The \text
     \item \textbf{Agent 4 (Demographic Profiler)}: Social composition score.
     \item \textbf{Agent 5 (Geospatial Analyst)}: Urban/Rural structural classification.
 \end{itemize}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{latex_assets/thesis_agent_distributions.png}
+\caption{Geospatial and Demographic profiler score distributions across the entire Colibri archive, surfacing structural and composition characteristics.}
+\label{fig:agent_distributions}
+\end{figure}
+
 The Coordinator fusion strategy computes an uncertainty score defined as the standard deviation $\sigma$ across all six agents, which explicitly surfaces inter-agent disagreement for HITL triage.
 All reported metrics carry explicit provenance tags (measured vs proxy) per the policy established in Section~\ref{sec:extended_eval}. Statistical significance is assessed via Wilcoxon signed-rank test and effect size via Cohen's $d$.
 
 \subsection{RQ1--RQ4 Evaluation Summary}
 The core research questions are answered quantitatively in the following subsections (ablation, HITL efficiency, complementarity analysis) and consolidated in Section~\ref{sec:rq_final}. The narrative below focuses on the empirical methodology; the consolidated answers to each RQ are cross-referenced at the end of this chapter.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{latex_assets/thesis_agent_diversity_heatmap.png}
+\caption{Pairwise agent independence and diversity correlation matrix across the 6-agent macro system, showing high complementarity.}
+\label{fig:agent_diversity_heatmap}
+\end{figure}
 
 \subsection{6-Agent Macro Ablation}
 
@@ -1240,6 +1262,13 @@ without\_restoration\_agent & +0.0611 \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{latex_assets/thesis_ablation_impact.png}
+\caption{Leave-one-out agent ablation impact on Coordinator fusion mean score, demonstrating individual agent contributions.}
+\label{fig:ablation_impact}
+\end{figure}
+
 \subsubsection{RQ4: HITL Efficiency}
 For RQ4 (HITL efficiency), disagreement/risk-based triage substantially outperforms random sampling under the current proxy issue labeling (Table~\ref{tab:rq_eval_hitl}).
 
@@ -1258,6 +1287,25 @@ Top-k ratio & Precision@k & Random precision & Lift vs random \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[!htbp]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{latex_assets/thesis_hitl_simulation.png}
+    \caption{Active Learning Simulation}
+    \label{fig:hitl_sim_curves}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{latex_assets/thesis_hitl_efficiency.png}
+    \caption{Triage Efficiency}
+    \label{fig:hitl_eff_bars}
+\end{subfigure}
+\caption{Human-in-the-Loop (HITL) active learning and triage efficiency evaluation. Left: review efficiency curves across budget levels. Right: expert reviewer effort lift vs. random baseline.}
+\label{fig:hitl_full}
+\end{figure}
+
 \subsubsection{RQ2: Inter-Agent Disagreement as Error Predictor}
 Inter-agent disagreement is evaluated as a predictor of ambiguity. Rather than relying on naive confidence or a simple standard deviation, the Coordinator calculates a \textbf{Unified Uncertainty Score} ($U$) utilizing both the inter-agent standard deviation ($\sigma_{agents}$) and the inverse mean confidence ($1-\bar{c}$):
 
@@ -1266,6 +1314,13 @@ U = \alpha \sigma_{agents} + \beta(1-\bar{c})
 \end{equation}
 
 For this evaluation, we set $\alpha = 0.6$ and $\beta = 0.4$. To rigorously test if $U$ serves as a better predictor of error than raw detector confidence, we computed the Expected Calibration Error (ECE). The \textbf{Raw YOLO Confidence} exhibited an ECE of $0.1535$, whereas the \textbf{Unified Uncertainty ($U$)} yielded an ECE of $0.2292$. While the raw confidence appears better calibrated to simple spatial boundaries, the Unified Uncertainty captures deep epistemological doubt. When correlated against simulated human baseline ambiguity scores (Experiment A3), the Unified Uncertainty Score predicted human doubt \textbf{24.8\% better} (Pearson $r=0.8292$) than raw YOLO spatial confidence alone ($r=0.6644$). This confirms a strong relationship: \textbf{high multi-agent agreement predicts historical truth; high disagreement predicts semantic ambiguity}. The disagreement measure provides the interpretable decomposition needed for HITL routing---it reveals \textit{which agents} disagree, enabling targeted expert intervention.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{latex_assets/thesis_rq2_roc.png}
+\caption{ROC AUC curve for Unified Uncertainty ($U$) predicting human annotation ambiguity, confirming superior performance over raw spatial confidence.}
+\label{fig:rq2_roc}
+\end{figure}
 
 \subsection{Extended Experiments}
 
@@ -1429,6 +1484,13 @@ Random                     & 25\% & 0.458 & 0.252 &  45.8 \\
 
 The \texttt{vlm\_agent} achieves an Expected Calibration Error (ECE) of \textbf{0.000}, meaning its scores correspond precisely to observed quality rates (a VLM score of 0.7 predicts a 70\% quality rate). The monolithic and fusion scores have higher ECEs (0.298 and 0.319 respectively), reflecting that they are composite weighted averages not optimised for probability calibration. This has a practical implication: the VLM agent's raw score can be used directly as a quality probability estimate, while fusion scores require Platt scaling before deployment as calibrated probabilities.
 
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{latex_assets/thesis_calibration_curves.png}
+\caption{Expected Calibration Curves (ECE) for VLM Agent, Monolithic baseline, and Coordinator Fusion.}
+\label{fig:calibration_curves}
+\end{figure}
+
 % --------------------------------------------------------------------------
 \section{Concrete Experiments: Formalisation and Ablation Studies}
 \label{sec:concrete_experiments}
@@ -1443,6 +1505,13 @@ To formally address the thesis title claim of ``complex scene detection,'' we de
   \label{eq:sci}
 \end{equation}
 where $D_{\text{obj}}$ is normalised object density, $\Sigma_{\text{spatial}}$ is the spatial ambiguity proxy (std of object and agreement agent scores), $H_{\text{scene}}$ is scene entropy (inverse scene confidence), and $\bar{\sigma}_{\text{disagree}}$ is mean inter-agent disagreement.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{latex_assets/thesis_complexity_bars.png}
+\caption{Performance (F1 score) of foundational and downstream agents across scene complexity bins (very low, low, medium, high).}
+\label{fig:complexity_bars}
+\end{figure}
 
 Table~\ref{tab:sci_bins} reports per-bin analysis. The Spearman correlation between SCI and the fusion--monolithic delta is $r_s = 0.575$, confirming that \textbf{scene complexity positively mediates multi-agent advantage}: as scene complexity increases, the coordinator's complementary signals become more valuable relative to the monolithic baseline. The most notable finding is the \textit{low} SCI bin ($n=38,771$), where fusion \textit{outperforms} monolithic ($\Delta = +0.009$)---the precise operating regime where scene and VLM agents compensate for a weak object signal.
 
@@ -1860,6 +1929,25 @@ This complexity-stratified analysis reveals a vital methodological insight. In t
 To formally validate the "Uncertainty-Aware Collaborative Labeling" triage hypothesis, we performed a deep statistical comparison of SAA Uncertainty Scores ($\hat{\sigma}^2$) between the two reviewed cohorts: Cohort A (Reviewed \& Labeled, $n=796$) and Cohort B (Reviewed \& Left Blank as Ambiguous, $n=5$).
 
 If the SAA metric is an effective estimator of epistemic difficulty, Cohort B (the ambiguous cohort that stumped the human expert) must exhibit higher uncertainty scores than Cohort A. The descriptive statistics confirm this: Cohort A has a mean uncertainty of \textbf{0.2224} (Std = 0.0402), whereas Cohort B exhibits an elevated mean uncertainty of \textbf{0.2318} (Std = 0.0271). A one-tailed Mann-Whitney U test yields a positive effect size of \textbf{Cohen's $d = 0.2349$}, providing robust empirical confirmation that human semantic ambiguity correlates directly with elevated SAA uncertainty.
+
+\begin{figure}[!htbp]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{latex_assets/thesis_mono_vs_fusion.png}
+    \caption{Monolithic vs. Fusion Score}
+    \label{fig:mono_vs_fusion_comparison}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{latex_assets/thesis_scene_type_heatmap.png}
+    \caption{Scene Category Correlation}
+    \label{fig:scene_correlation_heatmap}
+\end{subfigure}
+\caption{Empirical verification of multi-agent coordination. Left: scatter correlation between monolithic and coordinator fusion scores. Right: semantic correlation matrix across historical scene classes.}
+\label{fig:expert_validation_viz}
+\end{figure}
 
 % ==========================================================================
 % BIBLIOGRAPHY
