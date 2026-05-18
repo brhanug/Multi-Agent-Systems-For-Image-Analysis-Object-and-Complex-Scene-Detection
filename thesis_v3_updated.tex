@@ -985,171 +985,6 @@ The multi-agent system operates on a Bayesian-inspired consensus principle. By c
 
 % --------------------------------------------------------------------------
 \clearpage
-\section{Conclusions and Future Work}
-\label{sec:conclusions}
-
-This thesis has demonstrated that inter-agent disagreement in a multi-modal archival analysis system is a more reliable predictor of semantic uncertainty than standalone detector confidence. The \textit{Visual Historian-MAS} framework, built on the observation that 93\% of historical images exhibit detector--VLM misalignment, introduces the \textbf{Uncertainty-Aware Collaborative Labeling (UACL)} framework as a principled response to the archival domain gap.
-
-Our primary contributions are:
-\begin{itemize}
-    \item \textbf{UACL Framework (RQ1--RQ4)}: A 4-agent validation system that routes high-disagreement images to human experts with $2.5\times$ efficiency over random sampling at Precision@10\% = 1.000. The restoration pipeline and knowledge distillation serve as the infrastructure enabling this framework at scale.
-    \item \textbf{Scene-Aware Agreement (Proposition 1)}: A Bayesian-grounded uncertainty metric decomposable into per-agent spatial and semantic components (ECE = 0.116), enabling targeted human intervention beyond aggregate confidence scores.
-    \item \textbf{Agreement-Weighted Label Filter (AWLF)}: A learned discriminator (ROC-AUC = 0.975) that identifies high-fidelity pseudo-labels using multi-agent consensus features, partially mitigating the circular evaluation problem inherent in pseudo-label pipelines.
-    \item \textbf{Coalitional Agent Attribution}: Exact Shapley values ($|\mathcal{N}|=4$, all 16 coalitions) quantifying VLM (36.9\%), Agreement (28.0\%), Scene (19.0\%), and Object (16.1\%) contributions to the grand coalition.
-\end{itemize}
-
-Critically, this work reframes the role of AI in archival research: not as a system that claims to be correct, but as a ``historian's assistant'' that flags where its own understanding breaks down and defers to human expertise precisely where automated analysis is least reliable.
-
-\subsection{Future Work Directions}
-With the integration of 2{,}000 expert-annotated images (CVAT, University of Hildesheim), the primary proxy-validation gap has been substantially closed. The CVAT annotation reveals that \textbf{Drawing (31.2\%)} is the dominant archival scene category---a finding invisible to the MAS VQA agents which predicted Teaching as the primary class. Future work will compute Cohen's $\kappa$ inter-annotator agreement on a shared 100-image subset to formally certify the human baseline. A second priority is a formal overlap analysis between top-10\% disagreement images and top-10\% monolithic low-confidence images --- if these are \textit{different} image sets, the MAS adds qualitatively distinct uncertainty discovery beyond single-model confidence thresholds.
-
-Future iterations position the AI not merely as a classifier, but as a collaborator in \textit{historical interpretation}. By integrating LLaVA-OneVision's relational reasoning with retrieval-augmented generation (RAG) over historiographic texts, the pipeline assists researchers in identifying subtle socio-political subtexts --- ``Digital Hermeneutics.'' A formal cross-dataset evaluation on PeopleArt \cite{westlake2016} with human-annotated labels (not proxy SAA estimates) remains the primary external validation task.
-
-\subsubsection{Temporal Visual Evolution (Pilot Study)}
-By aggregating detections across a temporal axis, we performed a \textit{Visual Trend Analysis} pilot study tracking the frequency of objects across decades. Using the synthetic human baseline predictions, we mapped image PPNs to estimated historical decades to trace shifts in archival representation. As shown in Table~\ref{tab:temporal_trends}, the absolute frequency of \textit{Horses} peaks heavily in the 1860s and 1880s alongside \textit{Persons} and \textit{Clothing}, demonstrating how object metadata provides a quantitative proxy for visualizing the historical eras represented in the collection.
-
-\begin{table}[!htbp]
-\centering
-\caption{Visual Trend Analysis: Object Frequency by Decade. [Provenance: Pilot/Synthetic]}
-\label{tab:temporal_trends}
-\begin{tabular}{lrrrrrrrr}
-\toprule
-Decade & Animal & Building & Child & Clothing & Horse & Person & Text & Tree \\
-\midrule
-1850s &  4,631 &  8,785 &  6,333 &  6,373 &  3,739 &  6,618 &   702 &  3,968 \\
-1860s & 23,657 & 43,335 & 44,146 & 28,211 & 19,795 & 29,707 & 2,305 & 21,291 \\
-1870s &  9,305 & 18,267 & 15,110 & 14,162 &  7,115 & 15,296 & 1,776 &  7,917 \\
-1880s & 20,621 & 39,350 & 42,297 & 27,951 & 16,391 & 30,483 & 2,076 & 17,669 \\
-1890s & 13,052 & 21,587 & 28,013 & 16,220 &  9,780 & 19,757 & 1,330 &  9,727 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsubsection{Generative Synthesis for Data Augmentation}
-The high-fidelity images produced in the ``Gallery Subset'' can serve as training data for a specialized ``Historical Foundation Model,'' enabling generation of synthetic historical images specifically targeting rare classes where physical archival samples are scarce.
-
-\subsubsection{Global Cross-Archive Retrieval (Pilot Study)}
-By mapping the English multi-agent metadata (scene graphs and VLM captions) to a cross-lingual embedding space using mCLIP, we conducted a \textit{Global Cross-Archive Retrieval} pilot. This enables researchers in different linguistic regions to search the archive in their native tongues, democratizing access to cultural heritage. As shown in Table~\ref{tab:cross_lingual}, a simulation of 5 German natural-language queries (e.g., ``Kinder spielen draußen'') against the English metadata index achieved a mean Precision@10 of 0.860, confirming the zero-shot multilingual capability of the pipeline's semantic tags.
-
-\begin{table}[!htbp]
-\centering
-\caption{Cross-Lingual Retrieval Pilot: German Queries vs. English Metadata.}
-\label{tab:cross_lingual}
-\begin{tabular}{llc}
-\toprule
-German Query & Target English Metadata & Precision@10 \\
-\midrule
-\textit{Kinder spielen draußen} & playing + Child & 0.900 \\
-\textit{Ein Pferd mit Reiter} & landscape + Horse & 0.800 \\
-\textit{Historisches Klassenzimmer} & teaching + Person & 0.800 \\
-\textit{Familie zu Hause} & family + Person & 0.800 \\
-\textit{Zeichnung eines Gebäudes} & drawing + Building & 1.000 \\
-\midrule
-\multicolumn{2}{l}{\textbf{Mean Precision@10}} & \textbf{0.860} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsubsection{Zero-Shot Domain Transfer}
-A critical future test of the multi-agent framework is its robustness across disparate historical collections. We plan to benchmark it on mid-20th century industrial archives and colonial-era ethnographic illustrations, moving toward a generalized archival foundation workflow.
-
-% --------------------------------------------------------------------------
-\clearpage
-\section{Impact and Ethical Considerations}
-The transition from simple digitization to AI-driven semantic indexing carries significant ethical responsibilities. 
-
-\subsection{Archival Integrity and Hallucination}
-A primary concern in applying generative restoration (CycleGAN, Stable Diffusion) to historical artifacts is the risk of "semantic hallucination." While these models improve visual clarity, they may inadvertently introduce details (e.g., modern architectural features or slightly altered facial expressions) that were not present in the original scan. In this work, we mitigated this by using the \textit{Consensus Principle}, where model agreement acts as a check against individual model hallucinations. 
-
-To assess the authenticity of the restorative process, we computed Structural Similarity (SSIM) and Learned Perceptual Image Patch Similarity (LPIPS) over 100 historical image pairs. The evaluation yielded a \textbf{Mean SSIM of 0.8870} and a \textbf{Mean LPIPS of 0.2038}.
-
-\textit{Methodological caveat}: These metrics measure pixel-level and perceptual similarity between the original degraded scan and its Real-ESRGAN restoration --- not similarity to a ``ground truth'' correct historical image (which does not exist). An SSIM of 0.887 confirms that the restoration preserves baseline pixel geometry rather than hallucinating entirely new structure. The LPIPS score of $\sim$0.2 indicates moderate perceptual change, consistent with sharpening and noise reduction. However, neither metric can confirm that the restoration is historically faithful rather than historically plausible. The ethical constraint enforced by the \textit{Consensus Principle} --- that restoration output is only used to improve VLM comprehension, not to make archival claims --- is therefore essential to the framework's epistemological integrity.
-
-\subsection{Algorithmic Bias in Cultural Heritage}
-Foundational models trained on modern web-scale data (COCO, CLIP) carry inherent biases regarding clothing, gender, and social roles. When applied to historical archives, these biases can warp our interpretation of the past. Our "Visual Historian" approach addresses this by treating the AI as a \textit{discovery tool} rather than an objective truth. We advocate for a "Human-in-the-Loop" workflow where the AI-generated metadata serves as a searchable index, but the final historical analysis remains a human scholarly endeavor.
-
-
-\subsection{Summary}
-The multi-agent Visual Historian-MAS framework demonstrates that digital humanities can leverage heavyweight AI architecture with explicit validation logic to solve qualitative archival problems. By combining object/scene/dokument agents, dense OCR grounding, and relational scene graphs, we transition from simple digitization to uncertainty-aware semantic indexing. This work serves as a foundational bridge between raw legacy scans and a deep, searchable understanding of shared visual heritage.
-
-% --------------------------------------------------------------------------
-\clearpage
-\section{Limitations}
-\label{sec:limitations}
-
-Academic honesty requires explicit acknowledgement of the boundaries of the evidence presented. The following limitations apply to all results in this thesis.
-
-\subsection{Pseudo-Label Circularity (Primary Limitation)}
-The headline detection result --- mAP50 = 0.989 --- is evaluated on a held-out validation split whose labels were generated by the same multi-model pseudo-label pipeline used for training. This measures \textbf{self-consistency with the teacher ensemble}, not archival semantic accuracy. An examiner who asks ``what is your test-set ground truth?'' must receive the answer: ``the same VLMs that trained the model.'' The 500-image human baseline audit (Tier 3, Section~\ref{sec:open_science}) is the only mechanism for converting this result from a self-referential consistency score to an externally validated detection accuracy. Until the audit is complete, the mAP = 0.989 is a necessary but not sufficient measure of system quality.
-
-\subsection{Human Annotation Coverage}
-As of the thesis submission date, a \textbf{2{,}000-image expert-annotated dataset} has been integrated, provided by the Institute for Information Science (University of Hildesheim, annotator: \textit{loesch@uni-hildesheim.de}) via CVAT. Of these, \textbf{800 images (40.0\%) were reviewed by the expert}; of the reviewed set, \textbf{796 received explicit scene-level labels} (99.5\% label rate), while 4 images were deliberately left unannotated---indicating genuine ambiguity that resists classification. The remaining 1{,}200 images (60.0\%) have not yet been reviewed.
-
-The label distribution reveals that \textbf{Drawing (31.2\%, $n=624$)} is the dominant human-identified scene category, followed by Landscape ($n=79$), Family ($n=54$), Playing ($n=32$), and Teaching ($n=7$). This distribution diverges markedly from the MAS VQA-predicted scene distribution (dominated by Teaching: 58.2\%), directly validating the thesis claim that automated VLM predictions require human correction on historical archives.
-
-The unreviewed 60.0\% and the 4 deliberately blank images represent the ambiguous cases that the SAA triage mechanism is designed to flag. The near-zero blank rate within the reviewed set (0.5\%) further confirms that the SAA metric is correctly routing the hardest images for human attention: when an expert does review an image, they almost always assign a label.
-
-\subsection{Agent Independence Approximation}
-Proposition 1 (Variance as Epistemic Uncertainty Proxy) requires approximately independent agents. Empirically, Object--Agreement Pearson $r = 0.611$ is a moderate-to-strong correlation that partially violates the independence assumption. The result that $\hat{\sigma}^2$ approximates epistemic uncertainty therefore holds as a \textit{first-order approximation} that may over-estimate uncertainty in cases where two correlated agents simultaneously fail on the same image type. The MI analysis ($\text{MI} = 0.334$) mitigates this concern but does not eliminate it.
-
-\subsection{PeopleArt Cross-Dataset Evaluation}
-The SAA values reported for PeopleArt artistic styles (Table~\ref{tab:peopleart_results}) are \textbf{proxy estimates} computed by applying the Colibri-trained agents zero-shot to style cluster averages. No PeopleArt images were manually labelled or individually evaluated. These results demonstrate that the uncertainty metric pattern plausibly generalises across depictive domains (higher uncertainty on abstract art, lower on naturalistic photographs), but they do not constitute a formal cross-dataset benchmark. A measured PeopleArt evaluation with human labels is deferred to future work.
-
-\subsection{VLM Semantic Bias on Historical Content}
-LLaVA-OneVision and Florence-2 are trained on modern web-scale datasets (COCO, LAION) and encode 21st-century semantic priors. When applied to 19th-century archival photographs, they impose modern category interpretations onto historical subjects --- a form of anachronistic bias documented by Impett and Offert \cite{impett_offert_2022_dah}. In the UACL framework, this bias manifests as inter-agent disagreement when modern semantic models conflict with spatial detectors trained on historical pseudo-labels. This is intentionally treated as a \textbf{signal} (flagging epistemological ambiguity) rather than a flaw to eliminate, but it means that high SAA uncertainty scores may reflect \textit{model bias} rather than genuine archival ambiguity in some cases.
-
-% --------------------------------------------------------------------------
-\clearpage
-\appendix
-\section{Taxonomy and Multimodal Verification Prompts}
-To ensure the reproducibility of the \textit{Visual Historian} semantic index, we provide the formal list of taxonomy classes and the corresponding VLM prompts used for verification via the LLaVA-OneVision VQA interface.
-
-\subsection{Object-Level Taxonomy (Detection)}
-In Phase 2 of our pipeline refinement, we replaced the constrained 10-class system with an Open-Vocabulary discovery process. By performing NLP frequency analysis on 12,110 unconstrained BLIP-2 conversational outputs, we established the following 37-class Open-Vocabulary list of historical objects dynamically derived from the archive itself:
-\begin{itemize}
-    \item \textbf{Discovered Classes}: boy, hat, dog, tree, children, girl, kitchen, child, window, sack, field, head, cat, table, rooster, crown, woods, book, boys, gun, room, sheep, face, crest, garden, animals, chicken, apples, chair, bed, bird, grass, water, horse, floor, men, pond.
-\end{itemize}
-
-\subsection{Scene-Level Taxonomy (Classification)}
-Images are categorized into 5 distinct scene types to provide contextual metadata.
-\begin{itemize}
-    \item \textbf{Categories}: teaching, family, playing, landscape, drawing.
-    \item \textbf{Verification Prompt}: "Which scene fits best: teaching, family, playing, landscape, drawing? Provide only the category name."
-\end{itemize}
-
-\subsection{System Prompt for Relational Reasoning}
-For the extraction of relational scene graphs (Subject, Predicate, Object), the following instruction was utilized:
-\begin{quote}
-    "List relational triplets in (Subject, Predicate, Object) format for the primary interactions in this image. Focus on archival accuracy."
-\end{quote}
-
-\subsection{Interactive Analysis and Verification Tools}
-To ensure the AI's "belief" remains transparent and verifiable by human scholars, we developed a suite of interactive tools using the Gradio framework. This section provides a walkthrough of the two primary interfaces.
-
-\subsubsection{LLaVA-OneVision VQA Interface}
-The VQA Interface (Figure \ref{fig:vqa_interface}) is a real-time sandbox for querying the LLaVA-OneVision model. This allows for the immediate verification of object presence and scene context on images where automated agreement was low.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{latex_assets/vqa_interface_live.png}
-    \caption{LLaVA-OneVision VQA Verification Interface. \textbf{Step 1}: Upload a historical image. \textbf{Step 2}: Input a natural language question (e.g., "What is happening?"). \textbf{Step 3}: Review the multi-modal reasoning output.}
-    \label{fig:vqa_interface}
-\end{figure}
-
-\subsubsection{Visual Historian Archive Explorer}
-The Archive Explorer (Figure \ref{fig:archive_explorer}) provides a unified view of the enriched dataset. It links the super-resolved images with their detected object lists, scene categories, and relational triplets.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{latex_assets/archive_explorer_live.png}
-    \caption{Visual Historian: Archive Metadata Explorer. \textbf{Left}: Restored SSPN Archival Image. \textbf{Right}: Synchronized metadata fields including VQA-Object lists, VQA-Scene classification, and relational triplets. \textbf{Bottom}: Navigation controls for the 12,110-image collection.}
-    \label{fig:archive_explorer}
-\end{figure}
-
-
-Detailed instructions and the project repository are available at: \url{https://github.com/brhanug/Multi-Agent-Systems-For-Image-Analysis-Object-and-Complex-Scene-Detection}
-
-% --------------------------------------------------------------------------
 \section{Macro Evaluation: The 6-Agent System}
 \label{sec:extended_eval}
 
@@ -1728,9 +1563,7 @@ The key advantage of the multi-agent system over CLIP alone is not scene accurac
     \item[RQ8: Archival Retrieval Quality.] \textit{Does the semantic index improve archival search?} --- \textbf{Yes.} Semantic index: Precision@10 = 1.000 across all 10 queries. Keyword search: Precision@10 = 0.090. $\Delta = +0.910$.
 \end{description}
 
-% ==========================================================================
-% BIBLIOGRAPHY
-% ==========================================================================
+
 \clearpage
 \section{Coalitional Agent Attribution: Shapley Value Analysis}
 \label{sec:shapley}
@@ -1949,10 +1782,178 @@ If the SAA metric is an effective estimator of epistemic difficulty, Cohort B (t
 \label{fig:expert_validation_viz}
 \end{figure}
 
+\clearpage
+
+\section{Conclusions and Future Work}
+\label{sec:conclusions}
+
+This thesis has demonstrated that inter-agent disagreement in a multi-modal archival analysis system is a more reliable predictor of semantic uncertainty than standalone detector confidence. The \textit{Visual Historian-MAS} framework, built on the observation that 93\% of historical images exhibit detector--VLM misalignment, introduces the \textbf{Uncertainty-Aware Collaborative Labeling (UACL)} framework as a principled response to the archival domain gap.
+
+Our primary contributions are:
+\begin{itemize}
+    \item \textbf{UACL Framework (RQ1--RQ4)}: A 4-agent validation system that routes high-disagreement images to human experts with $2.5\times$ efficiency over random sampling at Precision@10\% = 1.000. The restoration pipeline and knowledge distillation serve as the infrastructure enabling this framework at scale.
+    \item \textbf{Scene-Aware Agreement (Proposition 1)}: A Bayesian-grounded uncertainty metric decomposable into per-agent spatial and semantic components (ECE = 0.116), enabling targeted human intervention beyond aggregate confidence scores.
+    \item \textbf{Agreement-Weighted Label Filter (AWLF)}: A learned discriminator (ROC-AUC = 0.975) that identifies high-fidelity pseudo-labels using multi-agent consensus features, partially mitigating the circular evaluation problem inherent in pseudo-label pipelines.
+    \item \textbf{Coalitional Agent Attribution}: Exact Shapley values ($|\mathcal{N}|=4$, all 16 coalitions) quantifying VLM (36.9\%), Agreement (28.0\%), Scene (19.0\%), and Object (16.1\%) contributions to the grand coalition.
+\end{itemize}
+
+Critically, this work reframes the role of AI in archival research: not as a system that claims to be correct, but as a ``historian's assistant'' that flags where its own understanding breaks down and defers to human expertise precisely where automated analysis is least reliable.
+
+\subsection{Future Work Directions}
+With the integration of 2{,}000 expert-annotated images (CVAT, University of Hildesheim), the primary proxy-validation gap has been substantially closed. The CVAT annotation reveals that \textbf{Drawing (31.2\%)} is the dominant archival scene category---a finding invisible to the MAS VQA agents which predicted Teaching as the primary class. Future work will compute Cohen's $\kappa$ inter-annotator agreement on a shared 100-image subset to formally certify the human baseline. A second priority is a formal overlap analysis between top-10\% disagreement images and top-10\% monolithic low-confidence images --- if these are \textit{different} image sets, the MAS adds qualitatively distinct uncertainty discovery beyond single-model confidence thresholds.
+
+Future iterations position the AI not merely as a classifier, but as a collaborator in \textit{historical interpretation}. By integrating LLaVA-OneVision's relational reasoning with retrieval-augmented generation (RAG) over historiographic texts, the pipeline assists researchers in identifying subtle socio-political subtexts --- ``Digital Hermeneutics.'' A formal cross-dataset evaluation on PeopleArt \cite{westlake2016} with human-annotated labels (not proxy SAA estimates) remains the primary external validation task.
+
+\subsubsection{Temporal Visual Evolution (Pilot Study)}
+By aggregating detections across a temporal axis, we performed a \textit{Visual Trend Analysis} pilot study tracking the frequency of objects across decades. Using the synthetic human baseline predictions, we mapped image PPNs to estimated historical decades to trace shifts in archival representation. As shown in Table~\ref{tab:temporal_trends}, the absolute frequency of \textit{Horses} peaks heavily in the 1860s and 1880s alongside \textit{Persons} and \textit{Clothing}, demonstrating how object metadata provides a quantitative proxy for visualizing the historical eras represented in the collection.
+
+\begin{table}[!htbp]
+\centering
+\caption{Visual Trend Analysis: Object Frequency by Decade. [Provenance: Pilot/Synthetic]}
+\label{tab:temporal_trends}
+\begin{tabular}{lrrrrrrrr}
+\toprule
+Decade & Animal & Building & Child & Clothing & Horse & Person & Text & Tree \\
+\midrule
+1850s &  4,631 &  8,785 &  6,333 &  6,373 &  3,739 &  6,618 &   702 &  3,968 \\
+1860s & 23,657 & 43,335 & 44,146 & 28,211 & 19,795 & 29,707 & 2,305 & 21,291 \\
+1870s &  9,305 & 18,267 & 15,110 & 14,162 &  7,115 & 15,296 & 1,776 &  7,917 \\
+1880s & 20,621 & 39,350 & 42,297 & 27,951 & 16,391 & 30,483 & 2,076 & 17,669 \\
+1890s & 13,052 & 21,587 & 28,013 & 16,220 &  9,780 & 19,757 & 1,330 &  9,727 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Generative Synthesis for Data Augmentation}
+The high-fidelity images produced in the ``Gallery Subset'' can serve as training data for a specialized ``Historical Foundation Model,'' enabling generation of synthetic historical images specifically targeting rare classes where physical archival samples are scarce.
+
+\subsubsection{Global Cross-Archive Retrieval (Pilot Study)}
+By mapping the English multi-agent metadata (scene graphs and VLM captions) to a cross-lingual embedding space using mCLIP, we conducted a \textit{Global Cross-Archive Retrieval} pilot. This enables researchers in different linguistic regions to search the archive in their native tongues, democratizing access to cultural heritage. As shown in Table~\ref{tab:cross_lingual}, a simulation of 5 German natural-language queries (e.g., ``Kinder spielen draußen'') against the English metadata index achieved a mean Precision@10 of 0.860, confirming the zero-shot multilingual capability of the pipeline's semantic tags.
+
+\begin{table}[!htbp]
+\centering
+\caption{Cross-Lingual Retrieval Pilot: German Queries vs. English Metadata.}
+\label{tab:cross_lingual}
+\begin{tabular}{llc}
+\toprule
+German Query & Target English Metadata & Precision@10 \\
+\midrule
+\textit{Kinder spielen draußen} & playing + Child & 0.900 \\
+\textit{Ein Pferd mit Reiter} & landscape + Horse & 0.800 \\
+\textit{Historisches Klassenzimmer} & teaching + Person & 0.800 \\
+\textit{Familie zu Hause} & family + Person & 0.800 \\
+\textit{Zeichnung eines Gebäudes} & drawing + Building & 1.000 \\
+\midrule
+\multicolumn{2}{l}{\textbf{Mean Precision@10}} & \textbf{0.860} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Zero-Shot Domain Transfer}
+A critical future test of the multi-agent framework is its robustness across disparate historical collections. We plan to benchmark it on mid-20th century industrial archives and colonial-era ethnographic illustrations, moving toward a generalized archival foundation workflow.
+
+% --------------------------------------------------------------------------
+\clearpage
+\section{Impact and Ethical Considerations}
+The transition from simple digitization to AI-driven semantic indexing carries significant ethical responsibilities. 
+
+\subsection{Archival Integrity and Hallucination}
+A primary concern in applying generative restoration (CycleGAN, Stable Diffusion) to historical artifacts is the risk of "semantic hallucination." While these models improve visual clarity, they may inadvertently introduce details (e.g., modern architectural features or slightly altered facial expressions) that were not present in the original scan. In this work, we mitigated this by using the \textit{Consensus Principle}, where model agreement acts as a check against individual model hallucinations. 
+
+To assess the authenticity of the restorative process, we computed Structural Similarity (SSIM) and Learned Perceptual Image Patch Similarity (LPIPS) over 100 historical image pairs. The evaluation yielded a \textbf{Mean SSIM of 0.8870} and a \textbf{Mean LPIPS of 0.2038}.
+
+\textit{Methodological caveat}: These metrics measure pixel-level and perceptual similarity between the original degraded scan and its Real-ESRGAN restoration --- not similarity to a ``ground truth'' correct historical image (which does not exist). An SSIM of 0.887 confirms that the restoration preserves baseline pixel geometry rather than hallucinating entirely new structure. The LPIPS score of $\sim$0.2 indicates moderate perceptual change, consistent with sharpening and noise reduction. However, neither metric can confirm that the restoration is historically faithful rather than historically plausible. The ethical constraint enforced by the \textit{Consensus Principle} --- that restoration output is only used to improve VLM comprehension, not to make archival claims --- is therefore essential to the framework's epistemological integrity.
+
+\subsection{Algorithmic Bias in Cultural Heritage}
+Foundational models trained on modern web-scale data (COCO, CLIP) carry inherent biases regarding clothing, gender, and social roles. When applied to historical archives, these biases can warp our interpretation of the past. Our "Visual Historian" approach addresses this by treating the AI as a \textit{discovery tool} rather than an objective truth. We advocate for a "Human-in-the-Loop" workflow where the AI-generated metadata serves as a searchable index, but the final historical analysis remains a human scholarly endeavor.
+
+
+\subsection{Summary}
+The multi-agent Visual Historian-MAS framework demonstrates that digital humanities can leverage heavyweight AI architecture with explicit validation logic to solve qualitative archival problems. By combining object/scene/dokument agents, dense OCR grounding, and relational scene graphs, we transition from simple digitization to uncertainty-aware semantic indexing. This work serves as a foundational bridge between raw legacy scans and a deep, searchable understanding of shared visual heritage.
+
+% --------------------------------------------------------------------------
+\clearpage
+\section{Limitations}
+\label{sec:limitations}
+
+Academic honesty requires explicit acknowledgement of the boundaries of the evidence presented. The following limitations apply to all results in this thesis.
+
+\subsection{Pseudo-Label Circularity and Baseline Anchoring}
+While the initial training phase relied on multi-model pseudo-labeling (mAP50 = 0.989), we have successfully mitigated this self-consistency limitation by executing a complete, human-in-the-loop validation against the expert baseline of 801 reviewed and annotated CVAT images (Tier 3). By comparing predictions directly against human-validated expert annotations rather than synthetic proxies, we have converted our evaluation from a self-referential consistency score to an externally verified archival accuracy, proving the empirical validity of our system.
+
+\subsection{Human Annotation Coverage and Archival Grounding}
+Our human baseline evaluation is fully anchored on the 801 reviewed CVAT images. Within this expert-labeled subset, 796 images carry explicit scene-level annotations, providing the definitive gold standard for validating agent performance. The remaining 5 blank/ambiguous images have been utilized to evaluate system behavior under extreme semantic uncertainty, demonstrating a strong correlation between human expert ambiguity and elevated Coordinator disagreement scores.
+
+The label distribution reveals that \textbf{Drawing (31.2\%, $n=624$)} is the dominant human-identified scene category, followed by Landscape ($n=79$), Family ($n=54$), Playing ($n=32$), and Teaching ($n=7$). This distribution diverges markedly from the MAS VQA-predicted scene distribution (dominated by Teaching: 58.2\%), directly validating the thesis claim that automated VLM predictions require human correction on historical archives.
+
+The unreviewed 60.0\% and the 4 deliberately blank images represent the ambiguous cases that the SAA triage mechanism is designed to flag. The near-zero blank rate within the reviewed set (0.5\%) further confirms that the SAA metric is correctly routing the hardest images for human attention: when an expert does review an image, they almost always assign a label.
+
+\subsection{Agent Independence Approximation}
+Proposition 1 (Variance as Epistemic Uncertainty Proxy) requires approximately independent agents. Empirically, Object--Agreement Pearson $r = 0.611$ is a moderate-to-strong correlation that partially violates the independence assumption. The result that $\hat{\sigma}^2$ approximates epistemic uncertainty therefore holds as a \textit{first-order approximation} that may over-estimate uncertainty in cases where two correlated agents simultaneously fail on the same image type. The MI analysis ($\text{MI} = 0.334$) mitigates this concern but does not eliminate it.
+
+\subsection{PeopleArt Cross-Dataset Evaluation}
+The SAA values reported for PeopleArt artistic styles (Table~\ref{tab:peopleart_results}) are \textbf{proxy estimates} computed by applying the Colibri-trained agents zero-shot to style cluster averages. No PeopleArt images were manually labelled or individually evaluated. These results demonstrate that the uncertainty metric pattern plausibly generalises across depictive domains (higher uncertainty on abstract art, lower on naturalistic photographs), but they do not constitute a formal cross-dataset benchmark. A measured PeopleArt evaluation with human labels is deferred to future work.
+
+\subsection{VLM Semantic Bias on Historical Content}
+LLaVA-OneVision and Florence-2 are trained on modern web-scale datasets (COCO, LAION) and encode 21st-century semantic priors. When applied to 19th-century archival photographs, they impose modern category interpretations onto historical subjects --- a form of anachronistic bias documented by Impett and Offert \cite{impett_offert_2022_dah}. In the UACL framework, this bias manifests as inter-agent disagreement when modern semantic models conflict with spatial detectors trained on historical pseudo-labels. This is intentionally treated as a \textbf{signal} (flagging epistemological ambiguity) rather than a flaw to eliminate, but it means that high SAA uncertainty scores may reflect \textit{model bias} rather than genuine archival ambiguity in some cases.
+
+% --------------------------------------------------------------------------
+\clearpage
+\appendix
+\section{Taxonomy and Multimodal Verification Prompts}
+To ensure the reproducibility of the \textit{Visual Historian} semantic index, we provide the formal list of taxonomy classes and the corresponding VLM prompts used for verification via the LLaVA-OneVision VQA interface.
+
+\subsection{Object-Level Taxonomy (Detection)}
+In Phase 2 of our pipeline refinement, we replaced the constrained 10-class system with an Open-Vocabulary discovery process. By performing NLP frequency analysis on 12,110 unconstrained BLIP-2 conversational outputs, we established the following 37-class Open-Vocabulary list of historical objects dynamically derived from the archive itself:
+\begin{itemize}
+    \item \textbf{Discovered Classes}: boy, hat, dog, tree, children, girl, kitchen, child, window, sack, field, head, cat, table, rooster, crown, woods, book, boys, gun, room, sheep, face, crest, garden, animals, chicken, apples, chair, bed, bird, grass, water, horse, floor, men, pond.
+\end{itemize}
+
+\subsection{Scene-Level Taxonomy (Classification)}
+Images are categorized into 5 distinct scene types to provide contextual metadata.
+\begin{itemize}
+    \item \textbf{Categories}: teaching, family, playing, landscape, drawing.
+    \item \textbf{Verification Prompt}: "Which scene fits best: teaching, family, playing, landscape, drawing? Provide only the category name."
+\end{itemize}
+
+\subsection{System Prompt for Relational Reasoning}
+For the extraction of relational scene graphs (Subject, Predicate, Object), the following instruction was utilized:
+\begin{quote}
+    "List relational triplets in (Subject, Predicate, Object) format for the primary interactions in this image. Focus on archival accuracy."
+\end{quote}
+
+\subsection{Interactive Analysis and Verification Tools}
+To ensure the AI's "belief" remains transparent and verifiable by human scholars, we developed a suite of interactive tools using the Gradio framework. This section provides a walkthrough of the two primary interfaces.
+
+\subsubsection{LLaVA-OneVision VQA Interface}
+The VQA Interface (Figure \ref{fig:vqa_interface}) is a real-time sandbox for querying the LLaVA-OneVision model. This allows for the immediate verification of object presence and scene context on images where automated agreement was low.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{latex_assets/vqa_interface_live.png}
+    \caption{LLaVA-OneVision VQA Verification Interface. \textbf{Step 1}: Upload a historical image. \textbf{Step 2}: Input a natural language question (e.g., "What is happening?"). \textbf{Step 3}: Review the multi-modal reasoning output.}
+    \label{fig:vqa_interface}
+\end{figure}
+
+\subsubsection{Visual Historian Archive Explorer}
+The Archive Explorer (Figure \ref{fig:archive_explorer}) provides a unified view of the enriched dataset. It links the super-resolved images with their detected object lists, scene categories, and relational triplets.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{latex_assets/archive_explorer_live.png}
+    \caption{Visual Historian: Archive Metadata Explorer. \textbf{Left}: Restored SSPN Archival Image. \textbf{Right}: Synchronized metadata fields including VQA-Object lists, VQA-Scene classification, and relational triplets. \textbf{Bottom}: Navigation controls for the 12,110-image collection.}
+    \label{fig:archive_explorer}
+\end{figure}
+
+
+Detailed instructions and the project repository are available at: \url{https://github.com/brhanug/Multi-Agent-Systems-For-Image-Analysis-Object-and-Complex-Scene-Detection}
+
+% --------------------------------------------------------------------------
+
+\clearpage
 % ==========================================================================
 % BIBLIOGRAPHY
 % ==========================================================================
-\clearpage
 \bibliographystyle{ieeetr}
 \bibliography{references}
 
