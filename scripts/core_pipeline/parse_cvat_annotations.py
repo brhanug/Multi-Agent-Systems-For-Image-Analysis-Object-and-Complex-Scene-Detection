@@ -119,6 +119,8 @@ def compare_with_mas(df: pd.DataFrame) -> dict:
     mas = pd.read_csv(SCORES_CSV)
     # Normalize MAS image IDs
     mas["image_id"] = mas["image_id"].apply(normalize_id)
+    # Deduplicate MAS scores to have exactly one row per unique image
+    mas = mas.drop_duplicates(subset=["image_id"])
 
     merged = df.merge(mas[["image_id","scene_agent_score","agreement_agent_score",
                              "object_agent_score","vlm_agent_score","uncertainty_score"]],
