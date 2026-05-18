@@ -38,9 +38,8 @@ MA_SCORES     = BASE / "results" / "multi_agent" / "multi_agent_validation_score
 COMPLEXITY    = BASE / "results" / "multi_agent" / "scene_complexity_index.csv"
 OUTPUT_DIR    = BASE / "results" / "multi_agent"
 
-# 10 binary class columns in the worksheet
-CLASS_COLS = ["Person", "Child", "Horse", "Building", "Weapon",
-              "Vehicle", "Tree", "Clothing", "Text", "Animal"]
+# 5 binary expert class columns
+CLASS_COLS = ["label_teaching", "label_family", "label_playing", "label_landscape", "label_drawing"]
 
 # Validation agent names → agent_comparison_scores.csv column names
 VALIDATION_AGENTS = {
@@ -55,13 +54,14 @@ MONOLITHIC_COL  = "monolithic_pipeline_agent"
 # ---------------------------------------------------------------------------
 
 
-def normalize_id(raw: str) -> str:
-    from pathlib import Path
-    parts = Path(str(raw)).parts
-    if len(parts) >= 2:
-        if parts[-2] not in ["original", "restored", "images", "metadata", "results", "CycleGAN", "pix2pix"]:
-            return f"{parts[-2]}/{Path(parts[-1]).stem}"
-    return Path(str(raw)).stem
+def normalize_id(name: str) -> str:
+    p = str(name).replace("images/", "").replace("\\", "/")
+    p = p.split("/")[-1]
+    p = p.rsplit(".", 1)[0]
+    parts = p.split("_")
+    if len(parts) >= 2 and parts[0].startswith("PPN"):
+        return "_".join(parts[-2:])
+    return p
 
 
 def pearson(x: list[float], y: list[float]) -> float:
@@ -98,27 +98,22 @@ def binary_prf(pred: pd.Series, true: pd.Series):
 
 # ---------------------------------------------------------------------------
 def main() -> None:
-    # ---------- 1. Load worksheet ------------------------------------------
-    if not WORKSHEET.exists():
-        print(f"❌ Worksheet not found: {WORKSHEET}", file=sys.stderr)
+    # ---------- 1. Load actual human labels --------------------------------
+    HUMAN_LABELS_PATH = BASE / "human_baseline_gold_kit" / "gold_labels_human.csv"
+    if not HUMAN_LABELS_PATH.exists():
+        print(f"❌ Human gold labels not found: {HUMAN_LABELS_PATH}", file=sys.stderr)
         sys.exit(1)
 
-    ws = pd.read_csv(WORKSHEET)
-    ws["_key"] = ws["Image_ID"].astype(str).apply(normalize_id)
+    ws = pd.read_csv(HUMAN_LABELS_PATH)
+    ws["cvat_id"] = ws.index
+    # Keep only the 801 reviewed images
+    ws_valid = ws[ws["cvat_id"] <= 800].copy()
+    ws_valid["_key"] = ws_valid["image_id"].astype(str).apply(normalize_id)
+    is_synthetic = False
+    print(f"📊 Worksheet rows (human reviewed): {len(ws_valid)}  |  Synthetic: {is_synthetic}")
 
-    is_synthetic = ws["Ambiguity_Notes"].astype(str).str.contains("SYNTHETIC", na=False).all()
-    if is_synthetic:
-        print("⚠️  WARNING: All labels in the worksheet are marked SYNTHETIC.")
-        print("   Results below evaluate the system against its own VLM outputs, not real ground truth.")
-        print("   Replace labeling_worksheet.csv with human labels for a rigorous evaluation.\n")
-
-    # Keep only rows with at least one filled class
-    ws[CLASS_COLS] = ws[CLASS_COLS].apply(pd.to_numeric, errors="coerce").fillna(0).astype(int)
-    ws_valid = ws[ws[CLASS_COLS].sum(axis=1) >= 0].copy()   # all rows valid after fill
-    print(f"📊 Worksheet rows: {len(ws_valid)}  |  Synthetic: {is_synthetic}")
-
-    # Per-image gold label: presence of *any* class → complex scene
-    ws_valid["gold_has_objects"] = (ws_valid[CLASS_COLS].sum(axis=1) > 0).astype(int)
+    # Per-image gold label: 1 if expert annotated any scene, 0 if left blank
+    ws_valid["gold_has_objects"] = (ws_valid["n_scene_labels"] > 0).astype(int)
     gold = ws_valid.set_index("_key")
 
     # ---------- 2. Load agent scores ---------------------------------------
@@ -132,7 +127,7 @@ def main() -> None:
     agents = agents.drop_duplicates("_key").set_index("_key")
 
     # ---------- 3. Join gold + agents --------------------------------------
-    joined = gold.join(agents, how="inner")
+    joined = gold.join(agents, how="inner", lsuffix="_gold", rsuffix="_agent")
     n_matched = len(joined)
     print(f"🔗 Matched worksheet ↔ agent scores: {n_matched} images")
     if n_matched < 10:
