@@ -1,0 +1,316 @@
+\documentclass[10pt, aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usecolortheme{whale}
+
+% === CUSTOM PACKAGES ===
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{multicol}
+\usepackage{hyperref}
+
+% === CUSTOM THEME COLORS ===
+\definecolor{ArchivalBlue}{RGB}{41, 128, 185}
+\definecolor{Charcoal}{RGB}{44, 62, 80}
+\definecolor{AccentGreen}{RGB}{39, 174, 96}
+
+\setbeamercolor{palette primary}{bg=Charcoal, fg=white}
+\setbeamercolor{palette secondary}{bg=ArchivalBlue, fg=white}
+\setbeamercolor{palette tertiary}{bg=Charcoal, fg=white}
+\setbeamercolor{structure}{fg=ArchivalBlue}
+\setbeamercolor{titlelike}{parent=palette primary}
+\setbeamercolor{block title}{bg=ArchivalBlue, fg=white}
+\setbeamercolor{block body}{bg=black!5, fg=black}
+
+% === METADATA ===
+\title[Visual Historian-MAS]{Visual Historian: Uncertainty-Aware Multi-Agent Coordination for Semantic Indexing of Historical Archives}
+\subtitle{Master's Thesis Defense Presentation}
+\author[B. G.]{Brhanu G.}
+\institute[Uni Hildesheim]{University of Hildesheim}
+\date[May 2026]{May 28, 2026}
+
+\begin{document}
+
+% --- SLIDE 1: TITLE SLIDE ---
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% --- SLIDE 2: THE ARCHIVAL DOMAIN GAP ---
+\begin{frame}{The Core Problem: The Archival Domain Gap}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{The Monolithic Challenge}
+        \begin{itemize}
+          \item Standard object detectors (YOLOv11m) achieve a flawless proxy mAP@0.50 of \textbf{0.989} on clean domain synthetic pseudo-labels.
+          \item When evaluated against our manually annotated spatial audit of \textbf{200 real historical images}, YOLOv11m's performance collapses to a real human mAP50 of \textbf{0.1316} (a \textbf{-0.8574} decay).
+          \item Standard vision models overfit to clean visual distributions and fail catastrophically under archival domain shifts.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{center}
+        \includegraphics[width=\textwidth]{../latex_assets/restoration_output_2_new.jpg}
+        \vskip 0.1cm
+        \tiny{Figure: Degraded archival scan exhibiting color collapse, chemical degradation, and historical noise.}
+      \end{center}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% --- SLIDE 3: MONOLITHIC OVERCONFIDENCE ---
+\begin{frame}{Theoretical Foundation: The Monolithic Overconfidence Trap}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{The Epistemic Blind Spot}
+        \begin{itemize}
+          \item Monolithic models lack self-awareness; they suffer from extreme overconfidence on out-of-domain historical textures.
+          \item YOLOv11m achieves a highly deficient Brier Calibration Score of \textbf{0.2570} on historical data.
+          \item Large VLMs (e.g., LLaVA) exhibit superior semantic reasoning but frequently hallucinate details without precise spatial grounding.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Our Paradigm Shift}
+        \begin{itemize}
+          \item Shift from individual model belief to a \textbf{Multi-View Cooperative Consensus} framework.
+          \item Rather than forcing AI to act as an infallible oracle, we use the disagreement between spatial and semantic agents to measure **epistemic uncertainty**.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% --- SLIDE 4: THE MULTI-AGENT ARCHITECTURE ---
+\begin{frame}{The Multi-Agent Cooperative Architecture (UACL)}
+  \begin{center}
+    \includegraphics[width=0.75\textwidth]{../latex_assets/6_agent_architecture.png}
+  \end{center}
+  \vskip -0.2cm
+  \begin{columns}
+    \begin{column}{0.48\textwidth}
+      \small
+      \textbf{Dual-Stream Processing:}
+      \begin{itemize}
+        \item \textit{Native Stream}: Degraded scans for spatial grounding.
+        \item \textit{Restored Stream}: SDXL-Refined view for VLM.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \small
+      \textbf{The 6-Agent Committee:}
+      \begin{itemize}
+        \item Spatial (YOLO), VLM (LLaVA), Scene, Document, OCR, Relational (Scene Graphs).
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% --- SLIDE 5: FORMAL DERIVATION: SCENE-AWARE AGREEMENT ---
+\begin{frame}{Formal Derivation: Scene-Aware Agreement (SAA)}
+  \begin{columns}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Proposition 1: Epistemic Variance Proxy}
+        Let $s_i = P(Y=1 | X, \theta_i)$. If agents are approximately independent ($r=0.57$, $\text{MI}=0.334$), the sample variance approximates epistemic uncertainty:
+        $$\hat{\sigma}^2 = \frac{1}{n-1}\sum_{i=1}^{n}(s_i - \bar{s})^2 \approx \mathbb{V}_{\theta}[\mathbb{E}[Y|X,\theta]]$$
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Theorem 1: Bayesian Risk Bounds}
+        Expected target risk $\mathcal{R}_T(h_{\text{AWLF}})$ under domain shift is bounded by the weighted sum of source risks, $\mathcal{H}\Delta\mathcal{H}$-divergence, and optimal joint error:
+        $$\mathcal{R}_T(h_{\text{AWLF}}) \le \sum_{i=1}^n w_i \mathcal{R}_S(s_i) + \frac{1}{2} d_{\mathcal{H}\Delta\mathcal{H}}(P_S, P_T) + \lambda^*$$
+        AWLF minimizes this bound by dynamically penalizing out-of-domain failure modes.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% --- SLIDE 6: SELF-TRAINING & CONVERGENCE GUARANTEES ---
+\begin{frame}{Self-Training and Convergence Guarantees}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{Theorem 2: Fixed-Point Convergence}
+        Let $T: \mathbf{L}^{(t)} \to \mathbf{L}^{(t+1)}$ be the SAA consensus operator mapping label matrices. If the consensus operator is contractive ($\gamma \in (0, 1)$):
+        $$\|T(\mathbf{A}) - T(\mathbf{B})\| \le \gamma \|\mathbf{A} - \mathbf{B}\|$$
+        then the self-training pseudo-label refinement loop converges to a unique fixed-point:
+        $$\lim_{t \to \infty} \mathbf{L}^{(t)} = \mathbf{L}^* = T(\mathbf{L}^*)$$
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Structural Stability}
+        \begin{itemize}
+          \item Proves that SAA consensus acts as a spatial-semantic smoothing kernel.
+          \item Guarantees that pseudo-label refinement does not diverge, oscillate, or accumulate out-of-domain errors over training iterations.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% --- SLIDE 7: PEOPLEART STRESS-TEST ---
+\begin{frame}{External Out-of-Domain Validation: PeopleArt Stress-Test}
+  \begin{columns}
+    \begin{column}{0.45\textwidth}
+      \small
+      \begin{table}
+        \centering
+        \caption{PeopleArt Style Stratification ($N=4,778$).}
+        \resizebox{\textwidth}{!}{%
+        \begin{tabular}{lcccc}
+          \toprule
+          Style Category & $N$ & Precision & Recall & F1-Score \\
+          \midrule
+          Photo & 252 & 0.875 & 0.915 & \textbf{0.878} \\
+          Realism & 703 & 0.840 & 0.874 & \textbf{0.835} \\
+          Impressionism & 240 & 0.888 & 0.944 & \textbf{0.880} \\
+          Cubism & 272 & 0.836 & 0.834 & \textbf{0.831} \\
+          Cartoon & 75 & 0.706 & 0.680 & \textbf{0.673} \\
+          Academicism & 110 & 0.823 & 0.823 & \textbf{0.754} \\
+          \bottomrule
+        \end{tabular}%
+        }
+      \end{table}
+    \end{column}
+    \begin{column}{0.53\textwidth}
+      \begin{block}{Severe Depiction Shift Proof}
+        \begin{itemize}
+          \item YOLOv11m collapses under stylized domain shift, dropping to \textbf{0.673} F1 on cartoons.
+          \item SAA Epistemic Uncertainty successfully rises in highly stylized domains, peaking in Cubism ($\sigma = \mathbf{0.338}$).
+          \item This flags a **95.9%** manual review rate, proving UACL functions as a robust safety net.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% --- SLIDE 8: HUMAN GOLD-STANDARD AUDIT ---
+\begin{frame}{Evaluating Against an Expert Human Baseline}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{The 801-Image Expert Baseline}
+        \begin{itemize}
+          \item Manually labeled 801 images in CVAT to break validation circularity.
+          \item Scene Agent achieves a near-perfect F1 of \textbf{0.9969} and perfect recall (\textbf{1.0000}) directly against expert ground truth.
+          \item The heuristic Object Agent yields the lowest F1 (\textbf{0.7686}), proving modern spatial priors are highly deficient.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Uncertainty Correlation (Cohort A vs. B)}
+        \begin{itemize}
+          \item Cohort B (reviewed but left blank by the expert due to extreme semantic ambiguity) correlates with elevated SAA uncertainty scores (**0.2318** vs. **0.2224**).
+          \item Mann-Whitney U test confirms a positive effect size of \textbf{Cohen's $d = 0.2349$}.
+          \item Mathematically links human cognitive doubt with SAA coordinator uncertainty.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% --- SLIDE 9: SPATIAL AUDIT & COHEN'S KAPPA ---
+\begin{frame}{Spatial Domain Gap and Inter-Annotator Agreement}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{The 200-Image Audit Results}
+        \begin{itemize}
+          \item Audited 200 images using a second human expert in Label Studio.
+          \item YOLOv11m collapses to a real human mAP50 of **0.1316** and mAP50-95 of **0.0570** (a catastrophic **-0.8574** decay).
+          \item Inter-annotator agreement yields a Cohen's Kappa score of **0.1555** overall.
+          \item Category-specific binary Kappa for *Drawing* collapses to **0.0415**.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Defending Slight Agreement ($\kappa = 0.1555$)}
+        \begin{itemize}
+          \item Low Kappa is not a human failure; it is empirical proof of **inherent historical ambiguity** in visual culture.
+          \item Proves that a monolithic ground-truth is methodologically flawed on cultural heritage archives.
+          \item Consensus scoring is structurally necessary to map and preserve these epistemic gaps.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% --- SLIDE 10: ACTIVE LEARNING & CALIBRATION ---
+\begin{frame}{Downstream Utility: Active Learning and Calibration}
+  \begin{columns}
+    \begin{column}{0.48\textwidth}
+      \begin{center}
+        \includegraphics[width=0.9\textwidth]{../latex_assets/expert_calibration_curve.png}
+        \vskip 0.1cm
+        \tiny{Figure: Probability Calibration. The AWLF Multi-Agent System (Brier = 0.0062) aligns with the diagonal, neutralizing YOLOv11m's overconfidence (Brier = 0.2570).}
+      \end{center}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Triage and Triage Overlap}
+        \begin{itemize}
+          \item **4.7$\times$ Triage Efficiency Gain**: SAA Unified Uncertainty captures **95.6% of all labeling errors at just a 20% auditing limit**.
+          \item **Jaccard Overlap**: Jaccard IoU = **0.9739** (Consensus uniquely flags 16 images where YOLO was blindly overconfident, acting as a domain-shift safety net).
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% --- SLIDE 11: COST-BENEFIT ANALYSIS ---
+\begin{frame}{Institutional Labor and Computational Cost-Benefit Analysis}
+  \begin{columns}
+    \begin{column}{0.45\textwidth}
+      \small
+      \begin{table}
+        \centering
+        \caption{Institutional Curation Labor (12,110 Images).}
+        \resizebox{\textwidth}{!}{%
+        \begin{tabular}{lrr}
+          \toprule
+          Triage Strategy & Images Audited & Human Labor \\
+          \midrule
+          Manual Review & 12,110 (100\%) & 100.9 hours \\
+          Monolithic Auto & 12,110 (100\%) & 100.9 hours \\
+          \textbf{UACL Triage (Ours)} & \textbf{2,422 (20\%)} & \textbf{20.2 hours} \\
+          \midrule
+          \textbf{Net Savings} & \textbf{9,688 (80\%)} & \textbf{80.7 hours} \\
+          \bottomrule
+        \end{tabular}%
+        }
+      \end{table}
+    \end{column}
+    \begin{column}{0.53\textwidth}
+      \begin{block}{Labor Savings and Decoupled Costs}
+        \begin{itemize}
+          \item Manual auditing of the entire collection takes **100.9 hours** of human labor.
+          \item Standalone models save zero labor because their high out-of-domain error rate requires a 100% manual check.
+          \item UACL routes only high-uncertainty images, saving **80.7 hours** (an **80% reduction in institutional labor costs**).
+          \item Heaviest computational overhead is paid exactly once offline, while the distilled student model runs in real-time (1.8 GB VRAM, 20ms).
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% --- SLIDE 12: CONCLUSION & FUTURE OUTLOOK ---
+\begin{frame}{Conclusions, Ethical Curation, and Open Science}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{Open Science & Reproducibility}
+        \begin{itemize}
+          \item Released a metadata-enriched **40 GB Zenodo dataset package** (CycleGAN images, YOLO consensus labels, VLM raw JSON outputs, training weights).
+          \item Complete project code staged, committed, and pushed to remote GitHub `main` branch.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Ethical Cataloging safety Net}
+        \begin{itemize}
+          \item Establishes SAA as an **automated ethical auditing mechanism** that maps spatial-semantic clashes.
+          \item Automatically flags modern pre-training biases (e.g. gendered occupations, taxonomic anachronisms) to preserve historical visual truth.
+          \item \textit{Future Work}: Transitioning from static heuristics to automated reinforcement learning routing.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\end{document}
