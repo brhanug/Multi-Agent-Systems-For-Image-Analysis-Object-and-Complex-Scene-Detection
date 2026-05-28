@@ -797,6 +797,23 @@ Other Art Styles & 3,126 & 0.840 & 0.858 & 0.825 & 0.325 \\
 \paragraph{Provenance Note.}
 In the final multi-agent evaluation scripts, agreement can be sourced from either measured v8 agreement artifacts or a consistency-based proxy fallback when files are missing. Reported results therefore include an explicit \texttt{agreement\_source} tag to distinguish these cases.
 
+\begin{figure}[!htbp]
+\centering
+\begin{minipage}{0.49\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{latex_assets/peopleart_style_f1.png}
+  \caption{YOLOv11m Spatial Detection F1-score degradation across stylized depiction categories on the PeopleArt dataset.}
+  \label{fig:peopleart_style_f1}
+\end{minipage}
+\hfill
+\begin{minipage}{0.49\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{latex_assets/peopleart_calibration_real.png}
+  \caption{SAA coordinator consensus agreement and scaled epistemic uncertainty ($\sigma$) across diverse out-of-domain depiction styles.}
+  \label{fig:peopleart_calibration_real}
+\end{minipage}
+\end{figure}
+
 \begin{table}[!htbp]
 \centering
 \caption{Agreement Evolution across Pipeline Versions (v1.0 Final).}
