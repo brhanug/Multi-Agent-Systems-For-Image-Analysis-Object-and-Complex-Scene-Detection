@@ -540,7 +540,7 @@ For a typical large-scale heritage archive like the Colibri collection ($N = 12,
     \begin{equation}
         \text{Total Labor} = 12,110 \times 30\text{ seconds} = 100.9\text{ human hours}
     \end{equation}
-    \item \textbf{Monolithic Automated Triage}: Since standalone object detectors trained on modern visual concepts (like YOLOv11m) collapse under domain shift (achieving a real human mAP50 of only $0.1902$), relying on raw automated outputs is structurally unsafe for academic archives. This necessitates a 100\% manual audit, yielding zero labor savings.
+    \item \textbf{Monolithic Automated Triage}: Since standalone object detectors trained on modern visual concepts (like YOLOv11m) collapse under domain shift (achieving a real human mAP50 of only $0.1316$), relying on raw automated outputs is structurally unsafe for academic archives. This necessitates a 100\% manual audit, yielding zero labor savings.
     \item \textbf{UACL Multi-Agent Triage (Our Work)}: The SAA coordinator measures epistemic uncertainty ($\hat{\sigma}^2$) based on agent consensus. By routing only high-uncertainty images ($\hat{\sigma}^2 \ge 0.30$) to the human queue, the framework triggers manual audits for only \textbf{20.0\% of the archive} ($2,422$ images), automatically indexing the remaining 80.0\% with high consensus confidence. This yields:
     \begin{equation}
         \text{UACL Labor} = 2,422 \times 30\text{ seconds} = 20.2\text{ human hours}
@@ -1897,18 +1897,18 @@ In scan \texttt{PPN1845710797\_00000450.jpg}, severe chemical degradation has cr
 \paragraph{Case Study 3: Highly Stylized Non-Photographic Content.}
 In sketch illustration \texttt{PPN1845710797\_00000912.jpg}, a black-and-white hand-drawn portrait of an animal is embedded within a text page. YOLOv11m fails to detect the drawing class completely because of the sketch domain shift. However, GroundingDINO successfully localizes the animal, and the Scene Agent confirms a "drawing" category. The resulting spatial-semantic disagreement triggers immediate human triage, catching a domain shift that would otherwise bypass standard visual-only models.
 
-\subsection{E7: The 100-Image Human-Verified Spatial \& Inter-Annotator Audit}
+\subsection{E7: The 200-Image Human-Verified Spatial \& Inter-Annotator Audit}
 \label{sec:human_spatial_audit_results}
 
-To resolve the self-consistency limitations of synthetic proxy evaluations and formally test inter-annotator dynamics, we conducted a rigorous, independent audit using a randomly selected cohort of \textbf{100 historical archival images}. These images were manually annotated by a second human expert in Label Studio, establishing a dual-annotator verification split. Annotators drew detailed spatial bounding boxes (mapping directly to the YOLO model's 10 classes) and assigned subjective confidence scores (Certain, Likely, Unsure) alongside scene classifications. This dual-annotator split yielded three pivotal empirical findings:
+To resolve the self-consistency limitations of synthetic proxy evaluations and formally test inter-annotator dynamics, we conducted a rigorous, independent audit using a randomly selected cohort of \textbf{200 historical archival images}. These images were manually annotated by a second human expert in Label Studio, establishing a dual-annotator verification split. Annotators drew detailed spatial bounding boxes (mapping directly to the YOLO model's 10 classes) and assigned subjective confidence scores (Certain, Likely, Unsure) alongside scene classifications. This dual-annotator split yielded three pivotal empirical findings:
 
 \subsubsection{Spatial Domain Gap Quantification (Real mAP)}
-When the YOLOv11 student model—which achieved a seemingly flawless proxy mAP@0.50 of \textbf{0.989} on synthetic pseudo-labels—was evaluated directly against the manually drawn bounding boxes on these 100 real historic images, its performance dropped significantly:
+When the YOLOv11 student model—which achieved a seemingly flawless proxy mAP@0.50 of \textbf{0.989} on synthetic pseudo-labels—was evaluated directly against the manually drawn bounding boxes on these 200 real historic images (153 of which contain objects and 47 are background-only), its performance dropped significantly:
 \begin{itemize}
-    \item \textbf{Real Human mAP@0.50}: \textbf{0.1902} (19.0\%)
-    \item \textbf{Real Human mAP@0.50:0.95}: \textbf{0.0809} (8.1\%)
+    \item \textbf{Real Human mAP@0.50}: \textbf{0.1316} (13.2\%)
+    \item \textbf{Real Human mAP@0.50:0.95}: \textbf{0.0570} (5.7\%)
 \end{itemize}
-This dramatic performance decay (a \textbf{-0.7988} drop in mAP@0.50) mathematically demonstrates the severe out-of-domain generalization gap. Standalone object detectors heavily overfit to clean domain synthetic data, rendering self-consistency validations deceptive and highlighting the structural necessity of our multi-agent disagreement framework to safeguard historical cataloging.
+This dramatic performance decay (a \textbf{-0.8574} drop in mAP@0.50) mathematically demonstrates the severe out-of-domain generalization gap. Standalone object detectors heavily overfit to clean domain synthetic data, rendering self-consistency validations deceptive and highlighting the structural necessity of our multi-agent disagreement framework to safeguard historical cataloging.
 
 \subsubsection{Inter-Annotator Agreement Analysis (Cohen's Kappa)}
 We formally calculated Cohen's Kappa ($\kappa$) between the primary scene annotations of the two independent domain experts on this shared 100-image subset. The multi-class Cohen's Kappa score is \textbf{0.1555}, representing a "slight" agreement overall. The category-specific binary Kappas reveal deep semantic disparities:

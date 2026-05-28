@@ -12,7 +12,7 @@ DB_PATH = Path("/home/brhanu/.local/share/label-studio/label_studio.sqlite3")
 IMG_SRC_DIR = BASE / "cvat_upload_temp/obj_train_data"
 AUDIT_IMG_DIR = BASE / "human_spatial_audit/images"
 AUDIT_LBL_DIR = BASE / "human_spatial_audit/labels"
-OUTPUT_CSV = BASE / "human_spatial_audit/user_annotations_100.csv"
+OUTPUT_CSV = BASE / "human_spatial_audit/user_annotations_200.csv"
 
 # YOLO 10-class mapping
 CLASS_MAPPING = {
@@ -43,12 +43,12 @@ def main():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    # Query tasks and completions for task_id <= 100
+    # Query tasks and completions for task_id <= 200
     cursor.execute("""
         SELECT t.id, t.data, tc.result 
         FROM task t
         JOIN task_completion tc ON t.id = tc.task_id
-        WHERE t.id <= 100
+        WHERE t.id <= 200
         ORDER BY t.id ASC
     """)
     

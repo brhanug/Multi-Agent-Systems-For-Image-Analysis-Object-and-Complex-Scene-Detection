@@ -67,7 +67,7 @@
 % ================================================================
 \begin{center}
 \colorbox{lightgray}{\parbox{0.96\linewidth}{\vspace{4pt}\small
-\textbf{Summary.} This report documents research progress since the strategic pivot to a Multi-Agent System (MAS) architecture. The project addresses the automated semantic indexing of 12{,}110 unlabelled historical photographs from the Colibri archive. The central contribution is the \textit{Uncertainty-Aware Collaborative Labeling (UACL)} framework, which uses inter-agent disagreement as a principled predictor of archival ambiguity. Key results: mAP50 = 0.1902 (real human) / 0.989 (proxy), 4.7$\times$ HITL efficiency gain, AWLF ROC-AUC = 0.787, Semantic P@10 = 1.000.
+\textbf{Summary.} This report documents research progress since the strategic pivot to a Multi-Agent System (MAS) architecture. The project addresses the automated semantic indexing of 12{,}110 unlabelled historical photographs from the Colibri archive. The central contribution is the \textit{Uncertainty-Aware Collaborative Labeling (UACL)} framework, which uses inter-agent disagreement as a principled predictor of archival ambiguity. Key results: mAP50 = 0.1316 (real human) / 0.989 (proxy), 4.7$\times$ HITL efficiency gain, AWLF ROC-AUC = 0.787, Semantic P@10 = 1.000.
 \vspace{4pt}}}
 \end{center}
 
@@ -311,7 +311,7 @@ To move thesis claims from \textit{``proxy-validated''} to \textit{``human-measu
 
 This dual-annotator split yielded critical empirical findings:
 \begin{itemize}[leftmargin=2em, noitemsep]
-  \item \textbf{Spatial Domain Gap:} While YOLOv11m achieved a proxy mAP50 of 0.989 on synthetic data, its performance dropped to a real human mAP50 of \textbf{0.1902} on real historical images (a $-0.7988$ decay).
+  \item \textbf{Spatial Domain Gap:} While YOLOv11m achieved a proxy mAP50 of 0.989 on synthetic data, its performance dropped to a real human mAP50 of \textbf{0.1316} on real historical images (a $-0.8574$ decay).
   \item \textbf{Agreement Calibration:} The Multi-Agent system achieved a Brier Calibration score of \textbf{0.0062} (near-perfect alignment) compared to YOLOv11's poor calibration of 0.2570.
   \item \textbf{Triage Lift:} Prioritizing review queues by SAA Unified Uncertainty captures \textbf{95.6\% of all pseudo-label errors at just a 20\% auditing limit}—a $4.7\times$ review efficiency gain.
 \end{itemize}
