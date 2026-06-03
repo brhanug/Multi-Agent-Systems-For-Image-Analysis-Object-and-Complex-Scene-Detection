@@ -266,7 +266,6 @@ Manifest CSV | 1 | `/final_dataset/metadata/manifest.csv` (12,111 entries)
 Taxonomy v2.0 Config | 1 | `/thesis_project/configs/taxonomy_v2.yaml`
 VQA Binary Classification | 1 | `/final_dataset/metadata/vqa_binary_classification.json` (12,111 entries)
 
-
 ⸻
 
 🧠 Extended Roadmap (Dec 2025 – Q2 2026)
@@ -280,35 +279,36 @@ Triptych Visualization Module	Compare model results side-by-side	✅ Completed
 LLaVA-OneVision Integration	VQA-based semantic validation	✅ Completed
 Gradio VQA Interface	Web-based human evaluation tool	✅ Completed
 Zenodo Dataset Publication	Multi-modal dataset release	Q1 2026
-
+Agent 0 & Dual Coordinator	Upgrade YOLOv11 to YOLOv11-seg+SAM, Kosmos-2.5, SigLIP, and transition to Primary VLM + Critic LLM routing framework	Q2 2026
 
 ⸻
 
-🎯 Next Immediate Actions (Dec 17 – 24, 2025)
-	1.	Generate HTML index page for Triptych Collages (easy supervisor review).
-	2.	Add LLaVA-OneVision VQA question set (“Is this a teaching scene?” etc.).
-	3.	Compute agreement matrix visualization (heatmap per model pair).
-	4.	Create publication-ready figures for thesis Chapter 5 (qualitative results).
-	5.	Prepare Zenodo metadata and upload structure.
+🎯 Next Immediate Actions (June 2026 — Phase 2 Architecture)
+	1. Define structured JSON payload schema between Agent 0 (YOLOv11-seg+SAM, Kosmos-2.5, SigLIP) and Dual Coordinator.
+	2. Implement YOLOv11-seg + SAM inference scripts to generate precise instance masks.
+	3. Set up Kosmos-2.5 processing for text-heavy archival images (structured markdown text).
+	4. Build SigLIP embedding-based zero-shot semantic categorization module.
+	5. Configure Primary VLM/LLM Prompt (semantic synthesizer) & Critic LLM Auditor routing framework.
+	6. Refactor MAS Core context injection (Geospatial, Demographics, Hallucination Critic) to consume upgraded Agent 0 inputs.
 
 ⸻
 
 🧩 Updated Pipeline Summary
 
-CycleGAN → Diffusion Restoration → GroundingDINO → Florence-2 → Kosmos-2.5 → YOLOv11 (Self-Trained) → CLIP + SigLIP Scene Classifier → Cross-Model Agreement → LLaVA VQA → Gradio Interface → Zenodo Export
+CycleGAN → Diffusion Restoration → Agent 0 (YOLOv11-seg+SAM, Kosmos-2.5, SigLIP) → MAS Core (Geospatial, Demog, Critic) → Primary VLM/LLM Coordinator → Critic LLM Coordinator → Semantic Index / HITL Queue
 
 Component | Role
 --- | ---
 CycleGAN | Historical → modern translation
 Diffusion Restoration | Enhances texture and fidelity
-GroundingDINO / Florence-2 | **Primary Consensus** for pseudo-labeling
-Kosmos-2.5 | **Rich Markdown Grounding** (OCR + Layout)
-YOLOv11 | **Self-Trained** Object Detection
-CLIP / SigLIP | Zero-shot scene classification
-Hybrid Agreement | Multi-model consistency metric
-LLaVA-OneVision | Text-based scene reasoning (VQA)
-Gradio Interface | Real-time human evaluation
-Zenodo Export | Dataset reproducibility and public release
+YOLOv11-seg + SAM | Precise pixel-perfect instance masking (objects)
+Kosmos-2.5 | Spatially-aware OCR & structured text-to-markdown
+SigLIP / CLIP | Embedding-based scene/semantic classification
+MAS Context Core | Geospatial, demographic, and historical context injection
+Primary VLM/LLM | Text-centric semantic synthesizer (GPT-4o/Sonnet/Gemini Pro)
+Critic LLM | Disagreement Auditor & Router (replaces hardcoded AWLF)
+Semantic Index | High-confidence structured metadata target
+HITL Queue | Human-in-the-loop review queue for audited conflicts
 
 ---
 
@@ -585,4 +585,25 @@ Zenodo Export | Dataset reproducibility and public release
 
 #### Committed & Pushed
 - Commit: `dc2fc92` — pushed to `git@github.com:brhanug/Multi-Agent-Systems-For-Image-Analysis-Object-and-Complex-Scene-Detection.git`
+
+
+---
+
+**Log Update — June 3, 2026**
+
+### **Transitioning to Upgraded Agent 0 + Dual-Coordinator Orchestration**
+- **Decision**: Fully adopted the upgraded **Agent 0** instance-level understanding pipeline and modernized the **Dual-LLM Coordinator** orchestration.
+- **Architectural Shift Details**:
+  - **Segmentation Void Solved**: Swapped standard YOLOv11 detection with YOLOv11-seg + SAM, providing pixel-perfect instance masks.
+  - **Text Ignorance Solved**: Integrated Kosmos-2.5 explicitly for spatially-aware text extraction and markdown formatting.
+  - **Compute Efficiency**: Delegated semantic classification to SigLIP / CLIP embeddings instead of VLM queries.
+  - **MAS Core Integration**: Re-routed MAS inputs (Geospatial, Demographics) to feed on isolated masks and structured Kosmos-2.5 markdown.
+  - **Orchestration Modernization**: Moved away from hardcoded disagreement math (AWLF) to a text-centric Primary VLM/LLM Coordinator (e.g. GPT-4o / Claude 3.5 Sonnet / Gemini 1.5 Pro) paired with a Critic LLM Auditor (Claude 3.5 Haiku / Gemini 1.5 Pro).
+- **Tasks Initiated**:
+  - Define schema for the structured JSON payload output by Agent 0 and MAS core.
+  - Script integration of YOLOv11-seg + SAM for mask extraction.
+  - Set up Kosmos-2.5 pipeline for structured text extraction.
+  - Design prompts for Primary VLM/LLM Coordinator and Critic LLM.
+  - Implement the routing logic based on Critic LLM confidence.
+
 

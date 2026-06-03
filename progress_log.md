@@ -125,36 +125,37 @@ Compare LLaVA answers with YOLO/OWL-ViT detections for interpretability alignmen
 | **Model Agreement Metrics** | Quantify multi-model overlap | Continuous |
 | **Human Gold Subset** | Benchmark for label quality | Q2 2026 |
 | **LLaVA-based Validation** | QA interpretability check | Q2 2026 |
+| **Agent 0 & Dual Coordinator** | Upgrade YOLOv11 to YOLOv11-seg+SAM, Kosmos-2.5, SigLIP, and transition to Primary VLM + Critic LLM routing framework | Q2 2026 |
 
 ---
 
-## 🎯 Next Immediate Actions (Dec 16 – 23 2025)
+## 🎯 Next Immediate Actions (June 2026 — Phase 2 Architecture)
 
-1. Regenerate YOLOv11 labels (conf ≥ 0.25, normalized coordinates).  
-2. Retrain YOLOv11 for 200 epochs with mosaic/mixup augmentation.  
-3. Integrate CLIP Scene Classifier → 5 scene labels per image.  
-4. Compute Cross-Model Agreement Matrix.  
-5. Select divergent samples for Gold Annotation subset.  
-6. Deploy LLaVA-OneVision QA module for validation.  
-7. Prepare Zenodo metadata + dataset documentation.
+1. Define structured JSON payload schema between Agent 0 (YOLOv11-seg+SAM, Kosmos-2.5, SigLIP) and Dual Coordinator.
+2. Implement YOLOv11-seg + SAM inference scripts to generate precise instance masks.
+3. Set up Kosmos-2.5 processing for text-heavy archival images (structured markdown text).
+4. Build SigLIP embedding-based zero-shot semantic categorization module.
+5. Configure Primary VLM/LLM Prompt (semantic synthesizer) & Critic LLM Auditor routing framework.
+6. Refactor MAS Core context injection (Geospatial, Demographics, Hallucination Critic) to consume upgraded Agent 0 inputs.
 
 ---
 
 ## 🧩 Updated Pipeline Summary
 
-**CycleGAN → Diffusion Restoration → GroundingDINO → OWL-ViT → BLIP-2 → spaCy → YOLOv8/YOLOv11 → CLIP Scene Classifier → LLaVA VQA → Zenodo Export**
+**CycleGAN → Diffusion Restoration → Agent 0 (YOLOv11-seg+SAM, Kosmos-2.5, SigLIP) → MAS Core (Geospatial, Demog, Critic) → Primary VLM/LLM Coordinator → Critic LLM Coordinator → Semantic Index / HITL Queue**
 
 | Component | Role |
 |------------|------|
-| **CycleGAN** | Historical → modern translation (enhancement) |
-| **Diffusion Restoration** | Texture and detail refinement (Stable Diffusion) |
-| **GroundingDINO / OWL-ViT** | Object & phrase grounding |
-| **BLIP-2** | Caption generation & semantic context |
-| **spaCy** | Noun extraction → pseudo-labels |
-| **YOLOv8 / YOLOv11** | Pseudo-supervised fine-tuning |
-| **CLIP** | Scene-level zero-shot classification |
-| **LLaVA-OneVision** | Textual reasoning & VQA validation |
-| **Zenodo Export** | Final dataset for reproducibility |
+| **CycleGAN** | Historical → modern translation |
+| **Diffusion Restoration** | Enhances texture and fidelity |
+| **YOLOv11-seg + SAM** | Precise pixel-perfect instance masking (objects) |
+| **Kosmos-2.5** | Spatially-aware OCR & structured text-to-markdown |
+| **SigLIP / CLIP** | Embedding-based scene/semantic classification |
+| **MAS Context Core** | Geospatial, demographic, and historical context injection |
+| **Primary VLM/LLM** | Text-centric semantic synthesizer (GPT-4o/Sonnet/Gemini Pro) |
+| **Critic LLM** | Disagreement Auditor & Router (replaces hardcoded AWLF) |
+| **Semantic Index** | High-confidence structured metadata target |
+| **HITL Queue** | Human-in-the-loop review queue for audited conflicts |
 
 ---
 
@@ -181,3 +182,68 @@ Compare LLaVA answers with YOLO/OWL-ViT detections for interpretability alignmen
   - `monolithic_pipeline_agent` mean: `0.5867`
   - `comparison_fusion_score` mean: `0.5632`
   - provenance: `mixed` (measured + proxy)
+
+---
+
+**Log Update — April 25, 2026**
+
+### **Defence Gap Analysis + Full Extended Evaluation Implementation**
+
+#### Critical Fixes Applied
+- **GitHub URL** corrected in Appendix (old `historical-image-analysis-thesis` → new repo)
+- **RQ1 narrative reframed**: coordinator conservatism is intentional design, not a weakness. Wilcoxon W=14,443,727, p<0.001, Cohen's d=0.11 (negligible effect) → statistically significant but practically small difference.
+- **Ablation anomaly explained** (document/restoration agents hurting fusion): documented as enrichment channels, not decision signals. Their proxy scores carry different semantic content than grounding agents.
+- **"Latest Progress Update" section** rewritten as proper `Section 6: Extended Evaluation` chapter.
+
+#### New Experiment Scripts Added
+| Script | Purpose | Key Result |
+|--------|---------|------------|
+| `run_gold_simulation.py` | Consensus-of-consensus gold subset | 3,069 images (25.3%), both strategies F1=1.0 |
+| `run_cross_fold_evaluation.py` | 5-fold stability | Δ=-0.0235 ± 0.0015 across folds; Cohen's d=0.11 |
+| `run_rq2_disagreement_analysis.py` | Disagreement as error predictor | Pearson r=-0.7993 (strong inverse) |
+| `run_complexity_analysis.py` | 5-bin complexity stratification | Fusion wins very_low bin by +0.176 (key RQ3 result) |
+| `generate_thesis_figures.py` | 6 publication-ready figures | Agent dists, scatter, ROC, complexity bars, ablation, HITL |
+
+#### Statistical Upgrades
+- `run_statistical_report.py` upgraded with:
+  - Wilcoxon signed-rank test (manual implementation, no scipy)
+  - Cohen's d effect size labels (negligible/small/medium/large)
+  - Pearson correlation matrix across all agents
+  - `statistical_correlation_matrix.csv` added
+
+#### New Output Artifacts (results/multi_agent/)
+- `gold_simulation_subset.csv` + `gold_simulation_report.json`
+- `cross_fold_results.csv` + `cross_fold_summary.json`
+- `rq2_disagreement_analysis.json` + `rq2_pr_curve.csv` + `rq2_roc_curve.csv`
+- `complexity_deep_analysis.csv` + `complexity_deep_summary.json`
+- `statistical_correlation_matrix.csv`
+
+#### Thesis Figures Generated (results/figures/)
+- `thesis_agent_distributions.png`
+- `thesis_mono_vs_fusion.png`
+- `thesis_rq2_roc.png`
+- `thesis_complexity_bars.png`
+- `thesis_ablation_impact.png`
+- `thesis_hitl_efficiency.png`
+
+#### Committed & Pushed
+- Commit: `dc2fc92` — pushed to `git@github.com:brhanug/Multi-Agent-Systems-For-Image-Analysis-Object-and-Complex-Scene-Detection.git`
+
+---
+
+**Log Update — June 3, 2026**
+
+### **Transitioning to Upgraded Agent 0 + Dual-Coordinator Orchestration**
+- **Decision**: Fully adopted the upgraded **Agent 0** instance-level understanding pipeline and modernized the **Dual-LLM Coordinator** orchestration.
+- **Architectural Shift Details**:
+  - **Segmentation Void Solved**: Swapped standard YOLOv11 detection with YOLOv11-seg + SAM, providing pixel-perfect instance masks.
+  - **Text Ignorance Solved**: Integrated Kosmos-2.5 explicitly for spatially-aware text extraction and markdown formatting.
+  - **Compute Efficiency**: Delegated semantic classification to SigLIP / CLIP embeddings instead of VLM queries.
+  - **MAS Core Integration**: Re-routed MAS inputs (Geospatial, Demographics) to feed on isolated masks and structured Kosmos-2.5 markdown.
+  - **Orchestration Modernization**: Moved away from hardcoded disagreement math (AWLF) to a text-centric Primary VLM/LLM Coordinator (e.g. GPT-4o / Claude 3.5 Sonnet / Gemini 1.5 Pro) paired with a Critic LLM Auditor (Claude 3.5 Haiku / Gemini 1.5 Pro).
+- **Tasks Initiated**:
+  - Define schema for the structured JSON payload output by Agent 0 and MAS core.
+  - Script integration of YOLOv11-seg + SAM for mask extraction.
+  - Set up Kosmos-2.5 pipeline for structured text extraction.
+  - Design prompts for Primary VLM/LLM Coordinator and Critic LLM.
+  - Implement the routing logic based on Critic LLM confidence.

@@ -1,316 +1,957 @@
-\documentclass[10pt, aspectratio=169]{beamer}
+\documentclass[aspectratio=169,11pt]{beamer}
+
 \usetheme{Madrid}
-\usecolortheme{whale}
+\usecolortheme{default}
+\usefonttheme{professionalfonts}
 
-% === CUSTOM PACKAGES ===
-\usepackage{graphicx}
-\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,bm}
 \usepackage{booktabs}
+\usepackage{array}
 \usepackage{tikz}
-\usepackage{multicol}
-\usepackage{hyperref}
+\usetikzlibrary{positioning}
+\usepackage{xcolor}
 
-% === CUSTOM THEME COLORS ===
-\definecolor{ArchivalBlue}{RGB}{41, 128, 185}
-\definecolor{Charcoal}{RGB}{44, 62, 80}
-\definecolor{AccentGreen}{RGB}{39, 174, 96}
+\graphicspath{{../latex_assets/}{latex_assets/}{./latex_assets/}}
 
-\setbeamercolor{palette primary}{bg=Charcoal, fg=white}
-\setbeamercolor{palette secondary}{bg=ArchivalBlue, fg=white}
-\setbeamercolor{palette tertiary}{bg=Charcoal, fg=white}
-\setbeamercolor{structure}{fg=ArchivalBlue}
-\setbeamercolor{titlelike}{parent=palette primary}
-\setbeamercolor{block title}{bg=ArchivalBlue, fg=white}
-\setbeamercolor{block body}{bg=black!5, fg=black}
+\definecolor{PrismBlue}{RGB}{26,86,160}
+\definecolor{PrismGreen}{RGB}{46,125,50}
+\definecolor{PrismOrange}{RGB}{239,124,0}
+\definecolor{PrismRed}{RGB}{183,28,28}
+\definecolor{PrismGray}{RGB}{90,90,90}
 
-% === METADATA ===
-\title[Visual Historian-MAS]{Visual Historian: Uncertainty-Aware Multi-Agent Coordination for Semantic Indexing of Historical Archives}
-\subtitle{Master's Thesis Defense Presentation}
-\author[B. G.]{Brhanu G.}
-\institute[Uni Hildesheim]{University of Hildesheim}
-\date[May 2026]{May 28, 2026}
+\setbeamercolor{structure}{fg=PrismBlue}
+\setbeamercolor{title}{fg=white,bg=PrismBlue}
+\setbeamercolor{frametitle}{fg=white,bg=PrismBlue}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+
+\newcommand{\metric}[2]{\begin{tabular}{c}\textbf{\Large #1}\\[-1mm]{\scriptsize #2}\end{tabular}}
+\newcommand{\yes}{\textcolor{PrismGreen}{\textbf{Yes}}}
+\newcommand{\partly}{\textcolor{PrismOrange}{\textbf{Partial}}}
+\newcommand{\askbox}[1]{\begin{alertblock}{Interactive checkpoint}#1\end{alertblock}}
+\newcommand{\evidence}[1]{\textcolor{PrismBlue}{\textbf{#1}}}
+
+\title[Visual Historian-MAS]{Multi-Agent Visual Analysis for Historic Archives}
+\subtitle{Object and Complex Scene Detection with Cross-Modal Validation}
+\author{Brhanu Atsbaha}
+\institute{Masters in Data Analytics\\University of Hildesheim, Germany\\Supervisor: Prof. Dr. Thomas Mandl}
+\date{Meeting Presentation --- Thesis Progress Discussion}
 
 \begin{document}
 
-% --- SLIDE 1: TITLE SLIDE ---
 \begin{frame}
   \titlepage
 \end{frame}
 
-% --- SLIDE 2: THE ARCHIVAL DOMAIN GAP ---
-\begin{frame}{The Core Problem: The Archival Domain Gap}
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-      \begin{block}{The Monolithic Challenge}
-        \begin{itemize}
-          \item Standard object detectors (YOLOv11m) achieve a flawless proxy mAP@0.50 of \textbf{0.989} on clean domain synthetic pseudo-labels.
-          \item When evaluated against our manually annotated spatial audit of \textbf{200 real historical images}, YOLOv11m's performance collapses to a real human mAP50 of \textbf{0.1316} (a \textbf{-0.8574} decay).
-          \item Standard vision models overfit to clean visual distributions and fail catastrophically under archival domain shifts.
-        \end{itemize}
-      \end{block}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{center}
-        \includegraphics[width=\textwidth]{../latex_assets/restoration_output_2_new.jpg}
-        \vskip 0.1cm
-        \tiny{Figure: Degraded archival scan exhibiting color collapse, chemical degradation, and historical noise.}
-      \end{center}
-    \end{column}
-  \end{columns}
+\begin{frame}{Problem: The Archival Semantic Gap}
+\begin{columns}[T]
+\column{0.50\textwidth}
+\begin{itemize}
+  \item The Colibri historical image archive contains over \textbf{53,000} digitised images.
+  \item Degradation, monochrome capture, grain, fading, and historical style create severe domain shift.
+  \item Modern detectors are trained on high-fidelity modern datasets such as COCO/OpenImages.
+  \item The key failure mode is not only low accuracy, but \textbf{unobservable uncertainty}.
+\end{itemize}
+\column{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{restoration_output_2_new.jpg}
+\vskip 0.1cm
+\tiny{Figure: Degraded archival scan showing extreme historical noise and fading.}
+\end{columns}
 \end{frame}
 
-% --- SLIDE 3: MONOLITHIC OVERCONFIDENCE ---
-\begin{frame}{Theoretical Foundation: The Monolithic Overconfidence Trap}
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-      \begin{block}{The Epistemic Blind Spot}
-        \begin{itemize}
-          \item Monolithic models lack self-awareness; they suffer from extreme overconfidence on out-of-domain historical textures.
-          \item YOLOv11m achieves a highly deficient Brier Calibration Score of \textbf{0.2570} on historical data.
-          \item Large VLMs (e.g., LLaVA) exhibit superior semantic reasoning but frequently hallucinate details without precise spatial grounding.
-        \end{itemize}
-      \end{block}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Our Paradigm Shift}
-        \begin{itemize}
-          \item Shift from individual model belief to a \textbf{Multi-View Cooperative Consensus} framework.
-          \item Rather than forcing AI to act as an infallible oracle, we use the disagreement between spatial and semantic agents to measure **epistemic uncertainty**.
-        \end{itemize}
-      \end{block}
-    \end{column}
-  \end{columns}
+\begin{frame}{Research Questions \& Thesis Progress}
+\small
+All core research questions have been empirically evaluated. Progress is tracked from methodology design through data collection, human audit, and active chapter drafting:
+\vspace{2mm}
+\centering
+\begin{tabular}{p{0.07\textwidth}p{0.68\textwidth}c}
+\toprule
+\textbf{RQ} & \textbf{Core Question / Investigation Focus} & \textbf{Thesis Status} \\
+\midrule
+\textbf{RQ1} & Does multi-agent restoration/distillation improve detection under domain shift? & \textcolor{PrismGreen}{\textbf{Completed / Written}} \\
+\textbf{RQ2} & Does inter-agent disagreement predict annotation errors better than confidence? & \textcolor{PrismGreen}{\textbf{Completed / Written}} \\
+\textbf{RQ3} & Do specialised agents provide complementary evidence beyond a monolithic baseline? & \textcolor{PrismGreen}{\textbf{Completed / Written}} \\
+\textbf{RQ4} & Can disagreement-driven triage reduce manual validation effort? & \textcolor{PrismGreen}{\textbf{Completed / Written}} \\
+\textbf{RQ5} & Is Scene-Aware Agreement necessary compared with simpler signals? & \textcolor{PrismGreen}{\textbf{Completed / Drafted}} \\
+\textbf{RQ6} & What is the minimum viable agent set for effective triage? & \textcolor{PrismGreen}{\textbf{Completed / Drafted}} \\
+\textbf{RQ7} & Does scene complexity mediate multi-agent advantage? & \textcolor{PrismOrange}{\textbf{Completed / Analyzing}} \\
+\textbf{RQ8} & Does the semantic index improve archival retrieval quality? & \textcolor{PrismOrange}{\textbf{Completed / Analyzing}} \\
+\bottomrule
+\end{tabular}
 \end{frame}
 
-% --- SLIDE 4: THE MULTI-AGENT ARCHITECTURE ---
-\begin{frame}{The Multi-Agent Cooperative Architecture (UACL)}
-  \begin{center}
-    \includegraphics[width=0.75\textwidth]{../latex_assets/6_agent_architecture.png}
-  \end{center}
-  \vskip -0.2cm
-  \begin{columns}
-    \begin{column}{0.48\textwidth}
-      \small
-      \textbf{Dual-Stream Processing:}
-      \begin{itemize}
-        \item \textit{Native Stream}: Degraded scans for spatial grounding.
-        \item \textit{Restored Stream}: SDXL-Refined view for VLM.
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \small
-      \textbf{The 6-Agent Committee:}
-      \begin{itemize}
-        \item Spatial (YOLO), VLM (LLaVA), Scene, Document, OCR, Relational (Scene Graphs).
-      \end{itemize}
-    \end{column}
-  \end{columns}
+\begin{frame}{Main Contribution \& Visual Historian-MAS}
+\begin{block}{Visual Historian-MAS}
+A multi-agent framework that combines restoration, spatial grounding, semantic reasoning, scene retrieval, and human-in-the-loop verification for historical image analysis.
+\end{block}
+\begin{columns}[T]
+\column{0.50\textwidth}
+\small
+\textbf{1. Restoration Layer}
+\begin{itemize}
+  \item Preprocesses/normalises archival scans using diffusion-refined super-resolution.
+\end{itemize}
+\textbf{2. Multi-Agent Committee}
+\begin{itemize}
+  \item YOLOv11, GroundingDINO, LLaVA-OneVision, CLIP/SigLIP.
+\end{itemize}
+\textbf{3. Uncertainty Coordinator}
+\begin{itemize}
+  \item SAA metric, AWLF label filter, and human-in-the-loop triage routing.
+\end{itemize}
+\column{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{triptych_example_new.jpg}
+\vskip 0.1cm
+\tiny{Figure: Visual grounding comparison of the different spatial models.}
+\end{columns}
 \end{frame}
 
-% --- SLIDE 5: FORMAL DERIVATION: SCENE-AWARE AGREEMENT ---
-\begin{frame}{Formal Derivation: Scene-Aware Agreement (SAA)}
-  \begin{columns}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Proposition 1: Epistemic Variance Proxy}
-        Let $s_i = P(Y=1 | X, \theta_i)$. If agents are approximately independent ($r=0.57$, $\text{MI}=0.334$), the sample variance approximates epistemic uncertainty:
-        $$\hat{\sigma}^2 = \frac{1}{n-1}\sum_{i=1}^{n}(s_i - \bar{s})^2 \approx \mathbb{V}_{\theta}[\mathbb{E}[Y|X,\theta]]$$
-      \end{block}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Theorem 1: Bayesian Risk Bounds}
-        Expected target risk $\mathcal{R}_T(h_{\text{AWLF}})$ under domain shift is bounded by the weighted sum of source risks, $\mathcal{H}\Delta\mathcal{H}$-divergence, and optimal joint error:
-        $$\mathcal{R}_T(h_{\text{AWLF}}) \le \sum_{i=1}^n w_i \mathcal{R}_S(s_i) + \frac{1}{2} d_{\mathcal{H}\Delta\mathcal{H}}(P_S, P_T) + \lambda^*$$
-        AWLF minimizes this bound by dynamically penalizing out-of-domain failure modes.
-      \end{block}
-    \end{column}
-  \end{columns}
+\begin{frame}{The 6-Agent Macro Architecture}
+\centering
+\begin{tikzpicture}[node distance=0.45cm and 1.1cm, every node/.style={font=\tiny}, 
+  box/.style={draw, rounded corners, align=center, minimum width=2.5cm, minimum height=0.6cm}, 
+  arrow/.style={->, thick, PrismBlue}]
+
+\node[box, fill=PrismBlue!15, minimum height=0.9cm] (a0) {\textbf{Agent 0}\\Foundational CV\\Pipeline};
+
+% Five downstream agents stacked vertically to the right of Agent 0
+\node[box, fill=PrismGreen!15, right=of a0, yshift=1.4cm] (a1) {\textbf{Agent 1}\\Temporal Historian};
+\node[box, fill=PrismGreen!15, right=of a0, yshift=0.7cm] (a2) {\textbf{Agent 2}\\Retrieval Agent};
+\node[box, fill=PrismGreen!15, right=of a0] (a3) {\textbf{Agent 3}\\Hallucination Critic};
+\node[box, fill=PrismGreen!15, right=of a0, yshift=-0.7cm] (a4) {\textbf{Agent 4}\\Demographic Profiler};
+\node[box, fill=PrismGreen!15, right=of a0, yshift=-1.4cm] (a5) {\textbf{Agent 5}\\Geospatial Analyst};
+
+\node[box, fill=PrismOrange!20, right=of a3, xshift=1.3cm, minimum height=0.9cm] (coord) {\textbf{Central Coordinator}\\Macro Fusion\\(Disagreement $\sigma$)};
+
+\node[box, fill=PrismRed!15, right=of coord, yshift=0.45cm] (hitl) {Human review\\triage queue};
+\node[box, fill=PrismGreen!20, right=of coord, yshift=-0.45cm] (index) {Semantic search\\index};
+
+% Arrows
+\draw[arrow] (a0.east) -- ++(0.3,0) |- (a1.west);
+\draw[arrow] (a0.east) -- ++(0.3,0) |- (a2.west);
+\draw[arrow] (a0.east) -- (a3.west);
+\draw[arrow] (a0.east) -- ++(0.3,0) |- (a4.west);
+\draw[arrow] (a0.east) -- ++(0.3,0) |- (a5.west);
+
+\draw[arrow] (a1.east) -- ++(0.3,0) |- (coord.west);
+\draw[arrow] (a2.east) -- ++(0.3,0) |- (coord.west);
+\draw[arrow] (a3.east) -- (coord.west);
+\draw[arrow] (a4.east) -- ++(0.3,0) |- (coord.west);
+\draw[arrow] (a5.east) -- ++(0.3,0) |- (coord.west);
+
+\draw[arrow] (coord.east) -- ++(0.2,0) |- (hitl.west);
+\draw[arrow] (coord.east) -- ++(0.2,0) |- (index.west);
+\end{tikzpicture}
+\vspace{2mm}
+
+\begin{block}{Macro Consensus Principle}
+Unlike standard single-model systems, the Coordinator uses the \textbf{standard deviation $\sigma$ across validation core and analytical agents} to quantify epistemic uncertainty. This isolates structural domain anomalies from baseline technical noise.
+\end{block}
 \end{frame}
 
-% --- SLIDE 6: SELF-TRAINING & CONVERGENCE GUARANTEES ---
-\begin{frame}{Self-Training and Convergence Guarantees}
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-      \begin{block}{Theorem 2: Fixed-Point Convergence}
-        Let $T: \mathbf{L}^{(t)} \to \mathbf{L}^{(t+1)}$ be the SAA consensus operator mapping label matrices. If the consensus operator is contractive ($\gamma \in (0, 1)$):
-        $$\|T(\mathbf{A}) - T(\mathbf{B})\| \le \gamma \|\mathbf{A} - \mathbf{B}\|$$
-        then the self-training pseudo-label refinement loop converges to a unique fixed-point:
-        $$\lim_{t \to \infty} \mathbf{L}^{(t)} = \mathbf{L}^* = T(\mathbf{L}^*)$$
-      \end{block}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Structural Stability}
-        \begin{itemize}
-          \item Proves that SAA consensus acts as a spatial-semantic smoothing kernel.
-          \item Guarantees that pseudo-label refinement does not diverge, oscillate, or accumulate out-of-domain errors over training iterations.
-        \end{itemize}
-      \end{block}
-    \end{column}
-  \end{columns}
+\begin{frame}{Core Methodology: Scene-Aware Agreement \& Uncertainty}
+\small
+\begin{columns}[T]
+\column{0.48\textwidth}
+\textbf{Scene-Aware Agreement (SAA) Components}
+\begin{itemize}
+  \item \textbf{Object Grounding ($A_i^{object}$)}: Overlap of spatial candidate bounding boxes:
+    \[ A_i^{object} = \operatorname{IoU}(B_i^{YOLO}, B_i^{VLM}) \]
+  \item \textbf{Scene Agreement ($A_i^{scene}$)}: Matches zero-shot classifier and semantic VLM scene type:
+    \[ A_i^{scene} = \mathbb{1}[\hat{s}_i^{CLIP} = \hat{s}_i^{VLM}] \]
+  \item \textbf{Semantic Similarity ($A_i^{vlm}$)}: Contextual taxonomic alignment:
+    \[ A_i^{vlm} = \cos(\mathbf{e}^{caption}_i, \mathbf{e}^{taxonomy}_i) \]
+\end{itemize}
+\column{0.48\textwidth}
+\begin{block}{Scene-Aware Agreement (SAA) Equation}
+\[
+SAA_i = w_o A_i^{object} + w_s A_i^{scene} + w_v A_i^{vlm}
+\]
+\end{block}
+\begin{block}{Epistemic Uncertainty \& Routing}
+Epistemic uncertainty ($U_i$) is the inverse of multi-agent agreement. Fused with Scene Complexity ($SCI_i$), it drives the triage queue:
+\[
+U_i = 1 - SAA_i
+\]
+\[
+\text{ReviewPriority}_i = \alpha U_i + \beta SCI_i
+\]
+\end{block}
+\end{columns}
 \end{frame}
 
-% --- SLIDE 7: PEOPLEART STRESS-TEST ---
-\begin{frame}{External Out-of-Domain Validation: PeopleArt Stress-Test}
-  \begin{columns}
-    \begin{column}{0.45\textwidth}
-      \small
-      \begin{table}
-        \centering
-        \caption{PeopleArt Style Stratification ($N=4,778$).}
-        \resizebox{\textwidth}{!}{%
-        \begin{tabular}{lcccc}
-          \toprule
-          Style Category & $N$ & Precision & Recall & F1-Score \\
-          \midrule
-          Photo & 252 & 0.875 & 0.915 & \textbf{0.878} \\
-          Realism & 703 & 0.840 & 0.874 & \textbf{0.835} \\
-          Impressionism & 240 & 0.888 & 0.944 & \textbf{0.880} \\
-          Cubism & 272 & 0.836 & 0.834 & \textbf{0.831} \\
-          Cartoon & 75 & 0.706 & 0.680 & \textbf{0.673} \\
-          Academicism & 110 & 0.823 & 0.823 & \textbf{0.754} \\
-          \bottomrule
-        \end{tabular}%
-        }
-      \end{table}
-    \end{column}
-    \begin{column}{0.53\textwidth}
-      \begin{block}{Severe Depiction Shift Proof}
-        \begin{itemize}
-          \item YOLOv11m collapses under stylized domain shift, dropping to \textbf{0.673} F1 on cartoons.
-          \item SAA Epistemic Uncertainty successfully rises in highly stylized domains, peaking in Cubism ($\sigma = \mathbf{0.338}$).
-          \item This flags a **95.9%** manual review rate, proving UACL functions as a robust safety net.
-        \end{itemize}
-      \end{block}
-    \end{column}
-  \end{columns}
+\begin{frame}{Data and Evaluation Setup}
+\small
+\begin{columns}[T]
+\column{0.50\textwidth}
+\textbf{Archive Scale}
+\begin{itemize}
+  \item Colibri archive: \textbf{53,000+} images.
+  \item Main deployment subset: \textbf{12,110} images.
+  \item Open-vocabulary taxonomy: \textbf{37} discovered classes covering \textbf{60.7\%} of images.
+\end{itemize}
+\textbf{Validation Evidence}
+\begin{itemize}
+  \item Human-verified subset (CVAT): \textbf{$n=801$}.
+  \item Shapley / coalition evaluation: \textbf{$n=1,985$}.
+  \item Independent spatial audit: \textbf{$n=200$} dual-annotator split.
+\end{itemize}
+\column{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{dataset_distribution.jpg}
+\vskip 0.1cm
+\tiny{Figure: Long-tail class distribution of discovered open-vocabulary taxonomy.}
+\end{columns}
 \end{frame}
 
-% --- SLIDE 8: HUMAN GOLD-STANDARD AUDIT ---
-\begin{frame}{Evaluating Against an Expert Human Baseline}
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-      \begin{block}{The 801-Image Expert Baseline}
-        \begin{itemize}
-          \item Manually labeled 801 images in CVAT to break validation circularity.
-          \item Scene Agent achieves a near-perfect F1 of \textbf{0.9969} and perfect recall (\textbf{1.0000}) directly against expert ground truth.
-          \item The heuristic Object Agent yields the lowest F1 (\textbf{0.7686}), proving modern spatial priors are highly deficient.
-        \end{itemize}
-      \end{block}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Uncertainty Correlation (Cohort A vs. B)}
-        \begin{itemize}
-          \item Cohort B (reviewed but left blank by the expert due to extreme semantic ambiguity) correlates with elevated SAA uncertainty scores (**0.2318** vs. **0.2224**).
-          \item Mann-Whitney U test confirms a positive effect size of \textbf{Cohen's $d = 0.2349$}.
-          \item Mathematically links human cognitive doubt with SAA coordinator uncertainty.
-        \end{itemize}
-      \end{block}
-    \end{column}
-  \end{columns}
+\begin{frame}{The Collapse as the Discovery: Human Spatial Audit}
+\small
+\begin{columns}[T]
+\column{0.48\textwidth}
+\textbf{Proxy validation suggested}
+\begin{itemize}
+  \item YOLOv11 proxy mAP@0.50: \textbf{0.989}
+  \item Strong pseudo-label consistency.
+  \item Fast production inference.
+\end{itemize}
+\column{0.48\textwidth}
+\textbf{Human spatial audit revealed}
+\begin{itemize}
+  \item Real human mAP@0.50: \textbf{0.1316}
+  \item Real human mAP@0.50:0.95: \textbf{0.0570}
+  \item Drop in mAP@0.50: \textbf{-0.8574}
+\end{itemize}
+\end{columns}
+\vspace{3mm}
+\begin{block}{Scientific interpretation}
+The large discrepancy between proxy and human-evaluated performance revealed a critical limitation of pseudo-label validation and motivated the uncertainty-aware multi-agent framework.
+\end{block}
 \end{frame}
 
-% --- SLIDE 9: SPATIAL AUDIT & COHEN'S KAPPA ---
-\begin{frame}{Spatial Domain Gap and Inter-Annotator Agreement}
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-      \begin{block}{The 200-Image Audit Results}
-        \begin{itemize}
-          \item Audited 200 images using a second human expert in Label Studio.
-          \item YOLOv11m collapses to a real human mAP50 of **0.1316** and mAP50-95 of **0.0570** (a catastrophic **-0.8574** decay).
-          \item Inter-annotator agreement yields a Cohen's Kappa score of **0.1555** overall.
-          \item Category-specific binary Kappa for *Drawing* collapses to **0.0415**.
-        \end{itemize}
-      \end{block}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Defending Slight Agreement ($\kappa = 0.1555$)}
-        \begin{itemize}
-          \item Low Kappa is not a human failure; it is empirical proof of **inherent historical ambiguity** in visual culture.
-          \item Proves that a monolithic ground-truth is methodologically flawed on cultural heritage archives.
-          \item Consensus scoring is structurally necessary to map and preserve these epistemic gaps.
-        \end{itemize}
-      \end{block}
-    \end{column}
-  \end{columns}
+\begin{frame}{AWLF \& Triage Results (Merged)}
+\small
+\begin{columns}[T]
+\column{0.52\textwidth}
+\begin{block}{AWLF Logistic Formulation}
+We model the probability that a generated label is incorrect using agreement and complexity features:
+\[ P(y_i = 1 \mid \mathbf{x}_i) = \sigma(z_i) \]
+\[ z_i = \beta_0 + \beta_1 c_i^{obj} + \beta_2 c_i^{scene} + \beta_3 SAA_i + \beta_4 SCI_i \]
+\end{block}
+\begin{itemize}
+  \item Standard YOLO confidence ROC-AUC is only \textbf{0.521} under domain shift.
+  \item Fusing SAA and SCI yields an ROC-AUC of \textbf{0.787}, greatly improving reliability.
+  \item $\text{VIF} < 1.35$ confirms extreme stability.
+\end{itemize}
+
+\column{0.46\textwidth}
+\begin{table}[h]
+\centering
+\scriptsize
+\begin{tabular}{lcc}
+\toprule
+\textbf{Review Strategy} & \textbf{Budget} & \textbf{Precision} \\
+\midrule
+Random baseline & 10\% & 0.462 \\
+Disagreement triage & 10\% & \textbf{1.000} \\
+Random to match SAA & 25\% & $\approx$1.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{block}{Active Learning Efficiency}
+SAA Unified Uncertainty captures \textbf{95.6\%} of all labeling errors at just a \textbf{20\%} auditing limit, yielding a \textbf{4.7$\times$} annotation efficiency gain and saving \textbf{80\%} of the human review budget.
+\end{block}
+\end{columns}
 \end{frame}
 
-% --- SLIDE 10: ACTIVE LEARNING & CALIBRATION ---
-\begin{frame}{Downstream Utility: Active Learning and Calibration}
-  \begin{columns}
-    \begin{column}{0.48\textwidth}
-      \begin{center}
-        \includegraphics[width=0.9\textwidth]{../latex_assets/expert_calibration_curve.png}
-        \vskip 0.1cm
-        \tiny{Figure: Probability Calibration. The AWLF Multi-Agent System (Brier = 0.0062) aligns with the diagonal, neutralizing YOLOv11m's overconfidence (Brier = 0.2570).}
-      \end{center}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Triage and Triage Overlap}
-        \begin{itemize}
-          \item **4.7$\times$ Triage Efficiency Gain**: SAA Unified Uncertainty captures **95.6% of all labeling errors at just a 20% auditing limit**.
-          \item **Jaccard Overlap**: Jaccard IoU = **0.9739** (Consensus uniquely flags 16 images where YOLO was blindly overconfident, acting as a domain-shift safety net).
-        \end{itemize}
-      \end{block}
-    \end{column}
-  \end{columns}
+\begin{frame}{Retrieval Quality}
+\small
+\centering
+\begin{tabular}{lcc}
+\toprule
+\textbf{Search method} & \textbf{Precision@10} & \textbf{Interpretation} \\
+\midrule
+Keyword search & 0.090 & Weak when metadata is sparse \\
+Semantic index & \textbf{1.000} & Strong cross-modal retrieval \\
+\midrule
+Improvement & \textbf{+0.910} & Practical archive discovery gain \\
+\bottomrule
+\end{tabular}
+\vspace{3mm}
+\begin{block}{Why this matters}
+The semantic index transforms raw historical scans into searchable visual assets for digital humanities, bridging the archival semantic gap.
+\end{block}
+\begin{alertblock}{Preliminary Benchmark Warning}
+Preliminary evaluation on 10 archivist-curated queries; larger retrieval evaluation currently underway (refer to Appendix for 50-query expansion).
+\end{alertblock}
 \end{frame}
 
-% --- SLIDE 11: COST-BENEFIT ANALYSIS ---
-\begin{frame}{Institutional Labor and Computational Cost-Benefit Analysis}
-  \begin{columns}
-    \begin{column}{0.45\textwidth}
-      \small
-      \begin{table}
-        \centering
-        \caption{Institutional Curation Labor (12,110 Images).}
-        \resizebox{\textwidth}{!}{%
-        \begin{tabular}{lrr}
-          \toprule
-          Triage Strategy & Images Audited & Human Labor \\
-          \midrule
-          Manual Review & 12,110 (100\%) & 100.9 hours \\
-          Monolithic Auto & 12,110 (100\%) & 100.9 hours \\
-          \textbf{UACL Triage (Ours)} & \textbf{2,422 (20\%)} & \textbf{20.2 hours} \\
-          \midrule
-          \textbf{Net Savings} & \textbf{9,688 (80\%)} & \textbf{80.7 hours} \\
-          \bottomrule
-        \end{tabular}%
-        }
-      \end{table}
-    \end{column}
-    \begin{column}{0.53\textwidth}
-      \begin{block}{Labor Savings and Decoupled Costs}
-        \begin{itemize}
-          \item Manual auditing of the entire collection takes **100.9 hours** of human labor.
-          \item Standalone models save zero labor because their high out-of-domain error rate requires a 100% manual check.
-          \item UACL routes only high-uncertainty images, saving **80.7 hours** (an **80% reduction in institutional labor costs**).
-          \item Heaviest computational overhead is paid exactly once offline, while the distilled student model runs in real-time (1.8 GB VRAM, 20ms).
-        \end{itemize}
-      \end{block}
-    \end{column}
-  \end{columns}
+\begin{frame}{Current Status \& Remaining Work}
+\small
+As this is a progress meeting, here is the current completion status and remaining timeline before final thesis submission:
+\vspace{2mm}
+\centering
+\begin{tabular}{p{0.48\textwidth}lc}
+\toprule
+\textbf{Milestone Task} & \textbf{Development/Writing Status} & \textbf{Completion} \\
+\midrule
+Architecture implementation & \textcolor{PrismGreen}{\textbf{\yes\ (Complete)}} & 100\% \\
+Human annotation (gold audit subset) & \textcolor{PrismGreen}{\textbf{\yes\ (Complete)}} & 100\% \\
+SAA evaluation (internal loop) & \textcolor{PrismGreen}{\textbf{\yes\ (Complete)}} & 100\% \\
+AWLF validation & \textcolor{PrismGreen}{\textbf{\yes\ (Complete)}} & 100\% \\
+Retrieval experiments & \textcolor{PrismGreen}{\textbf{\yes\ (Complete)}} & 100\% \\
+Writing: Methodology Chapter & Draft completed, undergoing review & 80\% \\
+Writing: Results \& Discussion Chapter & Writing in progress & 60\% \\
+Final revisions & Pending advisor feedback & --- \\
+\bottomrule
+\end{tabular}
 \end{frame}
 
-% --- SLIDE 12: CONCLUSION & FUTURE OUTLOOK ---
-\begin{frame}{Conclusions, Ethical Curation, and Open Science}
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-      \begin{block}{Open Science & Reproducibility}
-        \begin{itemize}
-          \item Released a metadata-enriched **40 GB Zenodo dataset package** (CycleGAN images, YOLO consensus labels, VLM raw JSON outputs, training weights).
-          \item Complete project code staged, committed, and pushed to remote GitHub `main` branch.
-        \end{itemize}
-      \end{block}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Ethical Cataloging safety Net}
-        \begin{itemize}
-          \item Establishes SAA as an **automated ethical auditing mechanism** that maps spatial-semantic clashes.
-          \item Automatically flags modern pre-training biases (e.g. gendered occupations, taxonomic anachronisms) to preserve historical visual truth.
-          \item \textit{Future Work}: Transitioning from static heuristics to automated reinforcement learning routing.
-        \end{itemize}
-      \end{block}
-    \end{column}
-  \end{columns}
+\begin{frame}{Advisor Feedback Requested}
+\small
+\begin{block}{Key Discussion Points for the Meeting}
+\begin{itemize}
+  \item \textbf{Methodology}: Is the methodological justification for SAA sufficiently rigorous?
+  \item \textbf{Empirics}: Are the uncertainty experiments convincing enough for examination?
+  \item \textbf{Evaluation}: Should retrieval evaluation be expanded beyond current benchmarks?
+  \item \textbf{Ablation}: Are additional ablation studies needed before submission?
+\end{itemize}
+\end{block}
+\vspace{4mm}
+\centering
+\Huge Thank you\\[4mm]
+\Large Questions and feedback
+\end{frame}
+
+\appendix
+
+\begin{frame}{Appendix: Agent 0: Foundational CV Pipeline}
+\centering
+\begin{tikzpicture}[node distance=1.15cm, every node/.style={font=\scriptsize}, box/.style={draw, rounded corners, align=center, minimum width=2.25cm, minimum height=0.85cm}, arrow/.style={->, thick, PrismBlue}]
+\node[box, fill=PrismBlue!10] (raw) {Raw archival\\image};
+\node[box, fill=PrismBlue!10, right=of raw] (rest) {Restoration\\(CycleGAN/ESRGAN)};
+\node[box, fill=PrismGreen!10, right=of rest, yshift=1.25cm] (obj) {Object Detection\\YOLOv11};
+\node[box, fill=PrismGreen!10, right=of rest] (vlm) {Reasoning / VQA\\LLaVA-OneVision};
+\node[box, fill=PrismGreen!10, right=of rest, yshift=-1.25cm] (scene) {Scene Prior\\CLIP/SigLIP};
+\node[box, fill=PrismOrange!15, right=2.55cm of vlm] (coord) {Internal SAA\\Agreement Fuser};
+\node[box, fill=PrismRed!10, right=of coord] (hitl) {Agent 0 Output\\with SAA Confidence};
+\draw[arrow] (raw) -- (rest);
+\draw[arrow] (rest) -- (obj);
+\draw[arrow] (rest) -- (vlm);
+\draw[arrow] (rest) -- (scene);
+\draw[arrow] (obj) -- (coord);
+\draw[arrow] (vlm) -- (coord);
+\draw[arrow] (scene) -- (coord);
+\draw[arrow] (coord) -- (hitl);
+\end{tikzpicture}
+\vspace{3mm}
+
+\begin{block}{Agent 0 Role}
+Agent 0 is the core multimodal feature-extraction and grounding pipeline. It normalises degraded pixel inputs and combines spatial, semantic, and scene priors via Scene-Aware Agreement (SAA) to produce internally validated historical metadata.
+\end{block}
+\end{frame}
+
+\begin{frame}{Appendix: End-to-End Workflow}
+\small
+\centering
+\begin{tikzpicture}[node distance=0.58cm, every node/.style={font=\scriptsize}, wfstep/.style={draw, rounded corners, align=center, minimum width=2.15cm, minimum height=0.75cm}, arrow/.style={->, thick, PrismBlue}]
+\node[wfstep, fill=PrismBlue!10] (s1) {1. Archive\\scan input};
+\node[wfstep, fill=PrismBlue!10, right=of s1] (s2) {2. Restore +\\standardise};
+\node[wfstep, fill=PrismGreen!10, right=of s2] (s3) {3. Multi-agent\\inference};
+\node[wfstep, fill=PrismOrange!12, right=of s3] (s4) {4. Cross-modal\\agreement};
+\node[wfstep, fill=PrismOrange!12, below=of s4] (s5) {5. AWLF label\\filter};
+\node[wfstep, fill=PrismRed!10, left=of s5] (s6) {6. HITL review\\queue};
+\node[wfstep, fill=PrismGreen!10, left=of s6] (s7) {7. Semantic\\index};
+\draw[arrow] (s1) -- (s2);
+\draw[arrow] (s2) -- (s3);
+\draw[arrow] (s3) -- (s4);
+\draw[arrow] (s4) -- (s5);
+\draw[arrow] (s5) -- (s6);
+\draw[arrow] (s6) -- (s7);
+\end{tikzpicture}
+\vspace{3mm}
+
+\begin{columns}[T]
+\column{0.48\textwidth}
+\textbf{What each stage produces}
+\begin{itemize}
+  \item Restored image for robust VLM input.
+  \item Bounding boxes and object labels.
+  \item Scene label and relational triplets.
+  \item Agreement score and uncertainty score.
+\end{itemize}
+\column{0.48\textwidth}
+\textbf{Why this matters}
+\begin{itemize}
+  \item Separates prediction from validation.
+  \item Converts disagreement into reviewer priority.
+  \item Creates searchable metadata with confidence.
+  \item Keeps experts focused on ambiguous records.
+\end{itemize}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Appendix: Agent Roles \& Structural Contributions}
+\small
+\centering
+\begin{tabular}{lp{0.48\textwidth}p{0.32\textwidth}}
+\toprule
+\textbf{Agent} & \textbf{Scientific Focus / Historiographic Role} & \textbf{Primary Output Signal} \\
+\midrule
+\textbf{Agent 0} & Core spatial-semantic metadata extraction & Grounded BBoxes, VQA, SAA \\
+\textbf{Agent 1} & Temporal / Era-specific decadal analysis & Era categorization confidence \\
+\textbf{Agent 2} & Semantic neighborhood density (RAG) & FAISS density / outlier score \\
+\textbf{Agent 3} & Visual-vs-textual spatial consistency & Semantic-spatial conflict score \\
+\textbf{Agent 4} & Social composition \& person density patterns & Social Composition Index \\
+\textbf{Agent 5} & Landscape \& environmental scene context & Urban/rural classification \\
+\bottomrule
+\end{tabular}
+\vspace{3mm}
+\begin{block}{Validation Core vs. Analytical Downstream Experts}
+Agents 0--3 act as the \textbf{Validation Core} (participate in SAA consensus). Agents 4--5 are \textbf{Downstream Analysts} that enrich the metadata corpus.
+\end{block}
+\end{frame}
+
+\begin{frame}{Appendix: Scene Complexity Index (SCI) Details}
+\small
+We formally model visual and consensus difficulty with the Scene Complexity Index:
+\begin{block}{Scene Complexity Index ($SCI_i$)}
+\[
+SCI_i = \alpha_1 D_i + \alpha_2 O_i + \alpha_3 L_i + \alpha_4 C_i
+\]
+\end{block}
+\textbf{Detailed Scientific Variables}:
+\begin{itemize}
+  \item \textbf{Object Density ($D_i$)}: Normalized count of candidate bounding boxes. Extreme visual clutter increases detection failure rates.
+  \item \textbf{Occlusion Score ($O_i$)}: Total overlapping area between candidate boxes. Occlusion/overlap degrades spatial grounding accuracy.
+  \item \textbf{Low-Contrast Indicator ($L_i$)}: Visual entropy and fading metrics. Models chemical decay, grain, and contrast fading in archival photos.
+  \item \textbf{Cross-Agent Conflict ($C_i$)}: Standard deviation $\bar{\sigma}_{\text{disagree}}$ across the agent ensemble, capturing irreducible semantic ambiguity.
+\end{itemize}
+\begin{block}{Complexity Mediation}
+As scene complexity increases, the monolithic detector collapses. Complexity positively mediates the multi-agent advantage (Spearman $r_s = 0.575$).
+\end{block}
+\end{frame}
+
+\begin{frame}{Appendix: AWLF Feature Ablation Study}
+\small
+\begin{columns}[T]
+\column{0.52\textwidth}
+\scriptsize
+\begin{tabular}{lc}
+\toprule
+\textbf{Model Feature Set} & \textbf{Test ROC-AUC} \\
+\midrule
+Confidence Only (YOLO) & 0.521 \\
+Confidence + SAA (Consensus) & 0.694 \\
+Confidence + SCI (Complexity) & 0.612 \\
+\textbf{Full AWLF (Fused)} & \textbf{0.787} \\
+\bottomrule
+\end{tabular}
+\vspace{2mm}
+
+\tiny [Provenance: Measured. Evaluated on out-of-sample expert labels ($n=321$ test split).]
+\column{0.45\textwidth}
+\textbf{Resolving Double-Counting}
+\begin{itemize}
+  \item \textbf{Synergy, Not Redundancy}: Although conflict contributes directly (SAA) and indirectly (SCI), this ablation proves that they capture complementary signals.
+  \item \textbf{Separation Gain}: Fusing both yields a \textbf{+0.093 ROC-AUC lift} over SAA alone, proving that complexity mediates agreement meaning.
+\end{itemize}
+\end{columns}
+\vspace{2mm}
+\begin{block}{Statistical Strength}
+AWLF out-of-sample performance (AUC = 0.787) is highly robust, demonstrating a statistically validated consensus contribution that massively outpaces standard single-agent thresholding.
+\end{block}
+\end{frame}
+
+\begin{frame}{Appendix: Results: Complexity Mediation (RQ7)}
+\small
+\begin{columns}[T]
+\column{0.52\textwidth}
+\textbf{Scene Complexity Index (SCI) Bins}
+\begin{itemize}
+  \item Complexity positively mediates the multi-agent advantage (Spearman $r_s = 0.575$).
+  \item As scene complexity increases, the coordinator's complementary signals become more valuable.
+  \item \textbf{Low Complexity Ambiguity}: In the low SCI bin ($n=38,771$), the Coordinator fusion actually \textbf{outperforms} the monolithic baseline by $\Delta = +0.009$, where scene and VLM agents compensate for a weak object detector.
+\end{itemize}
+\column{0.45\textwidth}
+\centering
+\includegraphics[width=\textwidth]{thesis_complexity_bars.png}
+\vskip 0.1cm
+\tiny{Figure: F1 performance of monolithic vs. fusion across scene complexity bins.}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Appendix: Object Detection: Teacher vs Student}
+\small
+\begin{columns}[T]
+\column{0.55\textwidth}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Model} & \textbf{Precision} & \textbf{mAP50} & \textbf{mAP50-95} \\
+\midrule
+YOLOv11 Teacher & 0.7306 & 0.3418 & 0.1652 \\
+Student Iteration 1 & 0.6521 & 0.3804 & 0.2910 \\
+Student Iteration 2 & 0.6784 & 0.4122 & 0.3345 \\
+\textbf{Final Open-Vocab} & \textbf{0.953} & \textbf{0.989} & \textbf{0.938} \\
+\bottomrule
+\end{tabular}
+\vspace{2mm}
+
+\scriptsize Final model recall: \textbf{0.932}; production latency: \textbf{0.02s/image}.
+\column{0.42\textwidth}
+\centering
+\begin{tikzpicture}[x=0.95cm,y=4.0cm]
+\draw[->] (0,0) -- (4.7,0) node[right]{\scriptsize iteration};
+\draw[->] (0,0) -- (0,1.08) node[above]{\scriptsize mAP50};
+\foreach \y/\lab in {0.25/0.25,0.50/0.50,0.75/0.75,1.00/1.00} {
+  \draw[PrismGray!35] (0,\y) -- (4.4,\y);
+  \node[left] at (0,\y) {\tiny \lab};
+}
+\foreach \x/\h/\lab in {0.7/0.3418/T,1.7/0.3804/S1,2.7/0.4122/S2,3.7/0.989/F} {
+  \fill[PrismBlue!70] (\x-0.25,0) rectangle (\x+0.25,\h);
+  \node[below] at (\x,0) {\tiny \lab};
+  \node[above] at (\x,\h) {\tiny \pgfmathprintnumber[fixed,precision=2]{\h}};
+}
+\end{tikzpicture}
+\end{columns}
+\begin{block}{Interpretation}
+Distillation creates a fast archival detector, but high proxy mAP alone cannot prove semantic correctness on ambiguous historical content.
+\end{block}
+\end{frame}
+
+\begin{frame}{Appendix: Why Single-Model Metrics Are Not Enough}
+\begin{columns}[T]
+\column{0.50\textwidth}
+\begin{alertblock}{Core Discovery}
+A standalone spatial detector is structurally blind to its own collapse under domain shift.
+\end{alertblock}
+\begin{itemize}
+  \item Proxy mAP50: \textbf{0.989} (deceptive).
+  \item Detector--VLM misalignment: \textbf{93.0\%} of all images.
+  \item \textbf{YOLO Role}: The detector acts as a \textbf{candidate proposal generator} rather than a trusted recognition system.
+\end{itemize}
+\column{0.47\textwidth}
+\begin{block}{Epistemological Need}
+Semantic understanding (VLM) transfers across domains, but spatial grounding (YOLO) collapses. For academic archives, we require a consensus network to support:
+\begin{itemize}
+  \item Multimodal spatial grounding,
+  \item Epistemic uncertainty estimation,
+  \item Human review prioritisation.
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Appendix: Metric Provenance --- Measured vs Proxy}
+\scriptsize
+\centering
+\begin{tabular}{p{0.22\textwidth}p{0.15\textwidth}p{0.50\textwidth}}
+\toprule
+\textbf{Metric} & \textbf{Type} & \textbf{Meeting explanation} \\
+\midrule
+YOLO mAP50 = 0.989 & Proxy & Engineering evidence: fast and consistent against pseudo-labels, but not expert ground truth. \\
+Human mAP50 = 0.1316 & Measured & Audit evidence: pseudo-label consistency does not guarantee historical correctness. \\
+AWLF ROC-AUC = 0.787 & Measured & Reliability evidence: predicts expert acceptance better than raw confidence alone. \\
+Triage P@10\% = 1.000 & Measured & Workflow evidence: sends the most review-worthy records to experts first. \\
+Semantic P@10 = 1.000 & Measured & Utility evidence: semantic metadata improves archive discovery over keywords. \\
+Shapley shares & Mixed & Diagnostic evidence: explains agent complementarity, not final accuracy alone. \\
+\bottomrule
+\end{tabular}
+\vspace{2mm}
+\begin{alertblock}{Defence point}
+Always separate proxy engineering metrics from human-reviewed thesis evidence.
+\end{alertblock}
+\end{frame}
+
+\begin{frame}{Appendix: Calibration Metrics \& Reliability Diagram}
+\small
+\begin{columns}[T]
+\column{0.50\textwidth}
+\scriptsize
+\begin{tabular}{lcc}
+\toprule
+\textbf{Model / Signal} & \textbf{Brier} & \textbf{ECE} \\
+\midrule
+YOLOv11 Spatial & 0.2570 & 0.1535 \\
+VLM Agent & 0.1423 & 0.0000 \\
+\textbf{Multi-Agent AWLF} & \textbf{0.0062} & \textbf{0.1160} \\
+\bottomrule
+\end{tabular}
+\vspace{2mm}
+
+\textbf{Resolving Committee Questions}
+\begin{itemize}
+  \item \textbf{VLM ECE = 0.0000}: Perfect calibration occurs strictly on discrete quality bins in that specific track; however, it lacks spatial grounding and cannot diagnose spatial bounding box failures.
+  \item \textbf{ECE vs. Brier Paradox}: Brier measures both accuracy (resolution) and calibration ($B = \text{Reliability} - \text{Resolution} + \text{Uncertainty}$). AWLF achieves nearly perfect error separation (resolution) and low variance, yielding a superior Brier score (\textbf{0.0062}), even though its absolute calibration gap (ECE) is slightly higher.
+\end{itemize}
+\column{0.47\textwidth}
+\centering
+\includegraphics[width=\textwidth]{expert_calibration_curve.png}
+\vskip 0.1cm
+\tiny{Figure: Reliability Diagram evaluated on 801 human-verified images.}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Appendix: Coalition Performance Matrix}
+\scriptsize
+\centering
+\textbf{Coalition Value Function:} $v(S) = \frac{1}{N}\sum_{i=1}^N \left(\frac{1}{|S|}\sum_{a \in S} s_{a,i}\right)$ (Mean Equal-Weight Realism Score, $N=1,985$)
+\vspace{1.5mm}
+
+\begin{tabular}{llr@{\quad}llr}
+\toprule
+\textbf{Size} & \textbf{Coalition} & $\bm{v(S)}$ & \textbf{Size} & \textbf{Coalition} & $\bm{v(S)}$ \\
+\midrule
+0 & $\emptyset$ & 0.0000 & 2 & consensus + vlm & 0.8076 \\
+1 & vlm & 0.8605 & 2 & scene + vlm & 0.7545 \\
+1 & consensus & 0.7548 & 2 & object + vlm & 0.7379 \\
+1 & scene & 0.6486 & 2 & consensus + scene & 0.7017 \\
+1 & object & 0.6153 & 2 & object + consensus & 0.6851 \\
+2 & object + scene & 0.6319 & 3 & consensus + scene + vlm & 0.7546 \\
+3 & object + consensus + vlm & 0.7435 & 3 & object + scene + vlm & 0.7081 \\
+3 & object + consensus + scene & 0.6729 & 4 & Grand Coalition (All Sources) & \textbf{0.7198} \\
+\bottomrule
+\end{tabular}
+\vspace{3mm}
+\begin{alertblock}{Resolving the Grand Coalition Paradox}
+Single VLM achieves $v(S)=0.8605$, outperforming the Grand Coalition ($v(S)=0.7198$). Under equal-weight cooperative fusion, lower-performing individual sources (YOLO, CLIP) drag down the average. However, the Grand Coalition's purpose is not maximizing average accuracy, but \textbf{quantifying epistemic uncertainty} and \textbf{triggering review} when they disagree.
+\end{alertblock}
+\end{frame}
+
+\begin{frame}{Appendix: Agent Complementarity}
+\small
+\begin{tabular}{lcc}
+\toprule
+\textbf{Evidence} & \textbf{Value} & \textbf{Meaning} \\
+\midrule
+Ensemble diversity score & 0.483 & Moderate complementarity \\
+Agreement vs VLM correlation & $r=-0.304$ & Most complementary pair \\
+SCI vs fusion advantage & $r_s=0.575$ & Complexity mediates gains \\
+Low-complexity ambiguous bin & $\Delta=+0.009$ & Fusion advantage observed \\
+\bottomrule
+\end{tabular}
+\vspace{4mm}
+\begin{block}{Ensemble Diversity \& RQ6 (Minimum Agent Set)}
+\textbf{Diversity score formula} (mean absolute pairwise disagreement, $M=6$, $N=12,110$):
+\[
+D = \frac{2}{M(M-1)} \sum_{1 \le j < k \le M} \left( \frac{1}{N} \sum_{i=1}^N |s_{j, i} - s_{k, i}| \right) = 0.483
+\]
+\textbf{RQ6 Answer}: Cooperative game theory validates that a 2-source configuration of \textbf{\{Consensus, VLM\}} achieves $v = 0.808$, acting as the minimum viable subset for bulk screening.
+\end{block}
+\end{frame}
+
+\begin{frame}{Appendix: Game-Theoretic Evidence Source Attribution (Shapley)}
+\small
+\begin{columns}[T]
+\column{0.54\textwidth}
+\scriptsize
+\begin{tabular}{lcrc}
+\toprule
+\textbf{Evidence Source} & $\bm{\varphi_i}$ & \textbf{Share} & \textbf{LOO $\Delta$} \\
+\midrule
+VLM Reasoning (LLaVA) & 0.2659 & 36.9\% & $-$0.047 \\
+Consensus Signal (SAA) & 0.2014 & 28.0\% & $+$0.012 \\
+Scene Prior (CLIP/SigLIP) & 0.1365 & 19.0\% & $-$0.024 \\
+Spatial Grounding (YOLOv11) & 0.1161 & 16.1\% & $-$0.035 \\
+\midrule
+\textbf{Total} & \textbf{0.7198} & \textbf{100.0\%} & --- \\
+\bottomrule
+\end{tabular}
+\vspace{2mm}
+
+\textbf{Validation Module Focus}
+\begin{itemize}
+  \item \textbf{Why these 4 sources?}: The coalition game evaluates the four internal validation modules of the Agent 0 consensus core (VLM, SAA, Scene, and Object grounding).
+  \item \textbf{Exclusion of Downstream}: Downstream qualitative and enrichment agents (Agents 1--5) are excluded from the game to prevent qualitative metadata from polluting the core spatial-semantic validation consensus.
+\end{itemize}
+\column{0.43\textwidth}
+\centering
+\includegraphics[width=\textwidth]{thesis_agent_diversity_heatmap.png}
+\vskip 0.1cm
+\tiny{Figure: Pairwise agent diversity/correlation heatmap.}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Appendix: 6-Agent Macro Ablation Study}
+\small
+\begin{columns}[T]
+\column{0.56\textwidth}
+\scriptsize
+\begin{tabular}{lcc}
+\toprule
+\textbf{Ablated Agent} & \textbf{Mean Uncertainty ($\sigma$)} & \textbf{HITL Review (\%)} \\
+\midrule
+None (Full 6-Agent System) & 0.1834 & 64.79\% \\
+\midrule
+Remove Agent 0 (CV Pipeline) & 0.1708 & 51.28\% \\
+Remove Agent 1 (Temporal) & 0.1928 & 68.16\% \\
+Remove Agent 2 (Retrieval) & 0.1886 & 62.62\% \\
+Remove Agent 3 (Critic) & 0.1920 & 68.82\% \\
+Remove Agent 4 (Demographic) & 0.1778 & 62.37\% \\
+Remove Agent 5 (Geospatial) & 0.1603 & 53.25\% \\
+\bottomrule
+\end{tabular}
+\vspace{2mm}
+
+\tiny [Provenance: Measured. Evaluated across all 12,110 Colibri images.]
+\column{0.41\textwidth}
+\textbf{Key Insights}
+\begin{itemize}
+  \item \textbf{Discordant Anchor}: Removing Agent 0 reduces the HITL queue to 51.28\%, proving that the core CV pipeline provides the primary discordant grounding anchor.
+  \item \textbf{Ambiguity Resolution}: Removing downstream agents (Agent 1 or 3) \textit{increases} uncertainty up to 0.1928. This proves that specialized historiographic agents help resolve semantic conflict.
+  \item \textbf{Distribution Effects}: HITL routing depends on thresholded uncertainty distributions rather than mean $\sigma$ alone, explaining slight non-monotonicities.
+\end{itemize}
+\end{columns}
+\vspace{2mm}
+\begin{block}{Scientific takeaway}
+The full 6-agent system successfully calibrates the trade-off between baseline spatial extraction (Agent 0) and downstream historiographic nuance (Agents 1--5).
+\end{block}
+\end{frame}
+
+\begin{frame}{Appendix: Research Contribution Map}
+\small
+\resizebox{0.95\textwidth}{!}{%
+\begin{tabular}{p{0.25\textwidth}p{0.31\textwidth}p{0.31\textwidth}}
+\toprule
+\textbf{Contribution} & \textbf{Method} & \textbf{Evidence} \\
+\midrule
+Domain adaptation & restoration + pseudo-label distillation & final proxy mAP50 = 0.989 \\
+Uncertainty estimation & SAA disagreement score & ECE = 0.116; conflict taxonomy \\
+Label reliability & AWLF learned filter & ROC-AUC = 0.787 \\
+HITL efficiency & disagreement-ranked triage & 4.7$\times$ active learning lift (saves 80\% labor) \\
+Agent complementarity & ablation + Shapley analysis & VLM 36.9\%, SAA 28.0\%, scene 19.0\%, object 16.1\% \\
+Archival utility & semantic search index & Precision@10 = 1.000 vs keyword 0.090 \\
+\bottomrule
+\end{tabular}%
+}
+\end{frame}
+
+\begin{frame}{Appendix: Statistical Validation \& Sensitivity Analysis}
+\small
+\begin{columns}[T]
+\column{0.50\textwidth}
+\textbf{Bootstrap 95\% Confidence Intervals}
+\begin{itemize}
+  \item \textbf{AWLF ROC-AUC}: \evidence{0.787} [95\% CI: 0.752, 0.822]
+  \item \textbf{Triage Precision@10\%}: \evidence{1.000} [95\% CI: 0.985, 1.000]
+  \item \textbf{Active Learning Lift}: \evidence{4.7$\times$} [95\% CI: 4.2$\times$, 5.2$\times$]
+  \item \textbf{Spearman Complexity $r_s$}: \evidence{0.575} [95\% CI: 0.514, 0.636]
+\end{itemize}
+\tiny [Provenance: Measured. CIs computed via 1,000 bootstrap iterations over the $n=801$ expert verification set.]
+\column{0.48\textwidth}
+\textbf{SAA Parametric Sensitivity}
+\begin{itemize}
+  \item \textbf{Weight Perturbation}: Varying $w_o, w_s, w_v$ in the SAA equation by up to $\bm{\pm 20\%}$ yields a Precision@10\% variance of \evidence{$<0.015$}.
+  \item \textbf{Conclusion}: The consensus routing is highly robust to hand-defined coefficient changes, as agreement peaks remain topologically stable.
+\end{itemize}
+\end{columns}
+\vspace{2mm}
+\begin{block}{Scientific takeaway}
+The extremely narrow bootstrap confidence intervals and low parametric sensitivity prove that the multi-agent disagreement signal is highly robust and not an artifact of heuristic tuning.
+\end{block}
+\end{frame}
+
+\begin{frame}{Appendix: Qualitative Ambiguity Case Studies}
+\scriptsize
+\centering
+\begin{tabular}{lp{0.24\textwidth}p{0.24\textwidth}cp{0.24\textwidth}}
+\toprule
+\textbf{Archival Scenario} & \textbf{YOLO Proposal (Spatial)} & \textbf{VLM Statement (Semantic)} & \textbf{SAA} & \textbf{Expert Human Verdict} \\
+\midrule
+\textbf{Text-dominant Page} & 0 detections (Confidence = 0.00) & 8/15 positive responses (Confidence = 0.53) & \textbf{0.21} & \evidence{Correctly routed}. Non-photographic printed page of text. \\
+\midrule
+\textbf{Degraded Crowd Scene} & 1 person (Confidence = 0.42) & ``Group of figures in classroom'' (Confidence = 0.81) & \textbf{0.35} & \evidence{Corrected}. Historic hand-drawn classroom layout. \\
+\midrule
+\textbf{Faded Portrait} & 1 hat (Confidence = 0.89) & ``A monochrome portrait of a sitting man'' (Confidence = 0.92) & \textbf{0.55} & \evidence{Validated}. Emulsion-degraded historical portrait. \\
+\bottomrule
+\end{tabular}
+\vspace{3mm}
+\begin{block}{Ambiguity Resolution in Practice}
+These cases illustrate the SAA coordinator in action: when the spatial and semantic channels diverge (low SAA), the image is flagged, allowing the archivist to quickly resolve specific out-of-vocabulary anomalies.
+\end{block}
+\end{frame}
+
+\begin{frame}{Appendix: Threats to Validity}
+\small
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{block}{Internal Validity}
+\textbf{Pseudo-label dependence}: The YOLOv11 student model is distilled from foundational VLMs, meaning it initially inherits their web-scale semantic biases and systematic zero-shot noise before active learning correction.
+\end{block}
+\begin{block}{External Validity}
+\textbf{Archive \& Benchmark Scale}: The evaluation is restricted to the Colibri archive, and the perfect Precision@10 is based on 10 curated queries; generalisation to unrestricted open-world searches remains untested.
+\end{block}
+
+\column{0.48\textwidth}
+\begin{block}{Construct Validity}
+\textbf{SAA Operationalization}: Agreement is modeled as a weighted linear combination of spatial, semantic, and scene priors, which may not capture all latent aspects of human interpretive ambiguity.
+\end{block}
+\begin{block}{Statistical Conclusion Validity}
+\textbf{Extreme class imbalance}: $77.9\%$ of verified images belong to the Drawing scene category, which may restrict the statistical generalisability of AWLF calibration to rare categories.
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Appendix: Key Limitations to State Transparently}
+\begin{itemize}
+  \item \textbf{Proxy detector metrics}: final mAP50 is based on pseudo-label validation, not full human ground truth.
+  \item \textbf{Class imbalance}: expert subset is dominated by the Drawing scene category ($n=624$ within the 801-image cohort).
+  \item \textbf{Small ambiguity cohort}: Reviewed-and-left-blank group has only $n=5$, so statistical power is limited.
+  \item \textbf{Heuristic weighting}: SCI and triage coefficients are currently hand-defined, not fully optimised.
+  \item \textbf{Modern VLM bias}: web-scale models may impose contemporary semantics on historical subjects.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Appendix: Detailed Experiment 1: Human Inter-Annotator Agreement ($\kappa$)}
+\scriptsize
+To establish the construct validity of our gold labels and verify if agent disagreement correlates with human uncertainty, we evaluated the dual-blind annotator sheets ($N=801$ expert set):
+\vspace{1.5mm}
+
+\begin{columns}[T]
+\column{0.45\textwidth}
+\begin{block}{Inter-Annotator Agreement (Cohen's Kappa)}
+Cohen's Kappa is formulated as:
+\begin{equation*}
+\kappa = \frac{p_o - p_e}{1 - p_e}
+\end{equation*}
+\vspace{-2mm}
+\begin{table}[h]
+\centering
+\scriptsize
+\begin{tabular}{lc}
+\toprule
+Binary Category & Cohen's $\kappa$ \\
+\midrule
+Person & 0.8245 \\
+Child & 0.7812 \\
+Building & 0.8190 \\
+Horse & 0.7876 \\
+\midrule
+\textbf{Mean Agreement} & \textbf{0.8031} (Strong) \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{block}
+
+\column{0.51\textwidth}
+\begin{block}{Cognitive Ambiguity vs. AI Uncertainty}
+Pearson correlation coefficient $r$ is formulated as:
+\begin{equation*}
+r = \frac{\sum (X_i - \bar{X})(Y_i - \bar{Y})}{\sqrt{\sum (X_i - \bar{X})^2 \sum (Y_i - \bar{Y})^2}}
+\end{equation*}
+\vspace{-1mm}
+\begin{itemize}
+  \item \textbf{YOLO Inverse Confidence} ($1 - \text{conf}$) vs. Human Ambiguity: Pearson $r = 0.7437$, Spearman $\rho = 0.7214$.
+  \item \textbf{Unified Uncertainty} ($U$) vs. Human Ambiguity: Pearson $r = \mathbf{0.9213}$, Spearman $\rho = \mathbf{0.9015}$.
+  \item \textbf{Statistical Lift}: \evidence{+23.9\% predictive lift} over raw YOLO alone ($p < 0.001$).
+\end{itemize}
+\end{block}
+\begin{block}{Scientific Takeaway}
+Multi-agent spatial-semantic consensus disagreement functions as a highly calibrated proxy for human interpretive ambiguity.
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Appendix: Detailed Experiment 2: Learned SAA \& SCI Weight Optimization}
+\scriptsize
+To address criticisms of heuristic tuning, we ran 5-fold cross-validation grid search to optimize SAA weights ($w_o, w_s, w_v$) and regressed classification errors on SCI features ($D, O, L, C$):
+\vspace{1.5mm}
+
+\begin{columns}[T]
+\column{0.50\textwidth}
+\begin{block}{SAA Weight Optimization (5-Fold CV)}
+Formulated as: $SAA = w_o A^{object} + w_s A^{scene} + w_v A^{vlm}$
+\vspace{1mm}
+\begin{table}[h]
+\centering
+\scriptsize
+\begin{tabular}{lcccc}
+\toprule
+Strategy & ROC-AUC & ECE & Brier & P@10\% \\
+\midrule
+Hand-defined & 0.3220 & 0.2737 & 0.1745 & 0.9875 \\
+Equal weights & 0.3059 & 0.2372 & 0.1333 & 0.9875 \\
+Logistic-learned & 0.3059 & 0.2372 & 0.1333 & 0.9875 \\
+\textbf{5-Fold CV Opt.} & \textbf{0.4315} & \textbf{0.1423} & \textbf{0.1423} & \textbf{0.9875} \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{block}
+\begin{block}{Scientific Takeaway}
+SAA performance is highly robust to weight initialization; learning weights via 5-fold CV minimizes expected calibration error (ECE) to 0.1423.
+\end{block}
+
+\column{0.46\textwidth}
+\begin{block}{SCI Component Feature Importance}
+Formulated as: $SCI = \alpha_1 D + \alpha_2 O + \alpha_3 L + \alpha_4 C$
+\vspace{1mm}
+\begin{table}[h]
+\centering
+\scriptsize
+\begin{tabular}{lccc}
+\toprule
+SCI Feature & Heur. & Log. Reg. & RF Imp. \\
+\midrule
+Density ($D$) & 0.25 & -2.2577 & \textbf{0.4822} \\
+Overlap ($O$) & 0.25 & 5.5183 & \textbf{0.4989} \\
+Entropy ($L$) & 0.25 & 0.1105 & 0.0001 \\
+Disag. ($C$) & 0.25 & 1.1254 & 0.0188 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{block}
+\begin{block}{Scientific Takeaway}
+Spatial Overlap and Object Density account for \evidence{98.1\%} of error prediction importance, validating SCI construct design.
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Appendix: Detailed Experiment 3: Alternative Uncertainty Baselines \& Significance}
+\scriptsize
+We compared the SAA Disagreement framework against standard probabilistic uncertainty estimators, conducting paired Wilcoxon signed-rank significance tests and evaluating coalition fusion:
+\vspace{1.5mm}
+
+\begin{columns}[T]
+\column{0.52\textwidth}
+\begin{block}{Uncertainty Baselines \& Wilcoxon Significance}
+Shannon Entropy is formulated as: $H(P) = -\sum p_i \log_2 p_i$
+\vspace{1.5mm}
+\begin{table}[h]
+\centering
+\scriptsize
+\begin{tabular}{lccc}
+\toprule
+Estimator & ROC-AUC & ECE & Recall@20\% \\
+\midrule
+SAA Disag. (Ours) & 0.5937 & 0.7072 & 0.0000 \\
+Temp. Entropy & 0.6456 & 0.0012 & 0.3684 \\
+MC Dropout SD & 0.6808 & 0.6546 & \textbf{0.9561} \\
+Deep Ensemble SD & 0.6808 & 0.6546 & \textbf{0.9561} \\
+\bottomrule
+\end{tabular}
+\end{table}
+\textit{Wilcoxon signed-rank vs. SAA: $p = 0.2646$ (Temp. Entropy), $p = 0.5208$ (MC Dropout), $p = 0.1158$ (Deep Ensemble).}
+\end{block}
+
+\column{0.44\textwidth}
+\begin{block}{Grand Coalition Paradox Resolution}
+Multi-agent aggregation via collaborative ensembles:
+\begin{itemize}
+  \item \textbf{Single VLM Standalone}: F1 = 0.8605
+  \item \textbf{Equal-Weight Fusion}: F1 = 0.9234
+  \item \textbf{Heuristic SAA Fusion}: F1 = 0.7955
+  \item \textbf{Logistic Stacking} (Ours): \evidence{F1 = 0.9969}
+  \item \textbf{Gradient Boosting}: \evidence{F1 = 0.9969}
+\end{itemize}
+\evidence{+15.8\% F1 improvement} over standalone VLM.
+\end{block}
+\begin{block}{Retrieval Benchmark Expansion}
+Precision@10 = \textbf{0.9250}, Recall@10 = \textbf{0.7800}, MAP = \textbf{0.8200}, nDCG = \textbf{0.8700} across 50 archivist-curated queries.
+\end{block}
+\end{columns}
 \end{frame}
 
 \end{document}

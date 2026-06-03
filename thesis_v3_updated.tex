@@ -203,14 +203,14 @@ The architecture is framed as a \textbf{6-Agent System}. The comprehensive, mult
     \item \textbf{Agent 5: Geospatial Analyst}. Evaluates the intersection of buildings, nature, and scene types to classify images on an urban/rural/institutional spectrum.
 \end{itemize}
 
-The architecture comprises \textbf{four validation agents} (Agents 0--3) whose scores contribute to the central coordinator's realism and uncertainty estimates, and \textbf{two enrichment modules} (Agents 4--5) that produce separate metadata streams for demographic and geospatial indexing. This role separation --- validated in the ablation study (Section~\ref{sec:extended_eval}) --- prevents enrichment signals from corrupting the uncertainty-based routing logic.
+The architecture comprises a \textbf{four-agent Validation Core} (Agents 0--3) whose scores are fused inside the primary Scene-Aware Agreement (SAA) loop and participate in game-theoretic analysis, and \textbf{two downstream Analytical Experts} (Agents 4--5) that produce specialized demographic and geospatial metadata while also contributing to the macro-uncertainty ($\sigma$) routing trigger. This role separation --- validated in the ablation study (Section~\ref{sec:extended_eval}) --- prevents enrichment details from polluting the spatial-semantic consensus core, ensuring stable uncertainty-based routing.
 
 The core philosophy is that robust indexing in legacy archives requires cross-modal validation, where each agent contributes partial evidence and the central coordinator estimates realism and uncertainty from agreement patterns.
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.9\textwidth]{latex_assets/6_agent_architecture.png}
-\caption{Visual Historian-MAS Architecture. The foundational CV pipeline operates as Agent 0, extracting multimodal features. Five downstream analytical agents (Agents 1-5) provide independent historiographic reasoning. A central coordinator fuses all six outputs, using ensemble uncertainty ($\sigma$) to route ambiguous scenes to a Human-in-the-Loop review queue.}
+\caption{Visual Historian-MAS Architecture. The foundational CV pipeline operates as Agent 0, extracting multimodal features. Five downstream analytical agents (Agents 1-5) provide independent historiographic reasoning. A central coordinator fuses all macro outputs, using ensemble uncertainty ($\sigma$) across the validation core and analytical agents to route ambiguous scenes to a Human-in-the-Loop review queue.}
 \label{fig:full_pipeline_flow}
 \end{figure}
 
@@ -1107,7 +1107,7 @@ The evaluation operates over all 12,110 images in the Colibri dataset. The \text
 \label{fig:agent_distributions}
 \end{figure}
 
-The Coordinator fusion strategy computes an uncertainty score defined as the standard deviation $\sigma$ across all six agents, which explicitly surfaces inter-agent disagreement for HITL triage.
+The Coordinator fusion strategy computes an uncertainty score defined as the standard deviation $\sigma$ across the validation core and analytical agents, which explicitly surfaces macro-disagreement for HITL triage. Notably, the final HITL routing depends on thresholded uncertainty distributions rather than mean uncertainty ($\sigma$) alone, explaining slight non-monotonicities in the ablation rates.
 All reported metrics carry explicit provenance tags (measured vs proxy) per the policy established in Section~\ref{sec:extended_eval}. Statistical significance is assessed via Wilcoxon signed-rank test and effect size via Cohen's $d$.
 
 \subsection{RQ1--RQ4 Evaluation Summary}
@@ -1346,7 +1346,11 @@ Playing   &   368 & 0.575 & 0.540 & $-$0.035 & 0.396 \\
 \subsection{Agent Complementarity and Diversity Analysis}
 \label{sec:diversity}
 
-Table~\ref{tab:diversity} reports pairwise Pearson correlations between all six agents. The overall ensemble diversity score is \textbf{0.483} (mean absolute pairwise disagreement), confirming that the agents bring meaningfully independent evidence.
+Table~\ref{tab:diversity} reports pairwise Pearson correlations between all six agents. The overall ensemble diversity score is \textbf{0.483}. We formally define this diversity score $D$ as the mean absolute pairwise disagreement across the ensemble of $M = 6$ agents over the $N = 12{,}110$ archive images:
+\begin{equation}
+  D = \frac{2}{M(M-1)} \sum_{1 \le j < k \le M} \left( \frac{1}{N} \sum_{i=1}^N |s_{j, i} - s_{k, i}| \right) = 0.483
+\end{equation}
+where $s_{j,i}$ is the normalized validation or enrichment score of agent $j$ on image $i$. This score confirms that the agents bring meaningfully independent evidence.
 
 The most complementary pair is \textbf{Agreement vs VLM} ($r = -0.304$): when VLM scores are high, agreement scores can be low (and vice versa), meaning they capture orthogonal quality signals. The most redundant pair is \textbf{Object vs Agreement} ($r = 0.611$), which is expected---agreement is partly derived from object-level grounding signals. The most \textit{unique} validation agent is the Restoration agent (uniqueness = 0.916), whose image quality signal shares minimal information with any other agent (the Document agent is mathematically orthogonal at 1.000 but serves as an enrichment metadata channel).
 
@@ -1408,7 +1412,7 @@ Random                     & 25\% & 0.458 & 0.252 &  45.8 \\
 \subsection{Calibration Analysis (VLM Agent)}
 \label{sec:calibration}
 
-The \texttt{vlm\_agent} achieves an Expected Calibration Error (ECE) of \textbf{0.000}, meaning its scores correspond precisely to observed quality rates (a VLM score of 0.7 predicts a 70\% quality rate). The monolithic and fusion scores have higher ECEs (0.298 and 0.319 respectively), reflecting that they are composite weighted averages not optimised for probability calibration. This has a practical implication: the VLM agent's raw score can be used directly as a quality probability estimate, while fusion scores require Platt scaling before deployment as calibrated probabilities.
+The \texttt{vlm\_agent} achieves an Expected Calibration Error (ECE) that rounds to \textbf{0.0000} under the chosen 10-bin strategy, meaning its scores correspond closely to observed quality rates (a VLM score of 0.7 predicts a 70\% quality rate). The monolithic and fusion scores have higher ECEs (0.298 and 0.319 respectively), reflecting that they are composite weighted averages not optimised for probability calibration. This has a practical implication: the VLM agent's raw score can be used directly as a quality probability estimate, while fusion scores require Platt scaling before deployment as calibrated probabilities.
 
 \begin{figure}[!htbp]
 \centering
@@ -1647,7 +1651,7 @@ The key advantage of the multi-agent system over CLIP alone is not scene accurac
 
     \item[RQ5: SAA Metric Necessity.] \textit{Is the Scene-Aware Agreement metric better than simpler alternatives?} --- \textbf{Qualified yes.} SAA achieves ECE = 0.116 (best calibration among single-modality signals). Its primary advantage is interpretability and decomposability, not raw P@10\% which saturates at 1.0 for the object agent too.
 
-    \item[RQ6: Minimum Viable Agent Set.] \textit{What is the smallest effective agent configuration?} --- A 2-agent system (object + VLM) achieves P@10\% = 1.000 on bulk triage. Additional agents add interpretability, calibration depth, and specialised expertise for rare failure modes.
+    \item[RQ6: Minimum Viable Agent Set.] \textit{What is the smallest effective agent configuration?} --- \textbf{Yes (Consensus + VLM).} Cooperative game theory (Section~\ref{sec:shapley}) validates that a 2-source configuration of \{Consensus, VLM\} achieves a coalition value of $v = 0.808$, serving as the minimum viable configuration for bulk triage. Additional agents add interpretability, calibration depth, and specialised expertise for rare failure modes.
 
     \item[RQ7: Scene Complexity Mediation.] \textit{Does scene complexity mediate multi-agent advantage?} --- \textbf{Yes.} Spearman $r_s$(SCI, $\Delta$) = 0.575. Fusion outperforms monolithic in the ``low complexity'' bin ($\Delta = +0.009$) where object signal is weak and multi-modal evidence matters most.
 
@@ -1667,7 +1671,11 @@ The ablation study in Table~\ref{tab:rq_eval_ablation} quantifies the \textit{ma
 
 Let $\mathcal{N} = \{\text{object, agreement, scene, vlm}\}$ be the set of four \textbf{validation} agents. Document and restoration agents are intentionally excluded: as established in Section~\ref{sec:diversity}, they are enrichment channels whose scores operate in a different semantic space than realism prediction signals, and including them would corrupt the attribution (see also Section~\ref{sec:e3_decoupling} below).
 
-The characteristic function $v: 2^\mathcal{N} \to \mathbb{R}$ maps each coalition $S \subseteq \mathcal{N}$ to its performance value---the mean equal-weight average score across all $n = 1{,}985$ evaluated images using only agents in $S$. With $|\mathcal{N}| = 4$, all $2^4 = 16$ coalitions are enumerable, giving \textbf{exact} (not approximated) Shapley values:
+The characteristic function $v: 2^\mathcal{N} \to \mathbb{R}$ maps each coalition $S \subseteq \mathcal{N}$ to its performance value---the mean equal-weight average score across all $n = 1{,}985$ evaluated images using only agents in $S$:
+\begin{equation}
+  v(S) = \frac{1}{n} \sum_{i=1}^n \left( \frac{1}{|S|} \sum_{a \in S} s_{a, i} \right)
+\end{equation}
+where $s_{a,i}$ is the realism validation score generated by agent $a$ on image $i$. With $|\mathcal{N}| = 4$, all $2^4 = 16$ coalitions are enumerable, giving \textbf{exact} (not approximated) Shapley values:
 
 \begin{equation}
   \varphi_i = \sum_{S \subseteq \mathcal{N} \setminus \{i\}} \frac{|S|!\,(|\mathcal{N}|-|S|-1)!}{|\mathcal{N}|!}\,\bigl[v(S \cup \{i\}) - v(S)\bigr]
@@ -1908,7 +1916,7 @@ When the YOLOv11 student model—which achieved a seemingly flawless proxy mAP@0
     \item \textbf{Real Human mAP@0.50}: \textbf{0.1316} (13.2\%)
     \item \textbf{Real Human mAP@0.50:0.95}: \textbf{0.0570} (5.7\%)
 \end{itemize}
-This dramatic performance decay (a \textbf{-0.8574} drop in mAP@0.50) mathematically demonstrates the severe out-of-domain generalization gap. Standalone object detectors heavily overfit to clean domain synthetic data, rendering self-consistency validations deceptive and highlighting the structural necessity of our multi-agent disagreement framework to safeguard historical cataloging.
+This dramatic performance decay (a \textbf{-0.8574} drop in mAP@0.50) provides strong empirical evidence of the severe out-of-domain generalization gap. Under this regime, the spatial detector is not treated as a final recognition system; instead, it serves as a candidate proposal generator whose disagreement with the VLM reasoning modules becomes highly informative. Standalone object detectors heavily overfit to clean domain synthetic data, rendering self-consistency validations deceptive and demonstrating the need for our multi-agent disagreement framework to safeguard historical cataloging.
 
 \subsubsection{Inter-Annotator Agreement Analysis (Cohen's Kappa)}
 We formally calculated Cohen's Kappa ($\kappa$) between the primary scene annotations of the two independent domain experts on this shared 100-image subset. The multi-class Cohen's Kappa score is \textbf{0.1555}, representing a "slight" agreement overall. The category-specific binary Kappas reveal deep semantic disparities:
