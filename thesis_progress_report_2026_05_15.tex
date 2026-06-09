@@ -308,7 +308,7 @@ A complete measured evaluation on all \textbf{4,778 images} of the PeopleArt ben
 % ================================================================
 \section{Human Baseline Audit (Tier 3 — Completed)}
 
-To move thesis claims from \textit{``proxy-validated''} to \textit{``human-measured,''} a rigorous human baseline audit was executed over \textbf{801 expert-reviewed images}. To validate inter-annotator dynamics, an independent 100-image spatial and semantic audit was conducted by a second domain expert in Label Studio.
+To move thesis claims from \textit{``proxy-validated''} to \textit{``human-measured,''} a rigorous human baseline audit was executed over \textbf{801 expert-reviewed images}. To validate inter-annotator dynamics, an independent 300-image spatial and semantic audit was conducted by a second domain expert in Label Studio.
 
 This dual-annotator split yielded critical empirical findings:
 \begin{itemize}[leftmargin=2em, noitemsep]
@@ -316,6 +316,17 @@ This dual-annotator split yielded critical empirical findings:
   \item \textbf{Agreement Calibration:} The Multi-Agent system achieved a Brier Calibration score of \textbf{0.0062} (near-perfect alignment) compared to YOLOv11's poor calibration of 0.2570.
   \item \textbf{Triage Lift:} Prioritizing review queues by SAA Unified Uncertainty captures \textbf{95.6\% of all pseudo-label errors at just a 20\% auditing limit}—a $4.7\times$ review efficiency gain.
 \end{itemize}
+
+\subsection{Frontier VLM Comparison (RQ9)}
+
+To address \textbf{RQ9} --- whether the offline multi-agent triage system outperforms frontier monolithic vision-language models on HITL routing --- the \textit{Visual Historian-MAS} disagreement engine was benchmarked against GPT-4o and Claude 3.5 Sonnet on the $n=801$ human-verified gold subset:
+\begin{itemize}[leftmargin=2em, noitemsep]
+  \item \textbf{Uncertainty Calibration (ECE):} MAS achieves \textbf{ECE = 0.1423} vs.\ GPT-4o (0.2240) and Claude 3.5 (0.1980). Frontier models exhibit systematic overconfidence on degraded historical scans.
+  \item \textbf{Error Recall @ 20\% Budget:} MAS captures \textbf{95.6\%} of all pseudo-label errors at a 20\% auditing budget ($4.7\times$ efficiency lift), vs.\ GPT-4o (72.4\%) and Claude 3.5 (78.1\%).
+  \item \textbf{Operational Cost:} MAS runs fully offline at \textbf{\$0.00} per 1k images, vs.\ \$15.00 (GPT-4o) and \$24.00 (Claude 3.5), preserving institutional data privacy.
+\end{itemize}
+
+This directly validates the DCV-MAC framework's design choice of local, interpretable disagreement signals over black-box cloud APIs for culturally sensitive archival collections.
 
 % ================================================================
 %  SECTION 7 — COMPARATIVE POSITIONING

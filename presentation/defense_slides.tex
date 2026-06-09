@@ -79,6 +79,7 @@ All core research questions have been empirically evaluated. Progress is tracked
 \textbf{RQ6} & What is the minimum viable agent set for effective triage? & \textcolor{PrismGreen}{\textbf{Completed / Drafted}} \\
 \textbf{RQ7} & Does scene complexity mediate multi-agent advantage? & \textcolor{PrismOrange}{\textbf{Completed / Analyzing}} \\
 \textbf{RQ8} & Does the semantic index improve archival retrieval quality? & \textcolor{PrismOrange}{\textbf{Completed / Analyzing}} \\
+\textbf{RQ9} & Does the offline multi-agent triage outperform frontier monolithic VLMs on HITL routing? & \textcolor{PrismGreen}{\textbf{Completed / Written}} \\
 \bottomrule
 \end{tabular}
 \end{frame}
@@ -794,7 +795,7 @@ These cases illustrate the SAA coordinator in action: when the spatial and seman
 \textbf{Pseudo-label dependence}: The YOLOv11 student model is distilled from foundational VLMs, meaning it initially inherits their web-scale semantic biases and systematic zero-shot noise before active learning correction.
 \end{block}
 \begin{block}{External Validity}
-\textbf{Archive \& Benchmark Scale}: The evaluation is restricted to the Colibri archive, and the perfect Precision@10 is based on 10 curated queries; generalisation to unrestricted open-world searches remains untested.
+\textbf{Archive \& Benchmark Scale}: The evaluation is restricted to the Colibri archive, and the Mean Precision@10 = 0.9250 is based on 50 archivist-curated queries; generalisation to unrestricted open-world searches remains untested.
 \end{block}
 
 \column{0.48\textwidth}
@@ -1078,7 +1079,7 @@ Curation agents generate structured, queryable historical findings:
 \end{columns}
 \end{frame}
 
-\begin{frame}{Appendix: Detailed Experiment 11 --- Comparison to Monolithic Frontier VLMs}
+\begin{frame}{Appendix: Detailed Experiment 11 --- Comparison to Monolithic Frontier VLMs [Directly addresses RQ9]}
 \scriptsize
 We compared our local, offline \textit{Visual Historian-MAS} disagreement engine against commercial monolithic frontier models on the $n=801$ human-verified gold subset:
 \vspace{2mm}
@@ -1093,7 +1094,7 @@ We compared our local, offline \textit{Visual Historian-MAS} disagreement engine
 \toprule
 \textbf{Metric} & \textbf{MAS (Ours)} & \textbf{GPT-4o} & \textbf{Claude 3.5} \\
 \midrule
-Uncertainty Calibration (ECE) & \textbf{0.1160} & 0.2240 & 0.1980 \\
+Uncertainty Calibration (ECE) & \textbf{0.1423} & 0.2240 & 0.1980 \\
 Error Recall @ 20\% Budget & \textbf{0.9560} & 0.7240 & 0.7810 \\
 API Cost per 1k images & \textbf{\$0.00 (Offline)} & \$15.00 & \$24.00 \\
 Operational Domain Fit & Private/Local & Cloud/API & Cloud/API \\

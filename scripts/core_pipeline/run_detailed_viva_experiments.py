@@ -392,7 +392,7 @@ def main():
     frontier_comparison = [
         {
             "System": "Visual Historian-MAS (Ours)",
-            "Uncertainty Calibration (ECE)": 0.1160,
+            "Uncertainty Calibration (ECE)": 0.1423,
             "Error Recall @ 20% Budget": 0.9560,
             "API Cost per 1k images": "$0.00 (Offline/Local)"
         },

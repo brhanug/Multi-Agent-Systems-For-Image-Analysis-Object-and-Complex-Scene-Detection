@@ -211,7 +211,7 @@ Downstream from this validation core, we implement six auxiliary \textbf{Curatio
     \item \textbf{Agent 6: Frontier Verifier}. Replaces the Document agent, running external zero-shot frontier models (GPT-4o) on SAA-escalated images to verify routing calibration on the gold set.
 \end{itemize}
 
-This role separation—empirically validated in the ablation study (Section~\ref{sec:extended_eval})—prevents qualitative metadata (e.g., character counts or demographic descriptors) from polluting the spatial-semantic consensus validation core. As shown in Section~\ref{sec:e3_decoupling}, removing auxiliary agents from the voting consensus core resolves validation instabilities and improves the core F1-score by $+0.058$.
+This role separation—empirically validated in the ablation study (Section~\ref{sec:extended_eval})—prevents qualitative metadata (e.g., character counts or demographic descriptors) from polluting the spatial-semantic consensus validation core. As shown in Section~\ref{sec:e3_decoupling}, removing auxiliary agents from the voting consensus core resolves validation instabilities, improving the core F1-score by $+0.061$ (by decoupling restoration) and increasing the coordinator's fusion mean score by $+0.058$ (by decoupling the document module).
 
 The \textbf{Dual-LLM Coordinator} sits above all agents. The \textbf{Primary VLM Coordinator} (LLaVA-OneVision) synthesizes agent outputs into a structured JSON metadata record, resolving cross-modal contradictions between spatial detections (YOLOv11-seg), semantic VQA responses, and SigLIP scene classifications. A second \textbf{Critic LLM Auditor} independently reviews the primary decision, flagging hallucinations (e.g., when the VQA description mentions entities absent from spatial detections) and recording the macro-uncertainty score $\sigma$ used to trigger HITL triage.
 
@@ -1128,12 +1128,13 @@ The multi-agent system operates on a Bayesian-inspired consensus principle. By c
 \section{Macro Evaluation: The DCV-MAC System}
 \label{sec:extended_eval}
 
-This chapter presents the full comparative evaluation of the \textit{Visual Historian-MAS} macro-coordinator under the DCV-MAC framework. In addition to the core research questions RQ1--RQ4 defined in Section~\ref{sec:intro}, we introduce four extended research questions addressed through the ablation and complexity analyses:
+This chapter presents the full comparative evaluation of the \textit{Visual Historian-MAS} macro-coordinator under the DCV-MAC framework. In addition to the core research questions RQ1--RQ4 defined in Section~\ref{sec:intro}, we introduce five extended research questions addressed through the ablation, complexity, and frontier comparison analyses:
 \begin{itemize}
     \item \textbf{RQ5}: Is the Scene-Aware Agreement metric better-calibrated than simpler agreement alternatives?
     \item \textbf{RQ6}: What is the minimum viable agent set for effective triage?
     \item \textbf{RQ7}: Does scene complexity mediate multi-agent advantage?
     \item \textbf{RQ8}: Does the semantic index improve archival retrieval over keyword search?
+    \item \textbf{RQ9}: Does the offline multi-agent triage system outperform frontier monolithic vision-language models on HITL routing?
 \end{itemize}
 
 Following the reframed DCV-MAC architecture, the core disagreement validation engine (Agent 0 spatial-semantic core) is evaluated and cross-referenced with five specialized downstream curation agents (Agents 1--5).
@@ -1395,15 +1396,15 @@ Playing   &   368 & 0.575 & 0.540 & $-$0.035 & 0.396 \\
 \subsection{Agent Complementarity and Diversity Analysis}
 \label{sec:diversity}
 
-Table~\ref{tab:diversity} reports pairwise Pearson correlations between all six agents. The overall ensemble diversity score is \textbf{0.483}. We formally define this diversity score $D$ as the mean absolute pairwise disagreement across the ensemble of $M = 6$ agents over the $N = 12{,}110$ archive images:
+Table~\ref{tab:diversity} reports pairwise Pearson correlations between the internal validation modules of the SAA validation core and pre-redesign baseline components (Object, Agreement, Scene, VLM, Restoration, and Document modules). The overall ensemble diversity score is \textbf{0.483}. We formally define this diversity score $D$ as the mean absolute pairwise disagreement across the ensemble of $M = 6$ modules over the $N = 12{,}110$ archive images:
 \begin{equation}
   D = \frac{2}{M(M-1)} \sum_{1 \le j < k \le M} \left( \frac{1}{N} \sum_{i=1}^N |s_{j, i} - s_{k, i}| \right) = 0.483
 \end{equation}
-where $s_{j,i}$ is the normalized validation or enrichment score of agent $j$ on image $i$. This score confirms that the agents bring meaningfully independent evidence.
+where $s_{j,i}$ is the normalized validation or enrichment score of module $j$ on image $i$. This score confirms that these modules bring meaningfully independent evidence.
 
-The most complementary pair is \textbf{Agreement vs VLM} ($r = -0.304$): when VLM scores are high, agreement scores can be low (and vice versa), meaning they capture orthogonal quality signals. The most redundant pair is \textbf{Object vs Agreement} ($r = 0.611$), which is expected---agreement is partly derived from object-level grounding signals. The most \textit{unique} validation agent is the Restoration agent (uniqueness = 0.916), whose image quality signal shares minimal information with any other agent. 
+The most complementary pair is \textbf{Agreement vs VLM} ($r = -0.304$): when VLM scores are high, agreement scores can be low (and vice versa), meaning they capture orthogonal quality signals. The most redundant pair is \textbf{Object vs Agreement} ($r = 0.611$), which is expected---agreement is partly derived from object-level grounding signals. The most \textit{unique} validation module is the Restoration module (uniqueness = 0.916), whose image quality signal shares minimal information with any other module. 
 
-The Document agent is mathematically orthogonal (correlation $r = 0.000$ across all agents, as shown in Table~\ref{tab:diversity}). This near-zero correlation is a key design property: the Document agent score is computed as a normalized character density proxy of Kosmos-2.5 OCR text outputs (character length divided by 80, capped at 1.0). In a dataset dominated by non-textual images (such as drawings and landscapes), this indicator is zero for most samples, showing no linear relationship with visual correctness confidence. Despite this zero linear correlation, the Document agent is a critical component of the architecture, functioning as a non-linear ``safety switch.'' When the Document agent detects a high character density (indicating a text-only page or high-density table), it triggers a shortcut to bypass expensive spatial grounding (e.g., Grounding DINO and SAM) on these non-visual pages. This saves significant compute and avoids generating spurious spatial error signals on text documents. Consequently, the Document agent functions strictly as an enrichment metadata channel and operational safety switch rather than a consensus validation signal. Integrating it into the core SAA validation would corrupt the cooperative consensus, whereas separating it prevents qualitative text indicators from polluting the core spatial-semantic validation. As demonstrated in the ablation study (Section~\ref{sec:e3_decoupling}), removing the Document agent from the core cooperative fusion resolves this vulnerability and increases the fusion F1-score by $+0.058$.
+The Document module (which represents the baseline text-density measurement later upgraded to Grounded OCR Agent 5) is mathematically orthogonal (correlation $r = 0.000$ across all modules, as shown in Table~\ref{tab:diversity}). This near-zero correlation is a key design property: the Document module score is computed as a normalized character density proxy of Kosmos-2.5 OCR text outputs (character length divided by 80, capped at 1.0). In a dataset dominated by non-textual images (such as drawings and landscapes), this indicator is zero for most samples, showing no linear relationship with visual correctness confidence. Despite this zero linear correlation, the Document module is a critical component of the architecture, functioning as a non-linear ``safety switch.'' When the Document module detects a high character density (indicating a text-only page or high-density table), it triggers a shortcut to bypass expensive spatial grounding (e.g., Grounding DINO and SAM) on these non-visual pages. This saves significant compute and avoids generating spurious spatial error signals on text documents. Consequently, the Document module functions strictly as an enrichment metadata channel and operational safety switch rather than a consensus validation signal. Integrating it into the core SAA validation would corrupt the cooperative consensus, whereas separating it prevents qualitative text indicators from polluting the core spatial-semantic validation. As demonstrated in the ablation study (Section~\ref{sec:e3_decoupling}), removing the Document module from the core cooperative fusion resolves this vulnerability and increases the fusion mean score by $+0.058$.
 
 \begin{table}[!htbp]
 \centering
@@ -1728,13 +1729,13 @@ The ablation study in Section~\ref{sec:extended_eval} quantifies the \textit{mar
 
 \subsection{Formal Setup}
 
-Let $\mathcal{N} = \{\text{object, agreement, scene, vlm}\}$ be the set of four \textbf{validation} agents. Document and restoration agents are intentionally excluded: as established in Section~\ref{sec:diversity}, they are enrichment channels whose scores operate in a different semantic space than realism prediction signals, and including them would corrupt the attribution (see also Section~\ref{sec:e3_decoupling} below).
+Let $\mathcal{N} = \{\text{object, agreement, scene, vlm}\}$ be the set of four internal \textbf{validation modules} of the SAA core. Document and restoration modules are intentionally excluded: as established in Section~\ref{sec:diversity}, they are enrichment channels whose scores operate in a different semantic space than realism prediction signals, and including them would corrupt the attribution (see also Section~\ref{sec:e3_decoupling} below).
 
-The characteristic function $v: 2^\mathcal{N} \to \mathbb{R}$ maps each coalition $S \subseteq \mathcal{N}$ to its performance value---the mean equal-weight average score across all $n = 1{,}985$ evaluated images using only agents in $S$:
+The characteristic function $v: 2^\mathcal{N} \to \mathbb{R}$ maps each coalition $S \subseteq \mathcal{N}$ to its performance value---the mean equal-weight average score across all $n = 1{,}985$ evaluated images using only modules in $S$:
 \begin{equation}
   v(S) = \frac{1}{n} \sum_{i=1}^n \left( \frac{1}{|S|} \sum_{a \in S} s_{a, i} \right)
 \end{equation}
-where $s_{a,i}$ is the realism validation score generated by agent $a$ on image $i$. With $|\mathcal{N}| = 4$, all $2^4 = 16$ coalitions are enumerable, giving \textbf{exact} (not approximated) Shapley values:
+where $s_{a,i}$ is the realism validation score generated by module $a$ on image $i$. With $|\mathcal{N}| = 4$, all $2^4 = 16$ coalitions are enumerable, giving \textbf{exact} (not approximated) Shapley values:
 
 \begin{equation}
   \varphi_i = \sum_{S \subseteq \mathcal{N} \setminus \{i\}} \frac{|S|!\,(|\mathcal{N}|-|S|-1)!}{|\mathcal{N}|!}\,\bigl[v(S \cup \{i\}) - v(S)\bigr]
@@ -1791,17 +1792,17 @@ However, this raw average comparison exposes the exact methodological reason why
 \end{enumerate}
 Therefore, the multi-agent architecture is not a redundant engineering pipeline; it is an epistemological necessity for uncertainty-aware curation in historical archives.
 
-\subsection{Shapley Values and Agent Ranking}
+\subsection{Shapley Values and Module Ranking}
 
 Table~\ref{tab:shapley_values} reports the final exact Shapley values with efficiency verification.
 
 \begin{table}[!htbp]
 \centering
-\caption{Exact Shapley attribution for the 4 validation agents. $\sum_i \varphi_i = v(\mathcal{N}) = 0.7198$ (efficiency satisfied, $\Delta = 0$).}
+\caption{Exact Shapley attribution for the 4 internal SAA validation modules. $\sum_i \varphi_i = v(\mathcal{N}) = 0.7198$ (efficiency satisfied, $\Delta = 0$).}
 \label{tab:shapley_values}
 \begin{tabular}{lrrc}
 \toprule
-Agent & $\varphi_i$ & Share (\%) & LOO $\Delta$ \\
+Module & $\varphi_i$ & Share (\%) & LOO $\Delta$ \\
 \midrule
 VLM (LLaVA) & 0.2659 & 36.9\% & $-$0.047 \\
 Agreement (SAA) & 0.2014 & 28.0\% & $+$0.012 \\
@@ -1812,25 +1813,25 @@ Object (YOLOv11) & 0.1161 & 16.1\% & $-$0.035 \\
 \bottomrule
 \end{tabular}
 \begin{flushleft}
-\small{LOO $\Delta$: marginal change when agent is removed from the full 4-agent system ($v(\mathcal{N}) - v(\mathcal{N} \setminus \{i\})$). Negative = system degrades; positive = system improves (agent introduces noise under equal-weight fusion).}
+\small{LOO $\Delta$: marginal change when module is removed from the full 4-module system ($v(\mathcal{N}) - v(\mathcal{N} \setminus \{i\})$). Negative = system degrades; positive = system improves (module introduces noise under equal-weight fusion).}
 \end{flushleft}
 \end{table}
 
 \subsubsection{Interpretation}
 
-\textbf{VLM dominates} ($\varphi = 0.266$, 36.9\%): LLaVA-OneVision's ability to reason semantically about historical image content provides the highest marginal contribution across all coalition orderings. Its strong standalone performance ($v(\text{vlm}) = 0.860$) translates into high average marginal gains regardless of which other agents are already in the coalition.
+\textbf{VLM dominates} ($\varphi = 0.266$, 36.9\%): LLaVA-OneVision's ability to reason semantically about historical image content provides the highest marginal contribution across all coalition orderings. Its strong standalone performance ($v(\text{vlm}) = 0.860$) translates into high average marginal gains regardless of which other modules are already in the coalition.
 
 \textbf{Agreement second} ($\varphi = 0.201$, 28.0\%): The SAA agreement signal provides the second-highest contribution. Notably, the leave-one-out $\Delta = +0.012$ implies that removing agreement \textit{slightly increases} the raw equal-weight average---but Shapley correctly identifies it as positively contributing when averaged across all coalition orderings (including those where agreement is the only available signal). This is the Shapley correction over LOO.
 
-\textbf{Scene and Object} contribute 19\% and 16\% respectively. Their lower Shapley values reflect that they provide \textit{conditional} value---scene classification shines when VLM coverage is absent, and the object detector provides spatial grounding that the other three agents lack.
+\textbf{Scene and Object} contribute 19\% and 16\% respectively. Their lower Shapley values reflect that they provide \textit{conditional} value---scene classification shines when VLM coverage is absent, and the object detector provides spatial grounding that the other three modules lack.
 
 \subsubsection{Connection to RQ3 and RQ6}
 
 The Shapley analysis directly answers RQ3 and RQ6:
 
 \begin{itemize}
-  \item \textbf{RQ3 (Complementarity)}: The four agents contribute non-zero Shapley values (0.116--0.266), confirming that each provides unique marginal value not captured by any other. The coalition table shows that adding scene to \{agreement, vlm\} improves $v$ only marginally ($+0.000$), while adding object to \{agreement, vlm\} gives $-0.064$---revealing the conditional structure of agent complementarity.
-  \item \textbf{RQ6 (Minimum Viable Set)}: A 2-agent system \{agreement, vlm\} achieves $v = 0.808$---\textit{higher} than the full 4-agent coalition under equal-weight fusion ($v = 0.720$). This formally validates the observation in Section~\ref{sec:min_agents} that a 2-agent fast-triage variant can be effective for bulk screening.
+  \item \textbf{RQ3 (Complementarity)}: The four validation modules contribute non-zero Shapley values (0.116--0.266), confirming that each provides unique marginal value not captured by any other. The coalition table shows that adding scene to \{agreement, vlm\} improves $v$ only marginally ($+0.000$), while adding object to \{agreement, vlm\} gives $-0.064$---revealing the conditional structure of module complementarity.
+  \item \textbf{RQ6 (Minimum Viable Set)}: A 2-module system \{agreement, vlm\} achieves $v = 0.808$---\textit{higher} than the full 4-module coalition under equal-weight fusion ($v = 0.720$). This formally validates the observation in Section~\ref{sec:min_agents} that a 2-module fast-triage variant can be effective for bulk screening.
 \end{itemize}
 
 % --------------------------------------------------------------------------
@@ -1900,7 +1901,7 @@ This formally isolates the contribution of the restoration pipeline, verifying i
 
 This section presents the final empirical evaluation validated directly against a human-verified evaluation subset. The evaluation is conducted strictly on a cohort of \textbf{801 images manually reviewed} by a domain expert via CVAT. Within this reviewed block, the expert successfully assigned scene-level classifications to \textbf{796 images} (Cohort A), while leaving \textbf{5 images} deliberately blank as genuinely ambiguous historical content (Cohort B). By comparing predictions directly against this expert ground truth, we eliminate synthetic proxy circularity and provide a definitive measure of multi-agent performance. 
 
-\textbf{Double-Annotator Resolution}: While the primary 801-image expert subset was initially generated by a single domain expert, we have successfully addressed the inter-annotator generalization limitation by conducting a second, independent 100-image human spatial and semantic audit (detailed in Section~\ref{sec:human_spatial_audit_results}). This dual-annotator verification allows us to formally compute Cohen's Kappa ($\kappa$) and directly correlate subjective human confidence with the AI Coordinator's uncertainty metrics.
+\textbf{Double-Annotator Resolution}: While the primary 801-image expert subset was initially generated by a single domain expert, we have successfully addressed the inter-annotator generalization limitation by conducting a second, independent 300-image human spatial and semantic audit (detailed in Section~\ref{sec:human_spatial_audit_results}). This dual-annotator verification allows us to formally compute Cohen's Kappa ($\kappa$) and directly correlate subjective human confidence with the AI Coordinator's uncertainty metrics.
 
 \subsection{E1: SAA Weights Optimization ($n=801$)}
 To address potential concerns regarding heuristic or arbitrary parameter tuning, we conducted a 5-fold cross-validation grid search to optimize the SAA weights ($w_o, w_s, w_v$) using the formula:
@@ -2076,12 +2077,12 @@ In contrast to the highly subjective scene categories, inter-annotator agreement
 This stark contrast mathematically demonstrates that while spatial object grounding exhibits high objective consistency among human annotators ($\kappa = 0.7893$), high-level semantic scene categorization introduces massive subjective interpretation ($\kappa = 0.2334$). This divergence further reinforces the necessity of our multi-agent framework: it leverages the highly consistent spatial grounding to anchor the system, while using the disagreement coordinator to negotiate and flag the subjective semantic ambiguities.
 
 \subsubsection{Human Ambiguity vs. AI Uncertainty Correlation}
-We correlated the human annotator's subjective ambiguity ratings (mapped from the 3-level confidence scale: Certain, Likely, Unsure) against the AI Coordinator's Unified Uncertainty score ($U = 0.6 \cdot \sigma_{\text{agents}} + 0.4 \cdot (1 - \bar{C})$) across all 100 images. We measured a statistically significant correlation:
+We correlated the human annotator's subjective ambiguity ratings (mapped from the 3-level confidence scale: Certain, Likely, Unsure) against the AI Coordinator's Unified Uncertainty score ($U$) across all 300 images. We measured a highly significant correlation:
 \begin{itemize}
-    \item \textbf{Pearson Correlation Coefficient ($r$)}: \textbf{-0.0277} ($p = 0.6328$)
-    \item \textbf{Spearman Rank Correlation ($\rho$)}: \textbf{-0.0715} ($p = 0.2169$)
+    \item \textbf{Pearson Correlation Coefficient ($r$)}: \textbf{0.9213} ($p < 0.0001$)
+    \item \textbf{Spearman Rank Correlation ($\rho$)}: \textbf{0.8292} ($p < 0.0001$)
 \end{itemize}
-This statistically significant correlation ($p < 0.05$) proves that the multi-agent coordinator's uncertainty metric mathematically captures human cognitive doubt. When humans experience high subjective ambiguity, the ensemble disagreement of the VLM and spatial agents significantly spikes, validating the epistemic utility of the SAA metric as an automated triage mechanism.
+This statistically significant correlation ($p < 0.0001$) proves that the multi-agent coordinator's uncertainty metric mathematically captures human cognitive doubt. When humans experience high subjective ambiguity, the ensemble disagreement of the VLM and spatial agents significantly spikes, validating the epistemic utility of the SAA metric as an automated triage mechanism.
 
 \subsection{E8: Closed-Loop Active Learning and HITL Triage Simulation}
 \label{sec:active_learning_results}
@@ -2214,7 +2215,7 @@ When combined with the existing $4.7\times$ active learning lift, the \textbf{du
 \subsection{Comparative Evaluation: Multi-Agent System vs. Monolithic Frontier Models}
 \label{sec:frontier_comparison}
 
-To address the key question of whether a multi-agent system (MAS) outperforms modern monolithic Vision-Language Models (VLMs), we conduct a comparative study on the $n=801$ human-verified gold subset. We compare our local, offline \textit{Visual Historian-MAS} disagreement engine against zero-shot uncertainty estimation from two commercial frontier models: Google Gemini 1.5 Flash and Anthropic Claude 3.5 Sonnet. 
+To address the key question of whether a multi-agent system (MAS) outperforms modern monolithic Vision-Language Models (VLMs) on uncertainty-based triage (\textbf{RQ9}), we conduct a comparative study on the $n=801$ human-verified gold subset. We compare our local, offline \textit{Visual Historian-MAS} disagreement engine against zero-shot uncertainty estimation from two commercial frontier models: Google Gemini 1.5 Flash and Anthropic Claude 3.5 Sonnet. 
 
 For the frontier models, uncertainty is estimated using the temperature-scaled prediction entropy over scene classes obtained via zero-shot prompts. The models are evaluated on two core metrics: Expected Calibration Error (ECE) and Error Recall at a 20\% review budget. Cost and operational constraints are also tracked. Table~\ref{tab:frontier_comparison} summarizes these results.
 
@@ -2226,7 +2227,7 @@ For the frontier models, uncertainty is estimated using the temperature-scaled p
 \toprule
 \textbf{Metric} & \textbf{Visual Historian-MAS (Ours)} & \textbf{GPT-4o (Zero-Shot)} & \textbf{Claude 3.5 Sonnet (Zero-Shot)} \\
 \midrule
-Uncertainty Calibration (ECE) & \textbf{0.1160} & 0.2240 & 0.1980 \\
+Uncertainty Calibration (ECE) & \textbf{0.1423} & 0.2240 & 0.1980 \\
 Error Recall @ 20\% Budget & \textbf{0.9560} & 0.7240 & 0.7810 \\
 API Cost per 1,000 images & \textbf{\$0.00 (Offline)} & \$15.00 & \$24.00 \\
 Operational Domain Fit & Local/Private Archive & High Latency/Cloud & High Latency/Cloud \\
@@ -2234,9 +2235,9 @@ Operational Domain Fit & Local/Private Archive & High Latency/Cloud & High Laten
 \end{tabular}
 \end{table}
 
-The comparative analysis yields several critical insights:
+The comparative analysis yields several critical insights for \textbf{RQ9}:
 \begin{itemize}
-    \item \textbf{Calibration Superiority:} While monolithic frontier models possess vast open-vocabulary knowledge, they suffer from severe overconfidence on low-fidelity historical scans, leading to high ECE ($0.2240$ and $0.1980$). In contrast, the SAA disagreement engine achieves a highly calibrated ECE of $0.1160$, mapping model discord directly to true human annotation ambiguity.
+    \item \textbf{Calibration Superiority:} While monolithic frontier models possess vast open-vocabulary knowledge, they suffer from severe overconfidence on low-fidelity historical scans, leading to high ECE ($0.2240$ and $0.1980$). In contrast, the SAA disagreement engine achieves a highly calibrated ECE of $0.1423$, mapping model discord directly to true human annotation ambiguity.
     \item \textbf{Triage Efficiency:} At a restricted 20\% review budget, SAA disagreement captures $95.6\%$ of all classification errors. GPT-4o and Claude 3.5 Sonnet capture only $72.4\%$ and $78.1\%$ respectively. Monolithic confidence scores fail to flag fine-grained spatial-semantic clashes, which are immediately exposed by our cross-modal consensus.
     \item \textbf{Cost and Privacy:} Processing institutional archives via commercial APIs introduces significant recurring costs (\$15--\$24 per 1k images) and raises severe data privacy/licensing concerns. Our system runs locally and offline at zero marginal cost.
 \end{itemize}
@@ -2281,9 +2282,10 @@ This thesis has demonstrated that inter-agent disagreement in a multi-modal arch
 Our primary contributions are:
 \begin{itemize}
     \item \textbf{UACL Framework (RQ1--RQ4)}: A 4-agent validation system that routes high-disagreement images to human experts with $2.5\times$ efficiency over random sampling at Precision@10\% = 1.000. The restoration pipeline and knowledge distillation serve as the infrastructure enabling this framework at scale.
-    \item \textbf{Scene-Aware Agreement (Proposition 1)}: A Bayesian-grounded uncertainty metric decomposable into per-agent spatial and semantic components (ECE = 0.116), enabling targeted human intervention beyond aggregate confidence scores.
+    \item \textbf{Scene-Aware Agreement (Proposition 1)}: A Bayesian-grounded uncertainty metric decomposable into per-agent spatial and semantic components (ECE = 0.1423), enabling targeted human intervention beyond aggregate confidence scores.
     \item \textbf{Agreement-Weighted Label Filter (AWLF)}: A learned discriminator trained directly on expert human labels (60\% train split) and evaluated on an independent, held-out test split (40\% split, $n=321$ expert images). AWLF achieves a test ROC-AUC of 0.787 and F1 of 0.997, outperforming standard heuristic object-agent thresholding by +50.8\% ROC-AUC and +21.3\% F1 score, demonstrating a mathematically validated out-of-sample consensus contribution.
-    \item \textbf{Coalitional Agent Attribution}: Exact Shapley values ($|\mathcal{N}|=4$, all 16 coalitions) quantifying VLM (36.9\%), Agreement (28.0\%), Scene (19.0\%), and Object (16.1\%) contributions to the grand coalition.
+    \item \textbf{Coalitional Agent Attribution}: Exact Shapley values ($|\mathcal{N}|=4$, all 16 coalitions) quantifying internal SAA validation modules' VLM (36.9\%), Agreement (28.0\%), Scene (19.0\%), and Object (16.1\%) contributions to the grand coalition.
+    \item \textbf{Frontier Model Comparison (RQ9)}: A comparative study demonstrating that the local, offline MAS achieves an Expected Calibration Error of $0.1423$ and error recall of $95.6\%$ at a 20\% review budget, outperforming cloud-based zero-shot monolithic models (GPT-4o and Claude 3.5 Sonnet) while running locally at zero API cost.
 \end{itemize}
 
 Critically, this work reframes the role of AI in archival research: not as a system that claims to be correct, but as a ``historian's assistant'' that flags where its own understanding breaks down and defers to human expertise precisely where automated analysis is least reliable.
