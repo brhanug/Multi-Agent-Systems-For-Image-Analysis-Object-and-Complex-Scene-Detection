@@ -122,9 +122,9 @@ Three fundamental problems were identified with the monolithic approach:
 % ================================================================
 %  SECTION 2 — AGENT ARCHITECTURE
 % ================================================================
-\section{The Six-Agent Architecture}
+\section{The DCV-MAC Multi-Agent Architecture}
 
-Each agent is a specialised analytical module operating on a different epistemic modality. Together they form the UACL ensemble:
+Each agent is a specialised analytical module operating on a different epistemic modality. Together they form the DCV-MAC ensemble:
 
 \begin{table}[h]
 \centering
@@ -134,12 +134,13 @@ Each agent is a specialised analytical module operating on a different epistemic
 \toprule
 \textbf{ID} & \textbf{Agent} & \textbf{Role and Models} \\
 \midrule
-0 & Spatial Grounding    & GroundingDINO bounding-box proposals on raw and restored images. Primary object score. \\
-1 & Temporal Historian   & Anchors detections to PPN institutional metadata across 772 archival volumes. \\
-2 & Semantic Retrieval   & Embeds VQA scene descriptions; enables semantic search (P@10 = 0.9250 vs.\ 0.0900 keyword). \\
-3 & Hallucination Critic & Computes inter-agent disagreement; routes high-uncertainty images to HITL review. \\
-4 & VLM Semantic         & LLaVA-OneVision + Florence-2 contextual reasoning and demographic profiling. \\
-5 & Geospatial Analyst   & Location and scene-type clustering across the full collection. \\
+0 & Validation Core      & Core spatial-semantic disagreement engine (YOLOv11-seg and LLaVA-OneVision). Drives the Scene-Aware Agreement (SAA) loop. \\
+1 & Temporal Claim       & Temporal Claim Historian. Generates structured JSON decade trend claims of object frequency shifts. \\
+2 & Contradiction Det.   & Cross-Modal Contradiction Detector. Maps noun set-differences between VLM descriptions and YOLO spatial detections. \\
+3 & Bayesian Ranker      & Bayesian Evidence Ranker. Dynamically calibrates SAA weights based on per-scene-type model priors. \\
+4 & Archive Linker       & Cross-Archive Linker. Network-links visual/semantic neighbors across PPNs to isolate anomalies. \\
+5 & Grounded OCR         & Grounded OCR Agent. Grounded text extraction using Kosmos-2.5 to corroborate or contradict visual labels. \\
+6 & Frontier Verifier    & Frontier Verifier. Audits routing calibration on the gold subset zero-shot using GPT-4o. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -226,7 +227,7 @@ Distillation Gain        & \textbf{+0.269} & +37.4\% relative improvement \\
 
 \subsection{Epistemic Triage and HITL Efficiency (RQ2 / RQ4)}
 
-The Hallucination Critic (Agent 3) routes the most uncertain images to human experts. Routing the top 10\% of highest-disagreement images achieves:
+The SAA disagreement engine (driven by the Validation Core / Coordinator) routes the most uncertain images to human experts. Routing the top 10\% of highest-disagreement images achieves:
 
 \begin{table}[h]
 \centering
@@ -246,7 +247,7 @@ Disagreement--Issue correlation & $-0.752$ & Strong inverse Pearson correlation 
 
 \subsection{Semantic Retrieval (RQ8)}
 
-Agent 2 builds a VQA-enriched semantic index enabling natural-language search over the archive. Across 50 test queries:
+The Cross-Archive Linker (Agent 4) maps semantic neighbors across PPNs to enable visual-semantic retrieval and natural-language search. Across 50 test queries:
 
 \begin{table}[h]
 \centering
@@ -263,9 +264,9 @@ Improvement ($\Delta$)   & \textbf{+0.8350} & \\
 \end{tabular}
 \end{table}
 
-\subsection{Temporal Analysis (Agent 1)}
+\subsection{Temporal Claim Analysis (Agent 1)}
 
-Scores were aggregated across \textbf{772 archival PPN volumes}. The multi-agent fusion score standard deviation (0.186) is lower than the monolithic standard deviation (0.226), confirming the ensemble reduces variance in uncertain cases — a hallmark of a well-calibrated ensemble.
+The Temporal Claim Historian (Agent 1) aggregates object frequency trends across \textbf{772 archival PPN volumes} to generate structured JSON decade trend claims (such as tracking the $3.1\times$ machinery increase post-1880). The multi-agent fusion score standard deviation (0.186) is lower than the monolithic standard deviation (0.226), confirming the ensemble reduces variance in uncertain cases — a hallmark of a well-calibrated ensemble.
 
 % ================================================================
 %  SECTION 5 — ALGORITHMIC CONTRIBUTIONS
@@ -296,11 +297,11 @@ Restoration Quality   & $-2.95$ & High restoration gain increases hallucination 
 
 \subsection{Synthetic Sensor Diversity (SSD)}
 
-To address correlated errors arising from all agents sharing the same restored image, \textbf{SSD} was implemented. Agent 0 processes the \textit{native grayscale stream}; Agent 4 processes the \textit{restored stream}. This mirrors the physical LiDAR/RGB independence in autonomous driving. The decorrelation step flagged \textbf{10{,}570 additional images} for HITL review that would have been silently passed by the original pipeline.
+To address correlated errors arising from all agents sharing the same restored image, \textbf{SSD} was implemented. Agent 0 (Validation Core) processes the \textit{native grayscale stream}; Agent 4 (Cross-Archive Linker) processes the \textit{restored stream}. This mirrors the physical LiDAR/RGB independence in autonomous driving. The decorrelation step flagged \textbf{10{,}570 additional images} for HITL review that would have been silently passed by the original pipeline.
 
 \subsection{PeopleArt Cross-Dataset Validation}
 
-A complete measured evaluation on all \textbf{4,778 images} of the PeopleArt benchmark (43 styles, Westlake et al.\ 2016) was executed. Standard YOLO F1-score collapses from \textbf{0.878} on photos to \textbf{0.673} on cartoons, while SAA uncertainty successfully rises to \textbf{0.338} in abstract styles (triggering a 95.9\% review rate)—proving that the UACL coordinator acts as a highly robust safety net under domain shift.
+A complete measured evaluation on all \textbf{4,778 images} of the PeopleArt benchmark (43 styles, Westlake et al.\ 2016) was executed. Standard YOLO F1-score collapses from \textbf{0.878} on photos to \textbf{0.673} on cartoons, while SAA uncertainty successfully rises to \textbf{0.338} in abstract styles (triggering a 95.9\% review rate)—proving that the DCV-MAC coordinator acts as a highly robust safety net under domain shift.
 
 % ================================================================
 %  SECTION 6 — HUMAN BASELINE AUDIT

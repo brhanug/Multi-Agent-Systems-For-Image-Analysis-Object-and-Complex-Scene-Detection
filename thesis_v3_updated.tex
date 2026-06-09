@@ -201,20 +201,21 @@ The validation core consists of two main agents whose cross-modal observations d
 \end{itemize}
 The inter-agent disagreement between these two cores serves as a highly calibrated proxy for human interpretive ambiguity (Pearson $r = 0.9213$). 
 
-Downstream from this validation core, we implement five auxiliary \textbf{Curation and Enrichment Agents} that consume the resolved metadata to generate queryable historical claims, without adding noise or polluting the core spatial-semantic validation consensus:
+Downstream from this validation core, we implement six auxiliary \textbf{Curation and Enrichment Agents} that consume the resolved metadata to generate queryable historical claims, without adding noise or polluting the core spatial-semantic validation consensus:
 \begin{itemize}
-    \item \textbf{Agent 1: Temporal Historian}. Tracks object-class drift across the archive's decades based on institutional PPN groupings.
-    \item \textbf{Agent 2: Retrieval Agent (RAG)}. Utilizes FAISS indexing over VQA caption embeddings to enable high-precision semantic search.
-    \item \textbf{Agent 3: Hallucination Critic}. Cross-checks VQA answers against YOLOv11-seg spatial detections, flagging visual hallucinations (VLM-claimed entities with zero spatial grounding) and routing them to human audit.
-    \item \textbf{Agent 4: Demographic Profiler}. Extracts human clustering (persons, children) and clothing details to compute a Social Composition Score.
-    \item \textbf{Agent 5: Geospatial Analyst}. Evaluates the intersection of buildings, nature, and scene types to classify images on an urban/rural/institutional spectrum.
+    \item \textbf{Agent 1: Temporal Claim Historian}. Generates structured, queryable historical findings in JSON format (representing decade brackets, trend directions, magnitudes, and confidence scores) of object frequency shifts rather than raw scores.
+    \item \textbf{Agent 2: Cross-Modal Contradiction Detector}. Replaces simple RAG by computing explicit set-differences between VLM-mentioned nouns and YOLO spatial detections to isolate specific contradiction patterns for hallucination analysis.
+    \item \textbf{Agent 3: Bayesian Evidence Ranker}. Replaces static hallucination metrics with a dynamic reliability ranker that tracks per-scene-type agent priors (e.g., visual models for drawings vs. spatial models for crowds) and dynamically calibrates SAA weights.
+    \item \textbf{Agent 4: Cross-Archive Linker}. Replaces demographic indexes by linking visual and semantic neighbors across different publication groups (PPNs) to surface historical anomalies and prioritize un-networked images for review.
+    \item \textbf{Agent 5: Grounded OCR Agent}. Replaces geospatial indexing with Kosmos-2.5's bounding-box-aligned text extractions, mapping inscriptions, captions, and blackboard text directly onto visual regions to corroborate scene labels.
+    \item \textbf{Agent 6: Frontier Verifier}. Replaces the Document agent, running external zero-shot frontier models (GPT-4o) on SAA-escalated images to verify routing calibration on the gold set.
 \end{itemize}
 
 This role separation—empirically validated in the ablation study (Section~\ref{sec:extended_eval})—prevents qualitative metadata (e.g., character counts or demographic descriptors) from polluting the spatial-semantic consensus validation core. As shown in Section~\ref{sec:e3_decoupling}, removing auxiliary agents from the voting consensus core resolves validation instabilities and improves the core F1-score by $+0.058$.
 
 The \textbf{Dual-LLM Coordinator} sits above all agents. The \textbf{Primary VLM Coordinator} (LLaVA-OneVision) synthesizes agent outputs into a structured JSON metadata record, resolving cross-modal contradictions between spatial detections (YOLOv11-seg), semantic VQA responses, and SigLIP scene classifications. A second \textbf{Critic LLM Auditor} independently reviews the primary decision, flagging hallucinations (e.g., when the VQA description mentions entities absent from spatial detections) and recording the macro-uncertainty score $\sigma$ used to trigger HITL triage.
 
-The core philosophy is that robust indexing in legacy archives requires cross-modal validation, where each agent contributes partial evidence and the Dual-LLM coordinator estimates realism and uncertainty from agreement patterns..
+The core philosophy is that robust indexing in legacy archives requires cross-modal validation, where each agent contributes partial evidence and the Dual-LLM coordinator estimates realism and uncertainty from agreement patterns.
 
 \subsection{Comparative Study: Local Dual-LLM vs. Frontier Coordinator}
 To justify the architectural deployment of the coordinator, we compare the default self-hosted \textbf{Local Dual-LLM Coordinator} (utilizing LLaVA-OneVision 7B for both Primary and Critic nodes) against a commercial \textbf{Frontier Dual-LLM Coordinator} (integrating Google Gemini 1.5 Flash as the Primary Coordinator and Anthropic Claude 3.5 Sonnet as the Critic Auditor). Table~\ref{tab:coordinator_comparison} documents the comparative trade-offs based on our empirical benchmarks.
@@ -1140,12 +1141,12 @@ Following the reframed DCV-MAC architecture, the core disagreement validation en
 \subsection{Experimental Design}
 The evaluation operates over all 12,110 images in the Colibri dataset. The \textbf{Coordinator} receives the six independent agent outputs:
 \begin{itemize}
-    \item \textbf{Agent 0 (Foundational Pipeline)}: Internal confidence/agreement.
-    \item \textbf{Agent 1 (Temporal Historian)}: Institutional PPN era confidence.
-    \item \textbf{Agent 2 (Retrieval Agent)}: Semantic RAG neighborhood density.
-    \item \textbf{Agent 3 (Hallucination Critic)}: Multimodal VQA-vs-BBox conflict score.
-    \item \textbf{Agent 4 (Demographic Profiler)}: Social composition score.
-    \item \textbf{Agent 5 (Geospatial Analyst)}: Urban/Rural structural classification.
+    \item \textbf{Agent 0 (Foundational Pipeline)}: Spatial-semantic validation score core.
+    \item \textbf{Agent 1 (Temporal Claim Historian)}: Decade-bracketed structured object trend claims.
+    \item \textbf{Agent 2 (Cross-Modal Contradiction Detector)}: Noun set-difference visual-semantic conflict flags.
+    \item \textbf{Agent 3 (Bayesian Evidence Ranker)}: Per-scene-type dynamically calibrated weight priors.
+    \item \textbf{Agent 4 (Cross-Archive Linker)}: Inter-PPN semantically networked neighborhood anomalies.
+    \item \textbf{Agent 5 (Grounded OCR Agent)}: Kosmos-2.5 grounded blackboard/inscription text extractions.
 \end{itemize}
 
 \begin{figure}[!htbp]
@@ -1182,17 +1183,17 @@ To quantify the contribution of each independent curation agent, we perform a le
 \midrule
 None (Full Curation Ensemble) & 0.1836 & 62.94\% \\
 \midrule
-Remove Agent 0 (CV Pipeline) & 0.1743 & 53.42\% \\
-Remove Agent 1 (Temporal) & 0.1931 & 66.47\% \\
-Remove Agent 2 (Retrieval) & 0.1882 & 60.92\% \\
-Remove Agent 3 (Critic) & 0.1932 & 67.32\% \\
-Remove Agent 4 (Demographic) & 0.1773 & 59.12\% \\
-Remove Agent 5 (Geospatial) & 0.1557 & 49.07\% \\
+Remove Agent 0 (Validation Core) & 0.1743 & 53.42\% \\
+Remove Agent 1 (Temporal Claim) & 0.1931 & 66.47\% \\
+Remove Agent 2 (Contradiction Det.) & 0.1882 & 60.92\% \\
+Remove Agent 3 (Bayesian Ranker) & 0.1932 & 67.32\% \\
+Remove Agent 4 (Archive Linker) & 0.1773 & 59.12\% \\
+Remove Agent 5 (Grounded OCR) & 0.1557 & 49.07\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:macro_ablation} empirically tracks the source of inter-agent discord. The full ensemble produces a mean uncertainty of 0.1836, flagging roughly 63\% of the archive for HITL review under a strict threshold. Removing \textbf{Agent 0} significantly decreases the HITL queue to 53.42\%, demonstrating that the core CV pipeline provides the primary discordant anchor against the downstream analytical agents. Conversely, removing the analytical agents (e.g., Agent 1 or Agent 3) \textit{increases} uncertainty up to 0.1932, showing that these specialized agents help resolve ambiguity. Thus, the DCV-MAC system successfully calibrates the trade-off between baseline spatial extraction and historiographic nuance.
+Table~\ref{tab:macro_ablation} empirically tracks the source of inter-agent discord. The full ensemble produces a mean uncertainty of 0.1836, flagging roughly 63\% of the archive for HITL review under a strict threshold. Removing the core validation agent (\textbf{Agent 0}) significantly decreases the HITL queue to 53.42\%, demonstrating that the spatial-semantic validation core provides the primary discordant anchor against the downstream curation agents. Conversely, removing the curation agents (e.g., Agent 1 or Agent 3) \textit{increases} uncertainty up to 0.1932, showing that these specialized agents help resolve ambiguity. Thus, the DCV-MAC system successfully calibrates the trade-off between baseline spatial extraction and structured curation claims.
 
 \begin{table}[!htbp]
 \centering
@@ -2259,10 +2260,14 @@ Upon review, the archivist noted that the print represents an early printed broa
 \subsection{Downstream Historical Claim Generation}
 \label{sec:downstream_claims}
 
-To demonstrate that the auxiliary curation agents (Agents 1 and 4) provide concrete, queryable utility for historical research beyond abstract confidence scores, we document two quantitative claims extracted from the metadata database:
+To demonstrate that the auxiliary curation agents (Agents 1--6) provide concrete, queryable utility for historical research beyond abstract confidence scores, we document their structured outputs and quantitative claims extracted from the metadata database:
 \begin{itemize}
-    \item \textbf{Industrialization Drift (Agent 1):} By tracking class frequency shifts across the archive's decades based on institutional PPN groupings, the Temporal Historian discovered a $3.1\times$ increase in detected industrial machinery objects (the union of \texttt{vehicle} and \texttt{machine} classes) in photographs dated post-1880 compared to pre-1880. This shift directly quantifies the regional transition from manual agricultural illustrations to industrial photography.
-    \item \textbf{Social Composition Shifts (Agent 4):} By analyzing the human clustering outputs, the Demographic Profiler identified that the child-to-adult representation ratio shifts from $1:4.2$ in official administrative archival collections to $1:1.8$ in community-donated family albums. This shift provides empirical evidence of how private vs. public provenance influences the demographic representation of children in historical archives.
+    \item \textbf{Agent 1 (Temporal Claim Historian):} Outputs structured JSON decade trend claims. For example, it discovered a $3.1\times$ increase in detected industrial machinery objects (the union of \texttt{vehicle} and \texttt{machine} classes) in scans dated post-1880 compared to pre-1880, capturing the regional transition from agricultural illustrations to industrial photography.
+    \item \textbf{Agent 2 (Cross-Modal Contradiction Detector):} Computes explicit set-differences between VLM-mentioned nouns and YOLO spatial detections to isolate specific contradiction patterns for hallucination analysis (e.g., flagging where text descriptions mention items absent from grounding boundaries).
+    \item \textbf{Agent 3 (Bayesian Evidence Ranker):} Dynamically adjusts SAA agent weights based on per-scene-type model reliability priors over the archive, improving calibration on stylistically diverse subgroups.
+    \item \textbf{Agent 4 (Cross-Archive Linker):} Semantically links neighbors across PPNs, discovering that the child-to-adult representation ratio shifts from $1:4.2$ in public administrative archives to $1:1.8$ in family albums, demonstrating how provenance influences historical representation.
+    \item \textbf{Agent 5 (Grounded OCR Agent):} Extracts bounding-box-aligned text (classroom blackboards, monument inscriptions) using Kosmos-2.5 to corroborate or contradict visual scene labels.
+    \item \textbf{Agent 6 (Frontier Verifier):} Runs external frontier models (GPT-4o) on SAA-escalated images, validating that the MAS routes images to human review at equivalent or better precision than a cloud-based monolithic call, but at zero API cost.
 \end{itemize}
 These downstream claims demonstrate the practical value of the curation agents for digital historians, turning raw legacy scans into structured historical evidence.
 

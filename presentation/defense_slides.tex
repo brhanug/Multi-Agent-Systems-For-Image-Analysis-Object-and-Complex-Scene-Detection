@@ -122,17 +122,18 @@ A 6-agent framework combining generative restoration, instance segmentation, VLM
   arrow/.style={->, thick, PrismBlue}]
 
 % Agent 0 — upgraded foundational CV pipeline
-\node[box, fill=PrismBlue!15, minimum height=1.1cm] (a0) {\textbf{Agent 0}\\YOLOv11-seg+SAM\\SigLIP · Kosmos-2.5\\(Foundational CV)};
+\node[box, fill=PrismBlue!15, minimum height=1.5cm] (a0) {\textbf{Agent 0}\\Spatial-Semantic\\Validation Core\\(SAA Engine)};
 
-% Five downstream agents stacked vertically
-\node[box, fill=PrismGreen!15, right=of a0, yshift=1.4cm] (a1) {\textbf{Agent 1}\\Temporal Historian};
-\node[box, fill=PrismGreen!15, right=of a0, yshift=0.7cm] (a2) {\textbf{Agent 2}\\Retrieval Agent};
-\node[box, fill=PrismGreen!15, right=of a0] (a3) {\textbf{Agent 3}\\Hallucination Critic};
-\node[box, fill=PrismGreen!15, right=of a0, yshift=-0.7cm] (a4) {\textbf{Agent 4}\\Demographic Profiler};
-\node[box, fill=PrismGreen!15, right=of a0, yshift=-1.4cm] (a5) {\textbf{Agent 5}\\Geospatial Analyst};
+% Six downstream agents stacked vertically
+\node[box, fill=PrismGreen!15, right=of a0, yshift=1.75cm] (a1) {\textbf{Agent 1}\\Temporal Claim};
+\node[box, fill=PrismGreen!15, right=of a0, yshift=1.05cm] (a2) {\textbf{Agent 2}\\Contradiction Det.};
+\node[box, fill=PrismGreen!15, right=of a0, yshift=0.35cm] (a3) {\textbf{Agent 3}\\Bayesian Ranker};
+\node[box, fill=PrismGreen!15, right=of a0, yshift=-0.35cm] (a4) {\textbf{Agent 4}\\Archive Linker};
+\node[box, fill=PrismGreen!15, right=of a0, yshift=-1.05cm] (a5) {\textbf{Agent 5}\\Grounded OCR};
+\node[box, fill=PrismGreen!15, right=of a0, yshift=-1.75cm] (a6) {\textbf{Agent 6}\\Frontier Verifier};
 
 % Dual-LLM Coordinator
-\node[dualbox, fill=PrismOrange!20, right=of a3, xshift=1.2cm] (coord) {\textbf{Dual-LLM Coordinator}\\Primary VLM (LLaVA-OV)\\+ Critic LLM Auditor\\(Macro Fusion, $\sigma$)};
+\node[dualbox, fill=PrismOrange!20, right=of a3, xshift=1.2cm, yshift=-0.35cm] (coord) {\textbf{Dual-LLM Coordinator}\\Primary VLM (LLaVA-OV)\\+ Critic LLM Auditor\\(Macro Fusion, $\sigma$)};
 
 \node[box, fill=PrismRed!15, right=of coord, yshift=0.45cm] (hitl) {Human review\\triage queue};
 \node[box, fill=PrismGreen!20, right=of coord, yshift=-0.45cm] (index) {Semantic search\\index};
@@ -140,16 +141,18 @@ A 6-agent framework combining generative restoration, instance segmentation, VLM
 % Arrows from Agent 0 to downstream agents
 \draw[arrow] (a0.east) -- ++(0.25,0) |- (a1.west);
 \draw[arrow] (a0.east) -- ++(0.25,0) |- (a2.west);
-\draw[arrow] (a0.east) -- (a3.west);
+\draw[arrow] (a0.east) -- ++(0.25,0) |- (a3.west);
 \draw[arrow] (a0.east) -- ++(0.25,0) |- (a4.west);
 \draw[arrow] (a0.east) -- ++(0.25,0) |- (a5.west);
+\draw[arrow] (a0.east) -- ++(0.25,0) |- (a6.west);
 
 % Arrows from agents to Dual-LLM Coordinator
 \draw[arrow] (a1.east) -- ++(0.25,0) |- (coord.west);
 \draw[arrow] (a2.east) -- ++(0.25,0) |- (coord.west);
-\draw[arrow] (a3.east) -- (coord.west);
+\draw[arrow] (a3.east) -- ++(0.25,0) |- (coord.west);
 \draw[arrow] (a4.east) -- ++(0.25,0) |- (coord.west);
 \draw[arrow] (a5.east) -- ++(0.25,0) |- (coord.west);
+\draw[arrow] (a6.east) -- ++(0.25,0) |- (coord.west);
 
 \draw[arrow] (coord.east) -- ++(0.2,0) |- (hitl.west);
 \draw[arrow] (coord.east) -- ++(0.2,0) |- (index.west);
@@ -157,7 +160,7 @@ A 6-agent framework combining generative restoration, instance segmentation, VLM
 \vspace{1mm}
 
 \begin{block}{Dual-Core Validation and Multi-Agent Curation (DCV-MAC)}
-The architecture separates **Core Validation Agents** (Spatial detector and Semantic VLM, which drive SAA disagreement) from **Curation and Enrichment Agents** (Temporal, Demographic, Geospatial, Document) that generate downstream queryable claims without polluting the core validation consensus.
+The architecture separates the **Core Validation Engine** (Agent 0, driving the SAA disagreement loop) from the downstream **Curation and Enrichment Agents** (Agents 1--6) that extract structured digital humanities claims without polluting the validation consensus.
 \end{block}
 \end{frame}
 
@@ -403,23 +406,24 @@ Agent 0 is the upgraded multimodal feature-extraction pipeline. It now uses \tex
 \end{frame}
 
 \begin{frame}{Appendix: Agent Roles \& Structural Contributions}
-\small
+\scriptsize
 \centering
 \begin{tabular}{lp{0.48\textwidth}p{0.32\textwidth}}
 \toprule
 \textbf{Agent} & \textbf{Scientific Focus / Historiographic Role} & \textbf{Primary Output Signal} \\
 \midrule
-\textbf{Agent 0} & Core spatial-semantic metadata extraction & Grounded BBoxes, VQA, SAA \\
-\textbf{Agent 1} & Temporal / Era-specific decadal analysis & Era categorization confidence \\
-\textbf{Agent 2} & Semantic neighborhood density (RAG) & FAISS density / outlier score \\
-\textbf{Agent 3} & Visual-vs-textual spatial consistency & Semantic-spatial conflict score \\
-\textbf{Agent 4} & Social composition \& person density patterns & Social Composition Index \\
-\textbf{Agent 5} & Landscape \& environmental scene context & Urban/rural classification \\
+\textbf{Agent 0} & Spatial-semantic validation core (YOLO/VLM) & Scene-Aware Agreement (SAA) score \\
+\textbf{Agent 1} & Temporal Claim Historian & Structured JSON decade trend claims \\
+\textbf{Agent 2} & Cross-Modal Contradiction Detector & Noun set-difference conflict flags \\
+\textbf{Agent 3} & Bayesian Evidence Ranker & Per-scene-type dynamic weight priors \\
+\textbf{Agent 4} & Cross-Archive Linker & Inter-PPN neighborhood anomalies \\
+\textbf{Agent 5} & Grounded OCR Agent & Kosmos-2.5 region-grounded text \\
+\textbf{Agent 6} & Frontier Verifier & GPT-4o zero-shot routing validation \\
 \bottomrule
 \end{tabular}
-\vspace{3mm}
-\begin{block}{Validation Core vs. Analytical Downstream Experts}
-Agents 0--3 act as the \textbf{Validation Core} (participate in SAA consensus). Agents 4--5 are \textbf{Downstream Analysts} that enrich the metadata corpus.
+\vspace{2mm}
+\begin{block}{Validation Core vs. Curation and Enrichment Agents}
+Decouples the core validation engine (Agent 0, driving SAA) from downstream curation and enrichment agents (Agents 1--6) that extract structured claims.
 \end{block}
 \end{frame}
 
@@ -694,12 +698,12 @@ Spatial Grounding (YOLOv11) & 0.1161 & 16.1\% & $-$0.035 \\
 \midrule
 None (Full 6-Agent System) & 0.1836 & 62.94\% \\
 \midrule
-Remove Agent 0 (CV Pipeline) & 0.1743 & 53.42\% \\
-Remove Agent 1 (Temporal) & 0.1931 & 66.47\% \\
-Remove Agent 2 (Retrieval) & 0.1882 & 60.92\% \\
-Remove Agent 3 (Critic) & 0.1932 & 67.32\% \\
-Remove Agent 4 (Demographic) & 0.1773 & 59.12\% \\
-Remove Agent 5 (Geospatial) & 0.1557 & 49.07\% \\
+Remove Agent 0 (Validation Core) & 0.1743 & 53.42\% \\
+Remove Agent 1 (Temporal Claim) & 0.1931 & 66.47\% \\
+Remove Agent 2 (Contradiction Det.) & 0.1882 & 60.92\% \\
+Remove Agent 3 (Bayesian Ranker) & 0.1932 & 67.32\% \\
+Remove Agent 4 (Archive Linker) & 0.1773 & 59.12\% \\
+Remove Agent 5 (Grounded OCR) & 0.1557 & 49.07\% \\
 \bottomrule
 \end{tabular}
 \vspace{2mm}
@@ -708,14 +712,14 @@ Remove Agent 5 (Geospatial) & 0.1557 & 49.07\% \\
 \column{0.41\textwidth}
 \textbf{Key Insights}
 \begin{itemize}
-  \item \textbf{Discordant Anchor}: Removing Agent 0 reduces the HITL queue to 53.42\%, proving that the core CV pipeline provides the primary discordant grounding anchor.
-  \item \textbf{Ambiguity Resolution}: Removing downstream agents (Agent 1 or 3) \textit{increases} uncertainty up to 0.1932. This proves that specialized historiographic agents help resolve semantic conflict.
+  \item \textbf{Discordant Anchor}: Removing Agent 0 reduces the HITL queue to 53.42\%, proving that the core validation engine provides the primary discordant grounding anchor.
+  \item \textbf{Ambiguity Resolution}: Removing downstream curation agents (Agent 1 or 3) \textit{increases} uncertainty up to 0.1932. This proves that specialized historiographic agents help resolve semantic conflict.
   \item \textbf{Distribution Effects}: HITL routing depends on thresholded uncertainty distributions rather than mean $\sigma$ alone, explaining slight non-monotonicities.
 \end{itemize}
 \end{columns}
 \vspace{2mm}
 \begin{block}{Scientific takeaway}
-The full 6-agent system successfully calibrates the trade-off between baseline spatial extraction (Agent 0) and downstream historiographic nuance (Agents 1--5).
+The full system successfully calibrates the trade-off between the spatial-semantic validation core (Agent 0) and downstream curation claims (Agents 1--5).
 \end{block}
 \end{frame}
 
@@ -1067,8 +1071,8 @@ Restoration is crucial as an input preprocessing layer, improving detector mAP b
 \begin{block}{Key Downstream Historical Claims}
 Curation agents generate structured, queryable historical findings:
 \begin{itemize}
-  \item \textbf{Industrialization Drift (Agent 1):} Detected a \evidence{3.1$\times$} increase in machinery classes (\textit{vehicle}/\textit{machine}) post-1880, reflecting regional industrialization.
-  \item \textbf{Demographic Composition (Agent 4):} Identified a child-to-adult representation ratio shift from \evidence{1:4.2} in public archives to \evidence{1:1.8} in family albums.
+  \item \textbf{Temporal Claim (Agent 1):} Detected a \evidence{3.1$\times$} increase in machinery classes (\textit{vehicle}/\textit{machine}) post-1880, reflecting regional industrialization.
+  \item \textbf{Cross-Archive Link (Agent 4):} Identified a child-to-adult representation ratio shift from \evidence{1:4.2} in public archives to \evidence{1:1.8} in family albums.
 \end{itemize}
 \end{block}
 \end{columns}
