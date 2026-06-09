@@ -14,7 +14,7 @@ AUDIT_IMAGES = AUDIT_DIR / "images"
 AUDIT_LABELS = AUDIT_DIR / "labels"
 MODEL_WEIGHTS = BASE / "runs/detect/yolo11_v2_augmented_refresh/weights/best.pt"
 SCORES_CSV = BASE / "results/multi_agent/agent_comparison_scores.csv"
-USER_CSV = BASE / "human_spatial_audit/user_annotations_100.csv"
+USER_CSV = BASE / "human_spatial_audit/user_annotations_300.csv"
 
 def get_basename(path_str):
     return str(path_str).split('/')[-1].rsplit('.', 1)[0]

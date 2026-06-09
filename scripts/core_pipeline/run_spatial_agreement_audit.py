@@ -8,7 +8,7 @@ import json
 
 # Paths
 BASE = Path("/data/brhanu/thesis_project")
-USER_CSV = BASE / "human_spatial_audit/user_annotations_100.csv"
+USER_CSV = BASE / "human_spatial_audit/user_annotations_300.csv"
 GOLD_CSV = BASE / "human_baseline_gold_kit/gold_labels_human.csv"
 AGENT_CSV = BASE / "results/multi_agent/agent_comparison_scores.csv"
 OUTPUT_JSON = BASE / "results/spatial_agreement_report.json"

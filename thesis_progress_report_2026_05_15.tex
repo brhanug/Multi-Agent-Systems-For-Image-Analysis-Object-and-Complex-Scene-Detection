@@ -67,7 +67,7 @@
 % ================================================================
 \begin{center}
 \colorbox{lightgray}{\parbox{0.96\linewidth}{\vspace{4pt}\small
-\textbf{Summary.} This report documents research progress since the strategic pivot to a Multi-Agent System (MAS) architecture. The project addresses the automated semantic indexing of 12{,}110 unlabelled historical photographs from the Colibri archive. The central contribution is the \textit{Uncertainty-Aware Collaborative Labeling (UACL)} framework, which uses inter-agent disagreement as a principled predictor of archival ambiguity. Key results: mAP50 = 0.1316 (real human) / 0.989 (proxy), 4.7$\times$ HITL efficiency gain, AWLF ROC-AUC = 0.787, Semantic P@10 = 1.000.
+\textbf{Summary.} This report documents research progress since the strategic pivot to a Multi-Agent System (MAS) architecture. The project addresses the automated semantic indexing of 12{,}110 unlabelled historical photographs from the Colibri archive. The central contribution is the \textit{Uncertainty-Aware Collaborative Labeling (UACL)} framework, which uses inter-agent disagreement as a principled predictor of archival ambiguity. Key results: mAP50 = 0.1462 (real human) / 0.989 (proxy), 4.7$\times$ HITL efficiency gain, AWLF ROC-AUC = 0.787, Semantic P@10 = 0.9250.
 \vspace{4pt}}}
 \end{center}
 
@@ -136,7 +136,7 @@ Each agent is a specialised analytical module operating on a different epistemic
 \midrule
 0 & Spatial Grounding    & GroundingDINO bounding-box proposals on raw and restored images. Primary object score. \\
 1 & Temporal Historian   & Anchors detections to PPN institutional metadata across 772 archival volumes. \\
-2 & Semantic Retrieval   & Embeds VQA scene descriptions; enables semantic search (P@10 = 1.000 vs.\ 0.180 keyword). \\
+2 & Semantic Retrieval   & Embeds VQA scene descriptions; enables semantic search (P@10 = 0.9250 vs.\ 0.0900 keyword). \\
 3 & Hallucination Critic & Computes inter-agent disagreement; routes high-uncertainty images to HITL review. \\
 4 & VLM Semantic         & LLaVA-OneVision + Florence-2 contextual reasoning and demographic profiling. \\
 5 & Geospatial Analyst   & Location and scene-type clustering across the full collection. \\
@@ -246,7 +246,7 @@ Disagreement--Issue correlation & $-0.752$ & Strong inverse Pearson correlation 
 
 \subsection{Semantic Retrieval (RQ8)}
 
-Agent 2 builds a VQA-enriched semantic index enabling natural-language search over the archive. Across 10 test queries:
+Agent 2 builds a VQA-enriched semantic index enabling natural-language search over the archive. Across 50 test queries:
 
 \begin{table}[h]
 \centering
@@ -256,9 +256,9 @@ Agent 2 builds a VQA-enriched semantic index enabling natural-language search ov
 \toprule
 \textbf{Strategy} & \textbf{P@10} & \textbf{Example Query} \\
 \midrule
-Semantic (VQA embedding) & \textbf{1.000} & ``children playing outdoors'' \\
-Keyword (OCR/filename)   & 0.180 & ``playing'' \\
-Improvement ($\Delta$)   & \textbf{+0.820} & \\
+Semantic (VQA embedding) & \textbf{0.9250} & ``children playing outdoors'' \\
+Keyword (OCR/filename)   & 0.0900 & ``playing'' \\
+Improvement ($\Delta$)   & \textbf{+0.8350} & \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -311,7 +311,7 @@ To move thesis claims from \textit{``proxy-validated''} to \textit{``human-measu
 
 This dual-annotator split yielded critical empirical findings:
 \begin{itemize}[leftmargin=2em, noitemsep]
-  \item \textbf{Spatial Domain Gap:} While YOLOv11m achieved a proxy mAP50 of 0.989 on synthetic data, its performance dropped to a real human mAP50 of \textbf{0.1316} on real historical images (a $-0.8574$ decay).
+  \item \textbf{Spatial Domain Gap:} While YOLOv11m achieved a proxy mAP50 of 0.989 on synthetic data, its performance dropped to a real human mAP50 of \textbf{0.1462} on real historical images (a $-0.8428$ decay).
   \item \textbf{Agreement Calibration:} The Multi-Agent system achieved a Brier Calibration score of \textbf{0.0062} (near-perfect alignment) compared to YOLOv11's poor calibration of 0.2570.
   \item \textbf{Triage Lift:} Prioritizing review queues by SAA Unified Uncertainty captures \textbf{95.6\% of all pseudo-label errors at just a 20\% auditing limit}—a $4.7\times$ review efficiency gain.
 \end{itemize}
@@ -360,7 +360,7 @@ CAO Docker infrastructure & \textcolor{accentgreen}{\textbf{Complete}} & — \\
 Thesis manuscript (v3.0, $\sim$98\%) & \textcolor{accentgreen}{\textbf{Complete}} & — \\
 GitHub repository (all results) & \textcolor{accentgreen}{\textbf{Complete}} & — \\
 Human gold-standard labelling & \textcolor{accentgreen}{\textbf{Complete}} (801 reviewed) & — \\
-Inter-annotator reliability ($\kappa \geq 0.1555$) & \textcolor{accentgreen}{\textbf{Complete}} & — \\
+Inter-annotator reliability ($\kappa \geq 0.2334$) & \textcolor{accentgreen}{\textbf{Complete}} & — \\
 Human-measured metric update & \textcolor{accentgreen}{\textbf{Complete}} & — \\
 Final thesis compilation \& submission & \textbf{In Progress} & End of May 2026 \\
 \bottomrule
