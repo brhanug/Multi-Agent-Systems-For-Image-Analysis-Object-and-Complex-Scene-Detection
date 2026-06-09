@@ -105,14 +105,14 @@ Three fundamental problems were identified with the monolithic approach:
   arr/.style={->,>=Stealth,color=accentblue,thick}]
   \node[box] (r) {Image\\Restoration};
   \node[box,right=of r] (g) {Open-Vocab\\Grounding};
-  \node[box,right=of g] (m) {6-Agent\\MAS};
+  \node[box,right=of g] (m) {DCV-MAC\\Ensemble};
   \node[box,right=of m] (a) {SAA /\\AWLF};
   \node[box,right=of a] (s) {YOLOv11\\Student};
   \draw[arr] (r)--(g); \draw[arr] (g)--(m);
   \draw[arr] (m)--(a); \draw[arr] (a)--(s);
   \node[lbl,below=4pt of r]{CycleGAN\\ESRGAN · SD};
   \node[lbl,below=4pt of g]{GroundingDINO\\Florence-2};
-  \node[lbl,below=4pt of m]{Spatial · Semantic\\Temporal · Critic};
+  \node[lbl,below=4pt of m]{Validation Core\\+ Curation};
   \node[lbl,below=4pt of a]{Learned filter\\AUC 0.975};
   \node[lbl,below=4pt of s]{mAP50 = 0.989\\37 classes};
 \end{tikzpicture}

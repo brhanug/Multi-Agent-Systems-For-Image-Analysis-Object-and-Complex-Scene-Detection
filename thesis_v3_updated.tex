@@ -593,7 +593,7 @@ For a typical large-scale heritage archive like the Colibri collection ($N = 12,
 \end{itemize}
 
 \subsubsection{Computational Trade-Offs}
-While the 6-agent cooperative architecture significantly reduces human labor costs, it introduces higher computational requirements compared to monolithic models. Running heavy-weight VLMs (LLaVA-OneVision VQA at 34.2 GB VRAM, latency of 15.00s per image) is computationally expensive. However, by executing the collaborative labeling offline in a self-training loop, this computational overhead is paid exactly once during dataset compilation. The final distilled student model (YOLOv11m, 1.8 GB VRAM, 0.02s latency) runs in real-time, allowing lightweight archive deployment on edge hardware.
+While the DCV-MAC cooperative architecture significantly reduces human labor costs, it introduces higher computational requirements compared to monolithic models. Running heavy-weight VLMs (LLaVA-OneVision VQA at 34.2 GB VRAM, latency of 15.00s per image) is computationally expensive. However, by executing the collaborative labeling offline in a self-training loop, this computational overhead is paid exactly once during dataset compilation. The final distilled student model (YOLOv11m, 1.8 GB VRAM, 0.02s latency) runs in real-time, allowing lightweight archive deployment on edge hardware.
 
 \clearpage
 \subsection{Object Detection Benchmarking: Teacher vs. Student}
@@ -1124,10 +1124,10 @@ The multi-agent system operates on a Bayesian-inspired consensus principle. By c
 
 % --------------------------------------------------------------------------
 \clearpage
-\section{Macro Evaluation: The 6-Agent System}
+\section{Macro Evaluation: The DCV-MAC System}
 \label{sec:extended_eval}
 
-This chapter presents the full comparative evaluation of the \textit{Visual Historian-MAS} macro-coordinator. In addition to the core research questions RQ1--RQ4 defined in Section~\ref{sec:intro}, we introduce four extended research questions addressed through the ablation and complexity analyses:
+This chapter presents the full comparative evaluation of the \textit{Visual Historian-MAS} macro-coordinator under the DCV-MAC framework. In addition to the core research questions RQ1--RQ4 defined in Section~\ref{sec:intro}, we introduce four extended research questions addressed through the ablation and complexity analyses:
 \begin{itemize}
     \item \textbf{RQ5}: Is the Scene-Aware Agreement metric better-calibrated than simpler agreement alternatives?
     \item \textbf{RQ6}: What is the minimum viable agent set for effective triage?
@@ -1135,7 +1135,7 @@ This chapter presents the full comparative evaluation of the \textit{Visual Hist
     \item \textbf{RQ8}: Does the semantic index improve archival retrieval over keyword search?
 \end{itemize}
 
-Following the reframed 6-Agent architecture, the complete foundational CV pipeline is evaluated as a single decision-maker (\textbf{Agent 0}) and is cross-validated against five specialised downstream agents (Agents 1--5).
+Following the reframed DCV-MAC architecture, the core disagreement validation engine (Agent 0 spatial-semantic core) is evaluated and cross-referenced with five specialized downstream curation agents (Agents 1--5).
 
 \subsection{Experimental Design}
 The evaluation operates over all 12,110 images in the Colibri dataset. The \textbf{Coordinator} receives the six independent agent outputs:
@@ -1164,23 +1164,23 @@ The core research questions are answered quantitatively in the following subsect
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.75\textwidth]{latex_assets/thesis_agent_diversity_heatmap.png}
-\caption{Pairwise agent independence and diversity correlation matrix across the 6-agent macro system, showing high complementarity.}
+\caption{Pairwise agent independence and diversity correlation matrix across the DCV-MAC curation system, showing high complementarity.}
 \label{fig:agent_diversity_heatmap}
 \end{figure}
 
-\subsection{6-Agent Macro Ablation}
+\subsection{DCV-MAC Macro Ablation}
 
-To quantify the contribution of each independent macro-agent, we perform a leave-one-out ablation on the Coordinator. The primary metric is the system's \textit{Mean Uncertainty} ($\sigma$) and the resulting percentage of images flagged for Human-in-the-Loop (HITL) review.
+To quantify the contribution of each independent curation agent, we perform a leave-one-out ablation on the Coordinator. The primary metric is the system's \textit{Mean Uncertainty} ($\sigma$) and the resulting percentage of images flagged for Human-in-the-Loop (HITL) review.
 
 \begin{table}[!htbp]
 \centering
-\caption{6-Agent Macro Ablation: Impact on Coordinator Uncertainty and HITL Routing. [Provenance: Measured]}
+\caption{DCV-MAC Macro Ablation: Impact on Coordinator Uncertainty and HITL Routing. [Provenance: Measured]}
 \label{tab:macro_ablation}
 \begin{tabular}{lcc}
 \toprule
 \textbf{Ablated Agent} & \textbf{Mean Uncertainty ($\sigma$)} & \textbf{HITL Review (\%)} \\
 \midrule
-None (Full 6-Agent System) & 0.1836 & 62.94\% \\
+None (Full Curation Ensemble) & 0.1836 & 62.94\% \\
 \midrule
 Remove Agent 0 (CV Pipeline) & 0.1743 & 53.42\% \\
 Remove Agent 1 (Temporal) & 0.1931 & 66.47\% \\
@@ -1192,7 +1192,7 @@ Remove Agent 5 (Geospatial) & 0.1557 & 49.07\% \\
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:macro_ablation} empirically tracks the source of inter-agent discord. The full 6-agent system produces a mean uncertainty of 0.1836, flagging roughly 63\% of the archive for HITL review under a strict threshold. Removing \textbf{Agent 0} significantly decreases the HITL queue to 53.42\%, demonstrating that the core CV pipeline provides the primary discordant anchor against the downstream analytical agents. Conversely, removing the analytical agents (e.g., Agent 1 or Agent 3) \textit{increases} uncertainty up to 0.1932, showing that these specialized agents help resolve ambiguity. Thus, the 6-agent system successfully calibrates the trade-off between baseline spatial extraction and historiographic nuance.
+Table~\ref{tab:macro_ablation} empirically tracks the source of inter-agent discord. The full ensemble produces a mean uncertainty of 0.1836, flagging roughly 63\% of the archive for HITL review under a strict threshold. Removing \textbf{Agent 0} significantly decreases the HITL queue to 53.42\%, demonstrating that the core CV pipeline provides the primary discordant anchor against the downstream analytical agents. Conversely, removing the analytical agents (e.g., Agent 1 or Agent 3) \textit{increases} uncertainty up to 0.1932, showing that these specialized agents help resolve ambiguity. Thus, the DCV-MAC system successfully calibrates the trade-off between baseline spatial extraction and historiographic nuance.
 
 \begin{table}[!htbp]
 \centering
@@ -1577,14 +1577,14 @@ These three patterns illustrate the practical value of \textbf{per-agent disagre
 \subsection{Minimum Viable Agent Set — RQ6}
 \label{sec:min_agents}
 
-To answer RQ6 (minimum viable agent set), we enumerate all $2^6 - 1 = 63$ non-empty subsets of the 6 agents and evaluate each on Precision@10\%. The full 6-agent system achieves P@10\% = 1.000. Remarkably, \textbf{a single object agent achieves the same Precision@10\%}, and the best pair (object + VLM) also achieves 1.000 under the proxy label scheme.
+To answer RQ6 (minimum viable agent set), we evaluate subsets of validation and curation agents and assess their impact on Precision@10\%. The full curation ensemble achieves P@10\% = 1.000. Remarkably, \textbf{a single object agent achieves the same Precision@10\%}, and the best pair (object + VLM) also achieves 1.000 under the proxy label scheme.
 
 This result has two interpretations:
 \begin{enumerate}
     \item The proxy issue labels (bottom-25th percentile of fusion and monolithic) are \textbf{strongly correlated with simple object detection confidence}, making P@10\% saturate early.
     \item The additional agents (agreement, scene, VLM, restoration, document) provide value not captured by P@10\% alone---specifically: calibrated uncertainty decomposition, HITL explainability, and semantic indexing.
 \end{enumerate}
-This motivates keeping all 6 agents in the full system while noting that a 2-agent \textit{fast-triage} variant (object + VLM) achieves equivalent precision for bulk screening at reduced compute cost.
+This motivates keeping the full curation ensemble in the DCV-MAC framework while noting that a 2-agent \textit{fast-triage} variant (object + VLM) achieves equivalent precision for bulk screening at reduced compute cost.
 
 % --------------------------------------------------------------------------
 \subsection{Semantic Retrieval Quality — RQ8}
@@ -1723,7 +1723,7 @@ To provide a unified overview of the empirical findings of this thesis, Table~\r
 
 \subsection{Motivation: Beyond Leave-One-Out Ablation}
 
-The ablation study in Table~\ref{tab:rq_eval_ablation} quantifies the \textit{marginal} impact of removing individual agents from the full 6-agent system. However, leave-one-out does not account for agent \textit{synergies}: a pair of agents may contribute more than the sum of their individual marginals when operating together. To rigorously answer RQ3 (agent complementarity), we apply cooperative game theory via \textbf{Shapley value attribution} \cite{shapley1953}.
+The ablation study in Section~\ref{sec:extended_eval} quantifies the \textit{marginal} impact of removing individual agents from the curation ensemble. However, leave-one-out does not account for agent \textit{synergies}: a pair of agents may contribute more than the sum of their individual marginals when operating together. To rigorously answer RQ3 (agent complementarity), we apply cooperative game theory via \textbf{Shapley value attribution} \cite{shapley1953}.
 
 \subsection{Formal Setup}
 
