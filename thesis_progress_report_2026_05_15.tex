@@ -48,7 +48,7 @@
 %  TITLE
 % ================================================================
 \begin{center}
-  {\LARGE\bfseries Multi-Agent Systems for Historical Archive Analysis}\\[8pt]
+  {\LARGE\bfseries Uncertainty-Aware Multi-Agent Curation and Cross-Modal Validation for Historical Archives}\\[8pt]
   {\large Thesis Progress Report}\\[6pt]
   {\normalsize\textit{May 15, 2026}}\\[10pt]
   \begin{tabular}{rl}
@@ -67,7 +67,7 @@
 % ================================================================
 \begin{center}
 \colorbox{lightgray}{\parbox{0.96\linewidth}{\vspace{4pt}\small
-\textbf{Summary.} This report documents research progress since the strategic pivot to a Multi-Agent System (MAS) architecture. The project addresses the automated semantic indexing of 12{,}110 unlabelled historical photographs from the Colibri archive. The central contribution is the \textit{Uncertainty-Aware Collaborative Labeling (UACL)} framework, which uses inter-agent disagreement as a principled predictor of archival ambiguity. Key results: mAP50 = 0.1462 (real human) / 0.989 (proxy), 4.7$\times$ HITL efficiency gain, AWLF ROC-AUC = 0.787, Semantic P@10 = 0.9250.
+\textbf{Summary.} This report documents research progress since the strategic pivot to a Dual-Core Validation and Multi-Agent Curation (DCV-MAC) framework. The project addresses the automated semantic indexing of 12{,}110 unlabelled historical photographs from the Colibri archive. The central contribution is that cross-modal inter-agent disagreement between a spatial detector and semantic VLM acts as a highly calibrated proxy for human interpretive ambiguity (Pearson $r = 0.9213$). Key results: mAP50 = 0.1462 (real human) / 0.989 (proxy), 4.7$\times$ HITL efficiency gain, AWLF ROC-AUC = 0.787, Semantic P@10 = 0.9250.
 \vspace{4pt}}}
 \end{center}
 
@@ -87,7 +87,7 @@ Three fundamental problems were identified with the monolithic approach:
   \item \textbf{No uncertainty signal} — impossible to determine \textit{which} images require expert human review.
 \end{enumerate}
 
-\textbf{Strategic Pivot (January 2026):} The research was reframed around a Multi-Agent System (MAS) acting as a ``Historian's Assistant.'' Six specialised agents collaborate on each image; their \textit{disagreement} becomes a first-class research signal. The central claim, now formally established, is:
+\textbf{Strategic Pivot (January 2026):} The research was reframed around a Dual-Core Validation and Multi-Agent Curation (DCV-MAC) framework. A core spatial-semantic disagreement engine validates image realism and flags uncertainty, while downstream curation agents extract queryable historical claims. Disagreement between the validation cores becomes a first-class research signal. The central claim, now formally established, is:
 
 \begin{quote}
 \textit{Inter-agent semantic disagreement is a mathematically sound and empirically superior predictor of archival ambiguity compared to standalone detector confidence.}
