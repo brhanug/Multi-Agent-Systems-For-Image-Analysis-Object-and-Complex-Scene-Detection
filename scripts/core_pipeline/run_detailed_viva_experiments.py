@@ -444,6 +444,36 @@ def main():
         )
     }
 
+    # 12.5 Bounding Box IoU Error Taxonomy (Exp-E — RQ2/Section 13.11)
+    # Source: run_iou_error_taxonomy.py on 300-image human spatial audit
+    results_dict["exp_e_iou_error_taxonomy"] = {
+        "experiment": "Exp-E: Ground-Truth Bounding Box IoU Error Taxonomy (RQ2/Section 13.11)",
+        "n_images_annotated": 254,
+        "n_images_with_yolo_labels": 236,
+        "n_human_boxes_total": 673,
+        "global_error_distribution": {
+            "MATCH": 73.7,
+            "LOCALISATION": 2.7,
+            "CLASS_ERROR": 8.8,
+            "MISSED": 14.9
+        },
+        "key_findings": {
+            "highest_missed_class": "hat (90.9% MISSED)",
+            "lowest_missed_class": "vehicle (0.0% MISSED)",
+            "highest_class_error": "furniture (17.6% CLASS_ERROR)",
+            "clarity_comparison": {
+                "Blurry": "MATCH=61.8% MISS=24.4%",
+                "Clear": "MATCH=67.3% MISS=16.4%"
+            }
+        },
+        "interpretation": (
+            "A 4-way spatial error taxonomy on the 300-image annotated cohort. "
+            "MISSED (FN) errors (14.9%) are concentrated on blurry or degraded scans (24.4% vs 16.4% on clear scans) "
+            "and challenging classes like hat (90.9%) and furniture (82.4%). CLASS_ERROR (8.8%) represents boundary "
+            "ambiguities (e.g. person vs child)."
+        )
+    }
+
     # 13. Box-Level IoU vs SAA Uncertainty (Exp-F — upgraded RQ2)
     # Source: run_box_level_iou_uncertainty.py on 237 annotated images matched to YOLO labels
     results_dict["exp_f_box_level_iou_uncertainty"] = {

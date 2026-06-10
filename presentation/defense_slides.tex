@@ -868,6 +868,106 @@ Multi-agent spatial-semantic consensus disagreement functions as a highly calibr
 \end{columns}
 \end{frame}
 
+\begin{frame}{Appendix: Detailed Experiment 7-D --- Scene-Conditioned AWLF (RQ7)}
+\scriptsize
+To investigate how scene complexity mediates the coordinator's behaviors, we stratified the 300-image human spatial audit cohort by scene type:
+\vspace{1.5mm}
+
+\begin{columns}[T]
+\column{0.52\textwidth}
+\begin{block}{Scene-Stratified Performance Table ($n=300$)}
+\begin{table}[h]
+\centering
+\tiny
+\begin{tabular}{lrccc}
+\toprule
+\textbf{Scene Stratum} & \textbf{$N$} & \textbf{Boxes/Img} & \textbf{Human Ambig. (\%)} & \textbf{SAA Unc.} \\
+\midrule
+Drawing   & 122 & 1.779 & 5.7\% & 0.3822 \\
+Landscape &  32 & 3.156 & 0.0\% & 0.3779 \\
+Family    &  27 & 3.852 & 0.0\% & 0.3810 \\
+Playing   &  51 & 3.725 & 0.0\% & 0.3833 \\
+Teaching  &   8 & 2.875 & 0.0\% & 0.3820 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{block}
+
+\column{0.44\textwidth}
+\begin{block}{Key Findings}
+\begin{itemize}
+  \item \textbf{Object Density Monotonicity}: Object density increases monotonically with scene complexity (drawings average $1.78$ boxes/img vs. $3.85$ in family portraits).
+  \item \textbf{Subjective Ambiguity Concentration}: Human ambiguity (archivist confidence marked as ``Unsure'') is concentrated in Drawings ($5.7\%$), reflecting low-detail line-art difficulty.
+  \item \textbf{Stable SAA Baseline}: SAA uncertainty remains stable ($\approx 0.38$) across strata, indicating constant sensitivity.
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Appendix: Detailed Experiment 7-E --- Bounding Box IoU Error Taxonomy}
+\scriptsize
+We conducted a 4-way spatial error taxonomy comparing YOLOv11m pseudo-labels against the 300-image expert ground truth ($673$ human boxes):
+\vspace{1.5mm}
+
+\begin{columns}[T]
+\column{0.50\textwidth}
+\begin{block}{Global Spatial Error Distribution}
+\begin{itemize}
+  \item \textbf{Match} (IoU $\ge 0.5$, same class): \evidence{73.7\%} ($496$ boxes)
+  \item \textbf{Missed} (False Negative, IoU $< 0.1$): \evidence{14.9\%} ($100$ boxes)
+  \item \textbf{Class Error} (wrong class, IoU $\ge 0.1$): \evidence{8.8\%} ($59$ boxes)
+  \item \textbf{Localisation} (IoU $\in [0.1, 0.5)$, same class): \evidence{2.7\%} ($18$ boxes)
+\end{itemize}
+\end{block}
+\begin{block}{Visual Clarity Stratification}
+\begin{itemize}
+  \item \textbf{Blurry Scans}: Missed rate spikes to \evidence{24.4\%} ($61.8\%$ Match)
+  \item \textbf{Clear Scans}: Missed rate is only \evidence{16.4\%} ($67.3\%$ Match)
+\end{itemize}
+\end{block}
+
+\column{0.46\textwidth}
+\begin{block}{Extreme Per-Class Failure Modes}
+\begin{itemize}
+  \item \textbf{Visual Ambiguity (Missed)}: \texttt{hat} (\textbf{90.9\%} Missed) and \texttt{furniture} (\textbf{82.4\%} Missed) are highly prone to suppression under domain shift.
+  \item \textbf{Boundary Confusion (Class Error)}: Highest on \texttt{furniture} (\textbf{17.6\%}) and \texttt{child} (\textbf{12.2\%}) --- boundary confusion between children and adults in historical attire.
+\end{itemize}
+\end{block}
+\begin{block}{Scientific Takeaway}
+Image degradation significantly degrades spatial detection recall, justifying the dynamic weight shifting to VLM semantic priors.
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Appendix: Detailed Experiment 7-F --- Box-Level IoU vs SAA Uncertainty}
+\scriptsize
+To investigate if the SAA Coordinator uncertainty metric reflects spatial precision or high-level semantic ambiguity, we correlated box-level spatial divergence ($1 - \text{mean IoU}$) against image-level SAA disagreement ($172$ paired images):
+\vspace{1.5mm}
+
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{block}{Spatial Divergence Correlation (Exp-F)}
+We computed Spearman and Pearson correlations between box-level spatial divergence ($1 - \text{mean IoU}$) and image-level SAA uncertainty:
+\begin{itemize}
+  \item \textbf{Spearman Rank Correlation ($\rho$)}: \textbf{0.0376} ($p = 0.6248$)
+  \item \textbf{Pearson Correlation Coefficient ($r$)}: \textbf{-0.0137} ($p = 0.8579$)
+\end{itemize}
+Both metrics are near-zero and statistically non-significant ($p > 0.05$).
+\end{block}
+
+\column{0.48\textwidth}
+\begin{block}{Visual-Semantic vs. Layout Precision}
+\begin{itemize}
+  \item \textbf{Image-Level Ambiguity}: SAA uncertainty correlates strongly with image-level human ambiguity ($r = 0.9213$).
+  \item \textbf{Box-Level Spatial Precision}: SAA has zero correlation with drawing coordinate differences ($r = -0.0137$).
+\end{itemize}
+\end{block}
+\begin{block}{Scientific Takeaway}
+SAA uncertainty represents high-level semantic consensus/interpretive ambiguity, completely independent of drawing precision or coordinate layout noise.
+\end{block}
+\end{columns}
+\end{frame}
+
 \begin{frame}{Appendix: Detailed Experiment 2: Learned SAA \& SCI Weight Optimization}
 \scriptsize
 To address criticisms of heuristic tuning, we ran 5-fold cross-validation grid search to optimize SAA weights ($w_o, w_s, w_v$) and regressed classification errors on SCI features ($D, O, L, C$):

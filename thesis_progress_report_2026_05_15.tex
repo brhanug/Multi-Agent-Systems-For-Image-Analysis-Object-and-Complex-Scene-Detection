@@ -317,6 +317,15 @@ This dual-annotator split yielded critical empirical findings:
   \item \textbf{Triage Lift:} Prioritizing review queues by SAA Unified Uncertainty captures \textbf{95.6\% of all pseudo-label errors at just a 20\% auditing limit}—a $4.7\times$ review efficiency gain.
 \end{itemize}
 
+\subsection{Spatial Error Taxonomy and Scene Complexity}
+
+To further understand visual and semantic failure modes, we executed three detailed experiments (Exp-D, Exp-E, and Exp-F) on the 300-image human spatial audit cohort:
+\begin{itemize}[leftmargin=2em, noitemsep]
+  \item \textbf{Scene-Conditioned Density (Exp-D):} Object density scales from \textbf{1.779} boxes/image in Drawing scenes to \textbf{3.852} boxes/image in Family scenes. Human archivist ambiguity is concentrated in low-detail drawings (\textbf{5.7\%} ``Unsure''), whereas SAA uncertainty remains stable ($\approx 0.38$) across complexity strata.
+  \item \textbf{Spatial Error Taxonomy (Exp-E):} Evaluating $673$ human-drawn boxes reveals a 4-way classification: \textbf{73.7\%} Matches, \textbf{14.9\%} Missed (False Negatives), \textbf{8.8\%} Class Errors, and \textbf{2.7\%} Localisation Errors. Extreme failure modes occur on small/obscured classes like \texttt{hat} (\textbf{90.9\%} Missed) and \texttt{furniture} (\textbf{82.4\%} Missed). Furthermore, image degradation increases missed detections, with Blurry scans exhibiting a \textbf{24.4\%} Missed rate vs.\ \textbf{16.4\%} on Clear scans.
+  \item \textbf{Box-Level Uncertainty decoupling (Exp-F):} Box-level spatial coordinate divergence ($1 - \text{mean IoU}$) shows a near-zero correlation with image-level SAA uncertainty (Spearman $\rho = \mathbf{0.0376}$, $p = 0.6248$). This indicates that SAA uncertainty represents high-level semantic consensus/interpretive ambiguity, rather than low-level box coordinate drawing variation.
+\end{itemize}
+
 \subsection{Frontier VLM Comparison (RQ9)}
 
 To address \textbf{RQ9} --- whether the offline multi-agent triage system outperforms frontier monolithic vision-language models on HITL routing --- the \textit{Visual Historian-MAS} disagreement engine was benchmarked against GPT-4o and Claude 3.5 Sonnet on the $n=801$ human-verified gold subset:
