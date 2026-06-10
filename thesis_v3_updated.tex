@@ -243,7 +243,7 @@ The comparative analysis reveals that while the self-hosted local model is ideal
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.9\textwidth]{latex_assets/6_agent_architecture.png}
-\caption{Visual Historian-MAS Architecture (Upgraded). The foundational CV pipeline operates as Agent 0, now incorporating YOLOv11-seg+SAM instance segmentation, SigLIP zero-shot scene classification, LLaVA-OneVision VQA, and Kosmos-2.5 grounded OCR. Five downstream analytical agents (Agents 1--5) provide independent historiographic reasoning over the real Agent 0 fusion output. A Dual-LLM coordinator (Primary VLM + Critic LLM Auditor) fuses all macro outputs, using ensemble uncertainty ($\sigma$) to route ambiguous scenes to a Human-in-the-Loop review queue.}
+\caption{Visual Historian-MAS Architecture (Upgraded). The foundational CV pipeline operates as Agent 0, now incorporating YOLOv11-seg+SAM instance segmentation, SigLIP zero-shot scene classification, LLaVA-OneVision VQA, and Kosmos-2.5 grounded OCR. Six downstream analytical agents (Agents 1--6) provide independent historiographic reasoning over the real Agent 0 fusion output. A Dual-LLM coordinator (Primary VLM + Critic LLM Auditor) fuses all macro outputs, using ensemble uncertainty ($\sigma$) to route ambiguous scenes to a Human-in-the-Loop review queue.}
 \label{fig:full_pipeline_flow}
 \end{figure}
 
