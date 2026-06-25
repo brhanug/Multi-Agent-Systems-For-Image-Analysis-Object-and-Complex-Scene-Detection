@@ -43,3 +43,4 @@ latex_assets/*.jpg
 presentation/images/
 thesis_site/public/images/
 node_modules
+node_modules

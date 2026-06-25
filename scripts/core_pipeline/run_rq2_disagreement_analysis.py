@@ -56,7 +56,7 @@ def roc_auc(scores: np.ndarray, labels: np.ndarray) -> tuple[float, np.ndarray, 
     tprs_arr = np.array([0.0] + tprs + [1.0])
     fprs_arr = np.array([0.0] + fprs + [1.0])
     # AUC via trapezoidal rule
-    auc = float(np.trapz(tprs_arr, fprs_arr))
+    auc = float(np.sum((tprs_arr[1:] + tprs_arr[:-1]) * 0.5 * np.diff(fprs_arr)))
     if auc < 0:
         auc = -auc  # handle reversed ordering
     return auc, fprs_arr, tprs_arr, thresholds
@@ -79,7 +79,7 @@ def pr_auc(scores: np.ndarray, labels: np.ndarray) -> tuple[float, np.ndarray, n
 
     prec_arr = np.array([1.0] + precisions + [0.0])
     rec_arr  = np.array([0.0] + recalls  + [1.0])
-    auc = float(np.trapz(prec_arr, rec_arr))
+    auc = float(np.sum((prec_arr[1:] + prec_arr[:-1]) * 0.5 * np.diff(rec_arr)))
     if auc < 0:
         auc = -auc
     return auc, rec_arr, prec_arr

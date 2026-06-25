@@ -5,7 +5,7 @@ from pathlib import Path
 import random
 
 BASE = Path("/data/brhanu/thesis_project")
-GOLD_LABELS_CSV = BASE / "human_baseline_gold_kit" / "gold_labels_human.csv"
+GOLD_LABELS_CSV = BASE / "human_spatial_audit" / "user_annotations_800.csv"
 SOURCE_IMAGE_DIR = BASE / "data" / "images"  # Assuming original images are here, or in human_baseline_gold_kit/images
 AUDIT_DIR = BASE / "human_spatial_audit"
 AUDIT_IMAGES_DIR = AUDIT_DIR / "images"

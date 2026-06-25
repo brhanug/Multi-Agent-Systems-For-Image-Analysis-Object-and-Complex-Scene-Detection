@@ -8,7 +8,7 @@ from pathlib import Path
 import os
 
 BASE = Path("/data/brhanu/thesis_project")
-EXPERT_CSV = BASE / "human_baseline_gold_kit" / "gold_labels_human.csv"
+EXPERT_CSV = BASE / "human_spatial_audit" / "user_annotations_800.csv"
 SCORES_CSV = BASE / "results/multi_agent/agent_comparison_scores.csv"
 OUT_DIR = BASE / "latex_assets"
 

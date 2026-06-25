@@ -26,7 +26,7 @@ def main():
     print("📊 Stratifying real expert validation by scene complexity...")
     
     # Load expert labels
-    expert = pd.read_csv("human_baseline_gold_kit/gold_labels_human.csv")
+    expert = pd.read_csv("human_spatial_audit/user_annotations_800.csv")
     expert['cvat_id'] = expert.index
     expert_reviewed = expert[expert['cvat_id'] <= 800].copy()
     expert_reviewed["gold_has_scene"] = (expert_reviewed["n_scene_labels"] > 0).astype(int)

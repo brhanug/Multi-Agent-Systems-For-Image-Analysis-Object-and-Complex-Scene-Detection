@@ -22,7 +22,7 @@ import pandas as pd
 
 AGENT_COLS = [
     "existing_pipeline_agent", "agreement_agent", "scene_agent",
-    "vlm_agent", "restoration_agent", "document_agent",
+    "vlm_agent",
 ]
 
 SHORT_NAMES = {

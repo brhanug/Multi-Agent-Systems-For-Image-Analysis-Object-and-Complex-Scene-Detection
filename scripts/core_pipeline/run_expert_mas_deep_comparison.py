@@ -25,8 +25,8 @@ from pathlib import Path
 import json
 
 BASE = Path("/data/brhanu/thesis_project")
-XML_LABELS = BASE / "human_baseline_gold_kit/gold_labels_human.csv"
-SCORES_CSV = BASE / "results/multi_agent/multi_agent_validation_scores.csv"
+XML_LABELS = BASE / "human_spatial_audit/user_annotations_800.csv"
+FUSION_SCORES = BASE / "results/multi_agent/agent_comparison_scores.csv"
 OUTPUT_REPORT = BASE / "results/multi_agent/expert_vs_mas_statistical_comparison.json"
 
 def normalize_id(name: str) -> str:

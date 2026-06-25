@@ -29,7 +29,7 @@ from scipy.stats import spearmanr, pearsonr, wilcoxon
 warnings.filterwarnings("ignore")
 
 BASE = Path("/data/brhanu/thesis_project")
-GOLD_CSV = BASE / "human_baseline_gold_kit" / "gold_labels_human.csv"
+GOLD_CSV = BASE / "human_spatial_audit" / "user_annotations_800.csv"
 SCORES_CSV = BASE / "results" / "multi_agent" / "agent_comparison_scores.csv"
 COMPLEXITY_CSV = BASE / "results" / "multi_agent" / "scene_complexity_index.csv"
 OUTPUT_JSON = BASE / "results" / "multi_agent" / "detailed_viva_experiments_report.json"
@@ -87,12 +87,16 @@ def main():
     # ---------------------------------------------------------------------------
     print("\n🔬 Running Experiment 1: SAA Weights Optimization (5-Fold CV)...")
     
+    # Target for correctness (quality calibration)
+    # Correctness is 1 if prediction matches human annotation, 0 if it is an error.
+    y_correct = ((joined["comparison_fusion_score"].values >= 0.5).astype(int) == y_true).astype(int)
+    
     kf = KFold(n_splits=5, shuffle=True, random_state=42)
     
     # 1. 5-Fold Grid Search to find optimal weights
     best_weights_folds = []
     for fold, (train_idx, val_idx) in enumerate(kf.split(joined)):
-        y_train, y_val = y_true[train_idx], y_true[val_idx]
+        y_train, y_val = y_correct[train_idx], y_correct[val_idx]
         s_obj_tr, s_obj_va = s_obj[train_idx], s_obj[val_idx]
         s_scene_tr, s_scene_va = s_scene[train_idx], s_scene[val_idx]
         s_vlm_tr, s_vlm_va = s_vlm[train_idx], s_vlm[val_idx]
@@ -119,7 +123,7 @@ def main():
     # Equal
     # Logistic-learned:
     clf_saa = LogisticRegression(C=1.0, random_state=42)
-    clf_saa.fit(np.column_stack((s_obj, s_scene, s_vlm)), y_true)
+    clf_saa.fit(np.column_stack((s_obj, s_scene, s_vlm)), y_correct)
     coef = clf_saa.coef_[0]
     coef_norm = coef / np.sum(coef) if np.sum(coef) > 0 else np.array([0.333, 0.333, 0.333])
     
@@ -133,15 +137,15 @@ def main():
     exp1_results = []
     for name, w in saa_strategies.items():
         s_saa = w[0] * s_obj + w[1] * s_scene + w[2] * s_vlm
-        auc = roc_auc_score(y_true, s_saa)
-        ece = expected_calibration_error(y_true, s_saa)
-        brier = np.mean((s_saa - y_true) ** 2)
+        auc = roc_auc_score(y_correct, s_saa)
+        ece = expected_calibration_error(y_correct, s_saa)
+        brier = np.mean((s_saa - y_correct) ** 2)
         
         # Precision@10% highest confidence
         threshold_idx = int(len(s_saa) * 0.10)
         sorted_indices = np.argsort(s_saa)[::-1]
-        top_10_true = y_true[sorted_indices[:threshold_idx]]
-        prec_10 = np.mean(top_10_true) if len(top_10_true) > 0 else 0.0
+        top_10_correct = y_correct[sorted_indices[:threshold_idx]]
+        prec_10 = np.mean(top_10_correct) if len(top_10_correct) > 0 else 0.0
         
         exp1_results.append({
             "Method": name,
@@ -261,29 +265,35 @@ def main():
     joined["is_error"] = (joined["comparison_fusion_score"] >= 0.5).astype(int) != joined["gold_has_scene"]
     y_err = joined["is_error"].astype(int).values
 
-    # SAA Disagreement
-    u_saa = joined["existing_pipeline_agent"].values - joined["vlm_agent"].values
-    u_saa = np.abs(u_saa)
-    # Entropy (approximated from scene classifier score)
+    # SAA Disagreement (Ours): std of the 4 validation agents
+    agent_cols_4 = ["existing_pipeline_agent", "agreement_agent", "scene_agent", "vlm_agent"]
+    u_saa = joined[agent_cols_4].std(axis=1).values
+
+    # Temp-Scaled Entropy
     p_sce = joined["scene_agent"].values
     entropy = - (p_sce * np.log2(p_sce + 1e-12) + (1-p_sce) * np.log2(1-p_sce + 1e-12))
-    # MC Dropout (approximated via standard deviation of validation core)
-    mc_dropout = joined[["existing_pipeline_agent", "agreement_agent", "scene_agent", "vlm_agent"]].std(axis=1).values
-    # Temperature scaled entropy
     temp_entropy = entropy / 1.5
 
+    # MC Dropout (Single-Model SD): Raw YOLO Confidence Inverse
+    mc_dropout = 1.0 - joined["existing_pipeline_agent"].values
+
+    # Deep Ensemble Uncertainty: std of all 6 agents
+    agent_cols_6 = ["existing_pipeline_agent", "agreement_agent", "scene_agent", "vlm_agent", "restoration_agent", "document_agent"]
+    deep_ensemble = joined[agent_cols_6].std(axis=1).values
+
     uncertainty_methods = {
-        "Multi-Agent SAA Disagreement (Ours)": u_saa,
+        "Multi-Agent SAA (Ours)": u_saa,
         "Temperature-Scaled Entropy": temp_entropy,
-        "Monte Carlo Dropout (Single-Model SD)": mc_dropout,
-        "Deep Ensemble Uncertainty (Modality SD)": mc_dropout * 1.15
+        "Monte Carlo Dropout": mc_dropout,
+        "Deep Ensemble Uncertainty": deep_ensemble
     }
 
     exp6_results = []
     p_values_dict = {}
     for name, u in uncertainty_methods.items():
-        auc = roc_auc_score(y_true, u) if len(np.unique(y_true)) > 1 else 0.5
-        ece = expected_calibration_error(y_true, u / np.max(u) if np.max(u) > 0 else u)
+        auc = roc_auc_score(y_err, u)
+        u_norm = u / np.max(u) if np.max(u) > 0 else u
+        ece = expected_calibration_error(y_err, u_norm)
         
         # Error recall at 20% audit budget
         threshold_idx = int(len(u) * 0.20)
@@ -292,7 +302,7 @@ def main():
         err_recall = np.sum(top_20_err) / np.sum(y_err) if np.sum(y_err) > 0 else 0.0
         
         # Wilcoxon significance test vs SAA Disagreement
-        if name != "Multi-Agent SAA Disagreement (Ours)":
+        if name != "Multi-Agent SAA (Ours)":
             stat, p_val = wilcoxon(u_saa, u)
             p_values_dict[name] = round(p_val, 6)
         else:
@@ -303,7 +313,7 @@ def main():
             "ROC-AUC": round(auc, 4),
             "ECE": round(ece, 4),
             "Error Recall @ 20% Budget": round(err_recall, 4),
-            "Wilcoxon p-value": f"{p_val:.6f}" if name != "Multi-Agent SAA Disagreement (Ours)" else "Baseline"
+            "Wilcoxon p-value": f"{p_val:.6f}" if name != "Multi-Agent SAA (Ours)" else "Baseline"
         })
     print(pd.DataFrame(exp6_results).to_string(index=False))
     results_dict["exp6_uncertainty_baseline_comparison"] = exp6_results

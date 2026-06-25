@@ -7,7 +7,7 @@ from sklearn.calibration import calibration_curve
 from pathlib import Path
 
 BASE = Path("/data/brhanu/thesis_project")
-EXPERT_CSV = BASE / "human_baseline_gold_kit" / "gold_labels_human.csv"
+EXPERT_CSV = BASE / "human_spatial_audit" / "user_annotations_800.csv"
 SCORES_CSV = BASE / "results/multi_agent/agent_comparison_scores.csv"
 LATEX_ASSETS_DIR = BASE / "latex_assets"
 
@@ -112,7 +112,7 @@ def main():
     plt.legend(loc="lower right")
     plt.grid(True, alpha=0.3)
     
-    cal_plot_path = LATEX_ASSETS_DIR / "thesis_calibration_curves.png"
+    cal_plot_path = BASE / "results" / "figures" / "thesis_calibration_curves_rq2.png"
     plt.savefig(cal_plot_path, dpi=300, bbox_inches='tight')
     plt.close()
     print(f"  Saved Calibration Curve to {cal_plot_path}")

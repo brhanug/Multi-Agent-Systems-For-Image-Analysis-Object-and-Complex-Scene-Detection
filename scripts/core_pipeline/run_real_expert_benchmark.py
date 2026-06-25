@@ -27,7 +27,7 @@ def main():
     print("📊 Computing real agent validation metrics directly against CVAT expert labels...")
     
     # Load expert labels
-    expert = pd.read_csv("human_baseline_gold_kit/gold_labels_human.csv")
+    expert = pd.read_csv("human_spatial_audit/user_annotations_800.csv")
     expert['cvat_id'] = expert.index
     expert_reviewed = expert[expert['cvat_id'] <= 800].copy()
     

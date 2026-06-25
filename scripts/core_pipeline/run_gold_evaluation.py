@@ -99,7 +99,7 @@ def binary_prf(pred: pd.Series, true: pd.Series):
 # ---------------------------------------------------------------------------
 def main() -> None:
     # ---------- 1. Load actual human labels --------------------------------
-    HUMAN_LABELS_PATH = BASE / "human_baseline_gold_kit" / "gold_labels_human.csv"
+    HUMAN_LABELS_PATH = BASE / "human_spatial_audit" / "user_annotations_800.csv"
     if not HUMAN_LABELS_PATH.exists():
         print(f"❌ Human gold labels not found: {HUMAN_LABELS_PATH}", file=sys.stderr)
         sys.exit(1)
