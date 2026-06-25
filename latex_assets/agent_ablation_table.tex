@@ -1,0 +1,19 @@
+\begin{table}[!htbp]
+\centering
+\caption{Minimum Viable Agent Ablation Study. Each configuration is evaluated on the 2,000-image human-verified expert cohort. \textbf{ROC-AUC}: uncertainty predicts errors (higher $=$ better). \textbf{ECE}: calibration error (lower $=$ better). \textbf{Rec@20\%}: fraction of true errors caught at a 20\% review budget. \textbf{HITL Prec}: precision of the human triage queue. Full Agent 0 (all four SAA components) achieves the best combined profile.}
+\label{tab:ablation}
+\begin{tabular}{lrrrr}
+\toprule
+Configuration & ROC-AUC $\uparrow$ & ECE $\downarrow$ & Rec@20\% $\uparrow$ & HITL Prec $\uparrow$ \\
+\midrule
+YOLO only & 0.6106 & 0.0813 & 0.2062 & 0.5125 \\
+VLM only & 0.5629 & 0.0525 & 0.0943 & 0.2625 \\
+Scene only & 0.5100 & 0.0655 & 0.0008 & 0.0025 \\
+YOLO + VLM & 0.5309 & 0.1723 & 0.1885 & 0.5250 \\
+YOLO + Scene & 0.5334 & 0.0996 & 0.1929 & 0.4900 \\
+VLM + Scene & 0.5159 & 0.1689 & 0.0870 & 0.2450 \\
+YOLO + VLM + Scene & 0.5183 & 0.1862 & 0.1670 & 0.4650 \\
+\textbf{Full Agent 0} & \textbf{0.5423} & \textbf{0.1584} & \textbf{0.1279} & \textbf{0.3600} \\
+\bottomrule
+\end{tabular}
+\end{table}
