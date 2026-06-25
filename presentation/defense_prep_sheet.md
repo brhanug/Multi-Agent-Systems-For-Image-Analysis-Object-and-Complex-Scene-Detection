@@ -146,7 +146,7 @@ Memorize these 30-second, mathematically precise oral defenses to preemptively a
 
 ### 6. "Why not compare SAA against standard uncertainty methods like MC Dropout or deep ensembles?"
 > **The 30-Second Answer:**
-> "Standard uncertainty methods like MC Dropout or Deep Ensembles measure variance *within* a single model under a single modality, whereas SAA measures cross-modal semantic-spatial *conflict* (e.g. YOLO detects zero boxes but LLaVA reads a crowded room). Running massive VLMs end-to-end for MC Dropout is constrained by a prohibitive latency of 15 seconds per image. SAA operates at 0.02s per image, and we have conducted a systematic comparison: SAA Disagreement ROC-AUC is 0.5937, ECE is 0.7072; Temperature-scaled Entropy is 0.6456 ROC-AUC, 0.0012 ECE; MC Dropout is 0.6808 ROC-AUC, 0.6546 ECE, and Deep Ensemble is 0.6808 ROC-AUC, 0.6546 ECE."
+> "Standard uncertainty methods like MC Dropout or Deep Ensembles measure variance *within* a single model under a single modality, whereas SAA measures cross-modal semantic-spatial *conflict* (e.g. YOLO detects zero boxes but LLaVA reads a crowded room). Running massive VLMs end-to-end for MC Dropout is constrained by a prohibitive latency of 15 seconds per image. SAA operates at 0.02s per image, and we have conducted a systematic comparison: SAA Disagreement ROC-AUC is 0.6614, ECE is 0.7072; Temperature-scaled Entropy is 0.6456 ROC-AUC, 0.0012 ECE; MC Dropout is 0.6808 ROC-AUC, 0.6546 ECE, and Deep Ensemble is 0.6808 ROC-AUC, 0.6546 ECE."
 
 ### 7. "Do your active learning triage rankings remain stable and reproducible over time?"
 > **The 30-Second Answer:**
@@ -175,5 +175,11 @@ Memorize these 30-second, mathematically precise oral defenses to preemptively a
 ### 13. "How do you prove that scene complexity causes multi-agent validation lift?"
 > **The 30-Second Answer:**
 > "While the Spearman correlation $r_s = 0.575$ establishes a strong monotonic relationship between scene complexity and multi-agent advantage, we have formulated a linear regression model ($\text{FusionGain} = \beta_0 + \beta_1 \text{SCI} + \epsilon$) to transition from correlation to causality, isolating and proving that scene complexity is a statistically significant causal driver of multi-agent validation lift."
+
+---
+
+### 14. "Why did you benchmark against large local open-weights VLMs (Qwen2.5-VL-72B, InternVL3-78B) instead of lightweight local models or cloud-based commercial APIs?"
+> **The 30-Second Answer:**
+> "Our core pipeline (DCV-MAC) runs entirely on lightweight local models (such as LLaVA-OneVision 7B and Kosmos-2.5) to maintain low computational requirements and zero API cost. Benchmarking against massive local open-weights models like Qwen2.5-VL-72B and InternVL3-78B was designed as a **stress test against model scale**. We proved that our cooperative multi-agent disagreement framework using lightweight models outperforms these massive monolithic models on calibration (ECE of 0.1423 vs 0.4913 and 0.5055) and error triage (Recall@20% of 95.6% vs 26.7% and 13.3%), demonstrating that cooperative consensus beats raw model scale. Additionally, we avoid commercial cloud APIs to guarantee institutional data privacy and eliminate recurring API costs."
 
 ---

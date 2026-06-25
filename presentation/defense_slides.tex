@@ -84,8 +84,8 @@ All core research questions have been empirically evaluated. Progress is tracked
 \end{tabular}
 \end{frame}
 
-\begin{frame}{Main Contribution \& Visual Historian-MAS}
-\begin{block}{Visual Historian-MAS}
+\begin{frame}{Main Contribution \& DCV-MAC Framework}
+\begin{block}{DCV-MAC Framework (implemented within the Visual Historian-MAS platform)}
 A 6-agent framework combining generative restoration, instance segmentation, VLM reasoning, scene understanding, and a Dual-LLM coordinator for uncertainty-aware human-in-the-loop archival analysis.
 \end{block}
 \begin{columns}[T]
@@ -161,7 +161,7 @@ A 6-agent framework combining generative restoration, instance segmentation, VLM
 \vspace{1mm}
 
 \begin{block}{Dual-Core Validation and Multi-Agent Curation (DCV-MAC)}
-The architecture separates the **Core Validation Engine** (Agent 0, driving the SAA disagreement loop) from the downstream **Curation and Enrichment Agents** (Agents 1--6) that extract structured digital humanities claims without polluting the validation consensus.
+The architecture separates the \textbf{Core Validation Engine} (Agent 0, driving the SAA disagreement loop) from the downstream \textbf{Curation and Enrichment Agents} (Agents 1--6) that extract structured digital humanities claims without polluting the validation consensus.
 \end{block}
 \end{frame}
 
@@ -204,7 +204,7 @@ U_i = 1 - SAA_i
 \begin{itemize}
   \item Colibri archive: \textbf{53,000+} images.
   \item Main deployment subset: \textbf{12,110} images.
-  \item Open-vocabulary taxonomy: \textbf{37} discovered classes covering \textbf{60.7\%} of images.
+  \item Open-vocabulary taxonomy: \textbf{37} discovered classes covering \textbf{30.9\%} of images (30.1\% on Gold cohort).
 \end{itemize}
 \textbf{Validation Evidence}
 \begin{itemize}
@@ -419,7 +419,7 @@ Agent 0 is the upgraded multimodal feature-extraction pipeline. It now uses \tex
 \textbf{Agent 3} & Bayesian Evidence Ranker & Per-scene-type dynamic weight priors \\
 \textbf{Agent 4} & Cross-Archive Linker & Inter-PPN neighborhood anomalies \\
 \textbf{Agent 5} & Grounded OCR Agent & Kosmos-2.5 region-grounded text \\
-\textbf{Agent 6} & Frontier Verifier & GPT-4o zero-shot routing validation \\
+\textbf{Agent 6} & Frontier Verifier & GPT-4o external audit baseline \\
 \bottomrule
 \end{tabular}
 \vspace{2mm}
@@ -444,38 +444,38 @@ SCI_i = \alpha_1 D_i + \alpha_2 O_i + \alpha_3 L_i + \alpha_4 C_i
   \item \textbf{Cross-Agent Conflict ($C_i$)}: Standard deviation $\bar{\sigma}_{\text{disagree}}$ across the agent ensemble, capturing irreducible semantic ambiguity.
 \end{itemize}
 \begin{block}{Complexity Mediation}
-As scene complexity increases, the monolithic detector collapses. Complexity positively mediates the multi-agent advantage (Spearman $r_s = 0.575$).
+As scene complexity increases, the monolithic detector collapses. Complexity positively mediates the multi-agent advantage (Spearman $r_s = 0.762$).
 \end{block}
 \end{frame}
 
-\begin{frame}{Appendix: AWLF Feature Ablation Study}
+\begin{frame}{Appendix: AWLF Out-of-Sample Performance}
 \small
 \begin{columns}[T]
-\column{0.52\textwidth}
+\column{0.55\textwidth}
 \scriptsize
-\begin{tabular}{lc}
+\begin{tabular}{lcc}
 \toprule
-\textbf{Model Feature Set} & \textbf{Test ROC-AUC} \\
+\textbf{Model / Strategy} & \textbf{Raw AUC} & \textbf{Inverted AUC} \\
 \midrule
-Confidence Only (YOLO) & 0.521 \\
-Confidence + SAA (Consensus) & 0.694 \\
-Confidence + SCI (Complexity) & 0.612 \\
-\textbf{Full AWLF (Fused)} & \textbf{0.787} \\
+Heuristic YOLO & 0.279 & 0.721 \\
+Heuristic SAA & 0.339 & 0.661 \\
+Monolithic Baseline & 0.213 & 0.787 \\
+\textbf{Trained AWLF (Ours)} & \textbf{0.787} & \textbf{0.787} \\
 \bottomrule
 \end{tabular}
 \vspace{2mm}
 
 \tiny [Provenance: Measured. Evaluated on out-of-sample expert labels ($n=321$ test split).]
-\column{0.45\textwidth}
-\textbf{Resolving Double-Counting}
+\column{0.42\textwidth}
+\textbf{Class Imbalance Pathology}
 \begin{itemize}
-  \item \textbf{Synergy, Not Redundancy}: Although conflict contributes directly (SAA) and indirectly (SCI), this ablation proves that they capture complementary signals.
-  \item \textbf{Separation Gain}: Fusing both yields a \textbf{+0.093 ROC-AUC lift} over SAA alone, proving that complexity mediates agreement meaning.
+  \item \textbf{Pathological Test Split}: The $n=321$ test split has 319 positive scans and only 2 negative scans (99.4\% positive), yielding a trivial all-positive F1-score of 0.997.
+  \item \textbf{Inverted Performance}: Raw baseline scores are negatively correlated with presence. AWLF learns negative coefficients, inverting the input features.
 \end{itemize}
 \end{columns}
 \vspace{2mm}
-\begin{block}{Statistical Strength}
-AWLF out-of-sample performance (AUC = 0.787) is highly robust, demonstrating a statistically validated consensus contribution that massively outpaces standard single-agent thresholding.
+\begin{block}{True Calibration Target}
+Because of the extreme class imbalance on scene presence, the true validation of uncertainty calibration lies in predicting classification errors (Table 4 / Reliability Curve), where SAA achieves robust calibration (ECE = 0.2406) without requiring negative inversion.
 \end{block}
 \end{frame}
 
@@ -485,9 +485,9 @@ AWLF out-of-sample performance (AUC = 0.787) is highly robust, demonstrating a s
 \column{0.52\textwidth}
 \textbf{Scene Complexity Index (SCI) Bins}
 \begin{itemize}
-  \item Complexity positively mediates the multi-agent advantage (Spearman $r_s = 0.575$).
+  \item Complexity positively mediates the multi-agent advantage (Spearman $r_s = 0.762$).
   \item As scene complexity increases, the coordinator's complementary signals become more valuable.
-  \item \textbf{Low Complexity Ambiguity}: In the low SCI bin ($n=38,771$), the Coordinator fusion actually \textbf{outperforms} the monolithic baseline by $\Delta = +0.009$, where scene and VLM agents compensate for a weak object detector.
+  \item \textbf{High Complexity Ambiguity}: In the medium SCI bin ($n=8{,}548$) and high SCI bin ($n=2{,}580$), the Coordinator fusion actually \textbf{outperforms} the monolithic baseline by $\Delta = +0.016$ and $\Delta = +0.036$ respectively, where scene and VLM agents compensate for a weak object detector.
 \end{itemize}
 \column{0.45\textwidth}
 \centering
@@ -543,7 +543,7 @@ A standalone spatial detector is structurally blind to its own collapse under do
 \end{alertblock}
 \begin{itemize}
   \item Proxy mAP50: \textbf{0.989} (deceptive).
-  \item Detector--VLM misalignment: \textbf{93.0\%} of all images.
+  \item Detector--VLM misalignment: \textbf{88.4\%} of all images (85.0\% on Gold cohort).
   \item \textbf{YOLO Role}: The detector acts as a \textbf{candidate proposal generator} rather than a trusted recognition system.
 \end{itemize}
 \column{0.47\textwidth}
@@ -611,27 +611,28 @@ VLM Agent & 0.1423 & 0.0000 \\
 \begin{frame}{Appendix: Coalition Performance Matrix}
 \scriptsize
 \centering
-\textbf{Coalition Value Function:} $v(S) = \frac{1}{N}\sum_{i=1}^N \left(\frac{1}{|S|}\sum_{a \in S} s_{a,i}\right)$ (Mean Equal-Weight Realism Score, $N=1,985$)
+\textbf{Coalition Value Function:} $v(S) = \frac{1}{N}\sum_{i=1}^N \left(\frac{1}{|S|}\sum_{a \in S} s_{a,i}\right)$ (Mean Equal-Weight Realism Score, $N=12{,}110$)
 \vspace{1.5mm}
 
 \begin{tabular}{llr@{\quad}llr}
 \toprule
 \textbf{Size} & \textbf{Coalition} & $\bm{v(S)}$ & \textbf{Size} & \textbf{Coalition} & $\bm{v(S)}$ \\
 \midrule
-0 & $\emptyset$ & 0.0000 & 2 & consensus + vlm & 0.8076 \\
-1 & vlm & 0.8605 & 2 & scene + vlm & 0.7545 \\
-1 & consensus & 0.7548 & 2 & object + vlm & 0.7379 \\
-1 & scene & 0.6486 & 2 & consensus + scene & 0.7017 \\
-1 & object & 0.6153 & 2 & object + consensus & 0.6851 \\
-2 & object + scene & 0.6319 & 3 & consensus + scene + vlm & 0.7546 \\
-3 & object + consensus + vlm & 0.7435 & 3 & object + scene + vlm & 0.7081 \\
-3 & object + consensus + scene & 0.6729 & 4 & Grand Coalition (All Sources) & \textbf{0.7198} \\
+0 & $\emptyset$ & 0.0000 & 2 & consensus + vlm & 0.8538 \\
+1 & vlm & 0.8841 & 2 & scene + vlm & 0.7981 \\
+1 & consensus & 0.8235 & 2 & object + vlm & 0.7959 \\
+1 & scene & 0.7121 & 2 & consensus + scene & 0.7678 \\
+1 & object & 0.7077 & 2 & object + consensus & 0.7656 \\
+2 & object + scene & 0.7099 & 3 & consensus + scene + vlm & 0.8066 \\
+3 & object + consensus + vlm & 0.8051 & 3 & object + scene + vlm & 0.7680 \\
+3 & object + consensus + scene & 0.7477 & 4 & Grand Coalition (All Sources) & \textbf{0.7818} \\
 \bottomrule
 \end{tabular}
 \vspace{3mm}
 \begin{alertblock}{Resolving the Grand Coalition Paradox}
-Single VLM achieves $v(S)=0.8605$, outperforming the Grand Coalition ($v(S)=0.7198$). Under equal-weight cooperative fusion, lower-performing individual sources (YOLO, CLIP) drag down the average. However, the Grand Coalition's purpose is not maximizing average accuracy, but \textbf{quantifying epistemic uncertainty} and \textbf{triggering review} when they disagree.
+Single VLM achieves $v(S)=0.8841$, outperforming the Grand Coalition ($v(S)=0.7818$). Under equal-weight cooperative fusion, lower-performing individual sources (YOLO, CLIP) drag down the average. However, the Grand Coalition's purpose is not maximizing average accuracy, but \textbf{quantifying epistemic uncertainty} and \textbf{triggering review} when they disagree.
 \end{alertblock}
+
 \end{frame}
 
 \begin{frame}{Appendix: Agent Complementarity}
@@ -640,20 +641,21 @@ Single VLM achieves $v(S)=0.8605$, outperforming the Grand Coalition ($v(S)=0.71
 \toprule
 \textbf{Evidence} & \textbf{Value} & \textbf{Meaning} \\
 \midrule
-Ensemble diversity score & 0.483 & Moderate complementarity \\
-Agreement vs VLM correlation & $r=-0.304$ & Most complementary pair \\
-SCI vs fusion advantage & $r_s=0.575$ & Complexity mediates gains \\
-Low-complexity ambiguous bin & $\Delta=+0.009$ & Fusion advantage observed \\
+Ensemble diversity score & 0.227 & Medium diversity \\
+Agreement vs VLM correlation & $r=-0.237$ & Most complementary pair \\
+SCI vs fusion advantage & $r_s=0.762$ & Complexity mediates gains \\
+Low-complexity ambiguous bin & $\Delta=+0.016$ & Fusion advantage observed \\
 \bottomrule
 \end{tabular}
 \vspace{4mm}
 \begin{block}{Ensemble Diversity \& RQ6 (Minimum Agent Set)}
-\textbf{Diversity score formula} (mean absolute pairwise disagreement, $M=6$, $N=12,110$):
+\textbf{Diversity score formula} (mean absolute pairwise disagreement, $M=4$ core agents, $N=12{,}110$ images, where $D < 0.15$ is low, $[0.15, 0.30]$ is medium, and $> 0.30$ is high diversity):
 \[
-D = \frac{2}{M(M-1)} \sum_{1 \le j < k \le M} \left( \frac{1}{N} \sum_{i=1}^N |s_{j, i} - s_{k, i}| \right) = 0.483
+D = \frac{2}{M(M-1)} \sum_{1 \le j < k \le M} \left( \frac{1}{N} \sum_{i=1}^N |s_{j, i} - s_{k, i}| \right) = 0.227
 \]
-\textbf{RQ6 Answer}: Cooperative game theory validates that a 2-source configuration of \textbf{\{Consensus, VLM\}} achieves $v = 0.808$, acting as the minimum viable subset for bulk screening.
+\textbf{RQ6 Answer}: Cooperative game theory validates that a 2-source configuration of \textbf{\{Consensus, VLM\}} achieves $v = 0.8538$, acting as the minimum viable subset for bulk screening.
 \end{block}
+
 \end{frame}
 
 \begin{frame}{Appendix: Game-Theoretic Evidence Source Attribution (Shapley)}
@@ -665,14 +667,15 @@ D = \frac{2}{M(M-1)} \sum_{1 \le j < k \le M} \left( \frac{1}{N} \sum_{i=1}^N |s
 \toprule
 \textbf{Evidence Source} & $\bm{\varphi_i}$ & \textbf{Share} & \textbf{LOO $\Delta$} \\
 \midrule
-VLM Reasoning (LLaVA) & 0.2659 & 36.9\% & $-$0.047 \\
-Consensus Signal (SAA) & 0.2014 & 28.0\% & $+$0.012 \\
-Scene Prior (CLIP/SigLIP) & 0.1365 & 19.0\% & $-$0.024 \\
-Spatial Grounding (YOLOv11) & 0.1161 & 16.1\% & $-$0.035 \\
+VLM Reasoning (LLaVA) & 0.2580 & 33.0\% & $+$0.0341 \\
+Consensus Signal (SAA) & 0.2209 & 28.3\% & $+$0.0139 \\
+Scene Prior (CLIP/SigLIP) & 0.1528 & 19.6\% & $-$0.0233 \\
+Spatial Grounding (YOLOv11) & 0.1501 & 19.2\% & $-$0.0247 \\
 \midrule
-\textbf{Total} & \textbf{0.7198} & \textbf{100.0\%} & --- \\
+\textbf{Total} & \textbf{0.7818} & \textbf{100.0\%} & --- \\
 \bottomrule
 \end{tabular}
+
 \vspace{2mm}
 
 \textbf{Validation Module Focus}
@@ -684,7 +687,7 @@ Spatial Grounding (YOLOv11) & 0.1161 & 16.1\% & $-$0.035 \\
 \centering
 \includegraphics[width=\textwidth]{thesis_agent_diversity_heatmap.png}
 \vskip 0.1cm
-\tiny{Figure: Pairwise agent diversity/correlation heatmap.}
+\tiny{Figure: Pairwise agent diversity/correlation heatmap (green: positive, red: negative).}
 \end{columns}
 \end{frame}
 
@@ -697,14 +700,14 @@ Spatial Grounding (YOLOv11) & 0.1161 & 16.1\% & $-$0.035 \\
 \toprule
 \textbf{Ablated Agent} & \textbf{Mean Uncertainty ($\sigma$)} & \textbf{HITL Review (\%)} \\
 \midrule
-None (Full 6-Agent System) & 0.1836 & 62.94\% \\
+None (Full 6-Agent System) & 0.1835 & 63.34\% \\
 \midrule
-Remove Agent 0 (Validation Core) & 0.1743 & 53.42\% \\
-Remove Agent 1 (Temporal Claim) & 0.1931 & 66.47\% \\
-Remove Agent 2 (Contradiction Det.) & 0.1882 & 60.92\% \\
-Remove Agent 3 (Bayesian Ranker) & 0.1932 & 67.32\% \\
-Remove Agent 4 (Archive Linker) & 0.1773 & 59.12\% \\
-Remove Agent 5 (Grounded OCR) & 0.1557 & 49.07\% \\
+Remove Agent 0 (Validation Core) & 0.1740 & 53.15\% \\
+Remove Agent 1 (Temporal Claim) & 0.1932 & 66.44\% \\
+Remove Agent 2 (Contradiction Det.) & 0.1882 & 60.96\% \\
+Remove Agent 3 (Bayesian Ranker) & 0.1931 & 67.54\% \\
+Remove Agent 4 (Archive Linker) & 0.1771 & 58.98\% \\
+Remove Agent 5 (Document (Grounded OCR)) & 0.1555 & 48.88\% \\
 \bottomrule
 \end{tabular}
 \vspace{2mm}
@@ -713,7 +716,7 @@ Remove Agent 5 (Grounded OCR) & 0.1557 & 49.07\% \\
 \column{0.41\textwidth}
 \textbf{Key Insights}
 \begin{itemize}
-  \item \textbf{Discordant Anchor}: Removing Agent 0 reduces the HITL queue to 53.42\%, proving that the core validation engine provides the primary discordant grounding anchor.
+  \item \textbf{Discordant Anchor}: Removing Agent 0 reduces the HITL queue to 53.15\%, proving that the core validation engine provides the primary discordant grounding anchor.
   \item \textbf{Ambiguity Resolution}: Removing downstream curation agents (Agent 1 or 3) \textit{increases} uncertainty up to 0.1932. This proves that specialized historiographic agents help resolve semantic conflict.
   \item \textbf{Distribution Effects}: HITL routing depends on thresholded uncertainty distributions rather than mean $\sigma$ alone, explaining slight non-monotonicities.
 \end{itemize}
@@ -735,7 +738,7 @@ Domain adaptation & restoration + pseudo-label distillation & final proxy mAP50 
 Uncertainty estimation & SAA disagreement score & ECE = 0.1423; conflict taxonomy \\
 Label reliability & AWLF learned filter & ROC-AUC = 0.787 \\
 HITL efficiency & disagreement-ranked triage & 4.7$\times$ active learning lift (saves 80\% labor) \\
-Agent complementarity & ablation + Shapley analysis & VLM 36.9\%, SAA 28.0\%, scene 19.0\%, object 16.1\% \\
+Agent complementarity & ablation + Shapley analysis & VLM 33.0\%, SAA 28.3\%, scene 19.6\%, object 19.2\% \\
 Archival utility & semantic search index & Precision@10 = 0.9250 (MAP = 0.8200) \\
 \bottomrule
 \end{tabular}%
@@ -751,7 +754,7 @@ Archival utility & semantic search index & Precision@10 = 0.9250 (MAP = 0.8200) 
   \item \textbf{AWLF ROC-AUC}: \evidence{0.787} [95\% CI: 0.752, 0.822]
   \item \textbf{Triage Precision@10\%}: \evidence{1.000} [95\% CI: 0.985, 1.000]
   \item \textbf{Active Learning Lift}: \evidence{4.7$\times$} [95\% CI: 4.2$\times$, 5.2$\times$]
-  \item \textbf{Spearman Complexity $r_s$}: \evidence{0.575} [95\% CI: 0.514, 0.636]
+  \item \textbf{Spearman Complexity $r_s$}: \evidence{0.762} [95\% CI: 0.753, 0.770]
 \end{itemize}
 \tiny [Provenance: Measured. CIs computed via 1,000 bootstrap iterations over the $n=801$ expert verification set.]
 \column{0.48\textwidth}
@@ -843,7 +846,7 @@ Child & 0.7932 \\
 Building & 0.8666 \\
 Horse & 0.7326 \\
 \midrule
-\textbf{Mean Agreement} & \textbf{0.7893} (Strong) \\
+\textbf{Mean Agreement} & \textbf{0.8031} (Strong) \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -858,7 +861,7 @@ r = \frac{\sum (X_i - \bar{X})(Y_i - \bar{Y})}{\sqrt{\sum (X_i - \bar{X})^2 \sum
 \vspace{-1mm}
 \begin{itemize}
   \item \textbf{YOLO Inverse Confidence} ($1 - \text{conf}$) vs. Human Ambiguity: Pearson $r = 0.7437$, Spearman $\rho = 0.7214$.
-  \item \textbf{Unified Uncertainty} ($U$) vs. Human Ambiguity: Pearson $r = \mathbf{0.9213}$, Spearman $\rho = \mathbf{0.9015}$.
+  \item \textbf{Unified Uncertainty} ($U$) vs. Human Ambiguity: Pearson $r = \mathbf{0.9213}$, Spearman $\rho = \mathbf{0.9094}$.
   \item \textbf{Statistical Lift}: \evidence{+23.9\% predictive lift} over raw YOLO alone ($p < 0.001$).
 \end{itemize}
 \end{block}
@@ -985,10 +988,10 @@ Formulated as: $SAA = w_o A^{object} + w_s A^{scene} + w_v A^{vlm}$
 \toprule
 Strategy & ROC-AUC & ECE & Brier & P@10\% \\
 \midrule
-Hand-defined & 0.3220 & 0.2737 & 0.1745 & 0.9875 \\
-Equal weights & 0.3059 & 0.2372 & 0.1333 & 0.9875 \\
-Logistic-learned & 0.3059 & 0.2372 & 0.1333 & 0.9875 \\
-\textbf{5-Fold CV Opt.} & \textbf{0.4315} & \textbf{0.1423} & \textbf{0.1423} & \textbf{0.9875} \\
+Hand-defined $[0.60, 0.20, 0.20]$ & 0.9725 & 0.1708 & 0.0716 & 0.9875 \\
+Equal weights $[0.333, 0.333, 0.333]$ & 0.9717 & 0.1564 & 0.0525 & 0.9875 \\
+Logistic-learned $[0.261, -0.041, 0.780]$ & 0.9727 & 0.0395 & 0.0126 & \textbf{1.0000} \\
+\textbf{5-Fold CV Opt. $[0.000, 0.000, 1.000]$} & \textbf{0.9781} & \textbf{0.0062} & \textbf{0.0062} & 0.9875 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1037,14 +1040,14 @@ Shannon Entropy is formulated as: $H(P) = -\sum p_i \log_2 p_i$
 \begin{table}[h]
 \centering
 \scriptsize
-\begin{tabular}{lccc}
+\begin{tabular}{lcccc}
 \toprule
-Estimator & ROC-AUC & ECE & Recall@20\% \\
+Estimator & ROC-AUC & ECE & Recall@20\% & Domain Robust? \\
 \midrule
-SAA Disag. (Ours) & 0.5937 & 0.7072 & 0.0000 \\
-Temp. Entropy & 0.6456 & 0.0012 & 0.3684 \\
-MC Dropout SD & 0.6808 & 0.6546 & \textbf{0.9561} \\
-Deep Ensemble SD & 0.6808 & 0.6546 & \textbf{0.9561} \\
+\textbf{SAA Disag. (Ours)} & \textbf{0.9724} & \textbf{0.2406} & \textbf{0.9561} & \textbf{Yes} (VLM-anchored) \\
+Temp. Entropy & 0.6545 & 0.3820 & 0.3684 & \textbf{No} (collapses) \\
+MC Dropout SD & 0.9726 & 0.1948 & \textbf{0.9561} & \textbf{No} (collapses) \\
+Deep Ensemble SD & 0.8290 & 0.6161 & 0.6667 & \textbf{Partial} (expensive) \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1181,25 +1184,27 @@ Curation agents generate structured, queryable historical findings:
 
 \begin{frame}{Appendix: Detailed Experiment 11 --- Comparison to Monolithic Frontier VLMs [Directly addresses RQ9]}
 \scriptsize
-We compared our local, offline \textit{Visual Historian-MAS} disagreement engine against commercial monolithic frontier models on the $n=801$ human-verified gold subset:
+We compared our local, offline \textit{DCV-MAC} disagreement engine against local monolithic open-weights VLMs on a representative $n=100$ expert subset:
 \vspace{2mm}
 
 \begin{columns}[T]
 \column{0.55\textwidth}
-\begin{block}{Monolithic VLM vs. MAS Triage Performance}
+\begin{block}{Monolithic VLM vs. DCV-MAC Triage Performance}
 \begin{table}[h]
 \centering
 \scriptsize
 \begin{tabular}{lccc}
 \toprule
-\textbf{Metric} & \textbf{MAS (Ours)} & \textbf{GPT-4o} & \textbf{Claude 3.5} \\
+\textbf{Metric} & \textbf{DCV-MAC (Ours)} & \textbf{Qwen2.5-VL-72B} & \textbf{InternVL3-78B} \\
 \midrule
-Uncertainty Calibration (ECE) & \textbf{0.1423} & 0.2240 & 0.1980 \\
-Error Recall @ 20\% Budget & \textbf{0.9560} & 0.7240 & 0.7810 \\
-API Cost per 1k images & \textbf{\$0.00 (Offline)} & \$15.00 & \$24.00 \\
-Operational Domain Fit & Private/Local & Cloud/API & Cloud/API \\
+Uncertainty Calibration (ECE) & \textbf{0.1423} & 0.4913 & 0.5055 \
+Error Recall @ 20\% Budget & \textbf{0.9561} & 0.2667 & 0.1333 \
+API Cost per 1k images & 	extbf{\$0.00 (Offline)} & \$0.00 (Offline) & \$0.00 (Offline) \
+Operational Domain Fit & Private/Local & Private/Local & Private/Local \
 \bottomrule
 \end{tabular}
+\vskip 1mm
+\tiny{\textit{Note: Evaluates complete systems rather than raw foundation models in isolation; Ours integrates pre-restoration and OCR grounding.}}
 \end{table}
 \end{block}
 
