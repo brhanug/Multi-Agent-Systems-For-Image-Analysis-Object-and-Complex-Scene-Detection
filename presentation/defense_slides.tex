@@ -215,7 +215,7 @@ Cross-modal disagreement ($U_{\text{SAA}}$) is a substantially stronger, zero-ma
 ]
 
 % Tier 1 Validation Core
-\node[tierbox1] (t1) {\textbf{TIER 1: Validation Core}\\YOLOv11+SAM (Grounding)\\SigLIP (Scene Prior)\\LLaVA-OneVision (VQA)\\Kosmos-2.5 (OCR)\\$\rightarrow$ \textbf{Calculates $SAA_i$ \& $U_{\text{triage}}$}};
+\node[tierbox1] (t1) {\textbf{TIER 1: Validation Core}\\YOLOv11+SAM (Grounding)\\SigLIP (Scene Prior)\\LLaVA-OneVision (VQA)\\Kosmos-2.5 (OCR)\\$\rightarrow$ \textbf{Calculates $SAA_i$ \& $U_{\text{SAA},i}$}\\{\scriptsize (two distinct signal sets, 2.6)}};
 
 % Tier 2 Downstream Curation
 \node[tierbox2, right=of t1] (t2) {\textbf{TIER 2: Downstream Curation}\\Agent 2: Contradiction Det.\\Agent 4: Archive Linker\\Agent 5: Grounded OCR\\$\rightarrow$ \textbf{Consumes Metadata Post-Hoc}};

@@ -324,36 +324,48 @@ To eliminate cohort ambiguity across evaluations, all experiments in this thesis
 
 \begin{figure}[!htbp]
 \centering
-\resizebox{0.95\linewidth}{!}{%
+\resizebox{0.98\linewidth}{!}{%
 \begin{tikzpicture}[
-    node distance=0.9cm and 0.3cm,
+    node distance=0.85cm and 0.3cm,
     font=\sffamily\small,
     box/.style={draw, rectangle, rounded corners=3pt, align=center, fill=blue!5, draw=blue!40!black, inner sep=6pt, minimum width=2.4cm, minimum height=1.0cm},
-    agentbox/.style={draw, rectangle, rounded corners=3pt, align=center, fill=green!10, draw=green!60!black, inner sep=5pt, minimum width=2.6cm, minimum height=1.1cm},
-    corebox/.style={draw, rectangle, rounded corners=4pt, align=center, fill=teal!15, draw=teal!80!black, thick, inner sep=6pt, minimum width=9.5cm, minimum height=1.1cm},
+    agentbox/.style={draw, rectangle, rounded corners=3pt, align=center, fill=green!10, draw=green!60!black, inner sep=5mm, minimum width=2.6cm, minimum height=1.1cm},
+    derivedbox/.style={draw, rectangle, dashed, rounded corners=3pt, align=center, fill=green!3, draw=green!45!black, inner sep=4pt, minimum width=2.2cm, minimum height=0.8cm},
+    subcorebox/.style={draw, rectangle, rounded corners=3pt, align=center, fill=teal!8, draw=teal!70!black, inner sep=5pt, minimum width=4.4cm, minimum height=1.3cm},
+    corelabel/.style={draw, rectangle, rounded corners=4pt, fill=teal!20, draw=teal!80!black, thick, inner sep=3pt},
+    coordbox/.style={draw, rectangle, rounded corners=3pt, align=center, fill=blue!8, draw=blue!60!black, double, inner sep=5pt, minimum width=8.4cm, minimum height=1.0cm},
     curationbox/.style={draw, rectangle, rounded corners=3pt, align=center, fill=orange!10, draw=orange!80!black, inner sep=5pt, minimum width=2.6cm, minimum height=1.0cm},
     actionbox/.style={draw, rectangle, rounded corners=3pt, align=center, fill=purple!10, draw=purple!80!black, inner sep=5pt, minimum width=4.5cm, minimum height=0.9cm},
-    arrow/.style={-Stealth, thick, draw=gray!80}
+    arrow/.style={-Stealth, thick, draw=gray!80},
+    derivedarrow/.style={-Stealth, thick, dashed, draw=green!45!black}
 ]
 
 % Input & Restoration
 \node (raw) [box, fill=gray!10, draw=gray!60] {\textbf{Original Archival Scan}\\[1mm]$\mathbf{I}_{\text{raw}}$};
 \node (resto) [box, right=0.8cm of raw, fill=blue!10] {\textbf{Generative Restoration Layer}\\[1mm]CycleGAN $\rightarrow$ Real-ESRGAN $\rightarrow$ SD ($\mathbf{I}_{\text{refined}}$)};
 
-% Tier 1: 4 Validation Core Ensemble Agents
-\node (a1) [agentbox, below left=1.2cm and -0.6cm of resto] {\textbf{Spatial Grounding}\\[1mm]YOLOv11-seg + SAM\\[0.5mm]{\scriptsize ($A_i^{\text{object}}$)}};
+% Tier 1: 4 Validation Core Ensemble Agents (the architectural models)
+\node (a1) [agentbox, below left=1.1cm and -0.6cm of resto] {\textbf{Spatial Grounding}\\[1mm]YOLOv11-seg + SAM\\[0.5mm]{\scriptsize ($A_i^{\text{object}}$)}};
 \node (a2) [agentbox, right=0.3cm of a1] {\textbf{Scene Semantics}\\[1mm]SigLIP Zero-Shot\\[0.5mm]{\scriptsize ($A_i^{\text{scene}}$)}};
 \node (a3) [agentbox, right=0.3cm of a2] {\textbf{Visual Reasoning}\\[1mm]LLaVA-OneVision 7B\\[0.5mm]{\scriptsize ($A_i^{\text{vlm}}$)}};
 \node (a4) [agentbox, right=0.3cm of a3] {\textbf{Grounded Inscription}\\[1mm]Kosmos-2.5 OCR\\[0.5mm]{\scriptsize ($A_i^{\text{ocr}}$)}};
 
-% Tier 1 Core: SAA Consensus
-\node (valcore) [corebox, below=1.1cm of $(a2.south)!0.5!(a3.south)$] {\textbf{Tier 1 Validation Core}\\[1mm]Heuristic-Weighted Consensus ($SAA_i$) \& Epistemic Disagreement Uncertainty ($U_{\text{SAA}, i}$)};
+% Derived Agreement signal -- NOT a fifth model, computed from a1+a3
+\node (agree) [derivedbox, below=0.55cm of $(a1.south)!0.5!(a3.south)$] {\scriptsize \textit{derived} Agreement\\$A_i^{\text{agree}}{=}1{-}|A_i^{\text{object}}{-}A_i^{\text{vlm}}|$};
+
+% Tier 1 Core: two DISTINCT sub-computations sharing a labeled frame
+\node (corelabelnode) [corelabel, below=1.75cm of $(a2.south)!0.5!(a3.south)$, minimum width=9.4cm, minimum height=0.01cm] {\textbf{Tier 1 Validation Core -- Two Distinct Computations, Not One}};
+\node (saabox) [subcorebox, below=0.35cm of corelabelnode.south west, anchor=north west] {\textbf{Classification Fusion} $SAA_i$\\[0.5mm]{\scriptsize $0.6A^{\text{object}}{+}0.2A^{\text{scene}}{+}0.2A^{\text{vlm}}$}\\[0.5mm]{\scriptsize (Object, Scene, VLM only)}};
+\node (usaabox) [subcorebox, below=0.35cm of corelabelnode.south east, anchor=north east] {\textbf{Disagreement Proxy} $U_{\text{SAA}, i}$\\[0.5mm]{\scriptsize $\operatorname{std}(A^{\text{object}}, A^{\text{agree}}, A^{\text{scene}}, A^{\text{vlm}})$}\\[0.5mm]{\scriptsize (Object, Agreement, Scene, VLM)}};
 
 % Calibration & Triage
-\node (triage) [box, below=0.9cm of valcore, fill=orange!15, draw=orange!80!black, minimum width=8.0cm] {\textbf{Platt Scaling Calibration + SCI Complexity Adjustment}\\[1mm]Distribution-Free Conformal Risk Control ($\hat{\lambda} = 0.2450$, Empirical Test Risk $\le 0.05$)};
+\node (triage) [box, below=0.55cm of $(saabox.south)!0.5!(usaabox.south)$, fill=orange!15, draw=orange!80!black, minimum width=8.6cm] {\textbf{Platt Scaling + SCI Complexity Adjustment}\\[1mm]{\scriptsize In-sample CRC ($\hat{\lambda}{=}0.2450$) appears to certify test risk $\le 0.05$; clean group-level re-evaluation shows the guarantee \textbf{violated} ($0.98\times$, chance-level) -- Ch.~\ref{ch:triage_risk_control}}};
+
+% Tier 3: Dual-LLM Coordinator (selective, only for the ambiguous residual)
+\node (coord) [coordbox, below=0.7cm of triage] {\textbf{Tier 3 (Selective): Dual-LLM Coordinator} -- only for $\sigma_i > \tau$\\[0.5mm]{\scriptsize \textbf{Local}: same LLaVA-OV as Primary \emph{and} Critic -- real test: 0/25 self-flags. \quad \textbf{Frontier}: Gemini proposes / Claude audits -- independence \textbf{unverified}}};
 
 % Tier 2 Downstream Curation
-\node (cur2) [curationbox, below left=1.1cm and -0.2cm of triage] {\textbf{Agent 2: Contradiction}\\[1mm]Hallucination Audit\\[0.5mm]{\scriptsize (not independently benchmarked)}};
+\node (cur2) [curationbox, below left=1.0cm and -0.2cm of coord] {\textbf{Agent 2: Contradiction}\\[1mm]Hallucination Audit\\[0.5mm]{\scriptsize (not independently benchmarked)}};
 \node (cur5) [curationbox, right=0.4cm of cur2] {\textbf{Agent 5: Grounded OCR}\\[1mm]Bounding-Box Inscription\\[0.5mm]{\scriptsize (not independently benchmarked)}};
 \node (cur4) [curationbox, right=0.4cm of cur5] {\textbf{Agent 4: Cross-Archive}\\[1mm]Series Linker (PPNs)\\[0.5mm]{\scriptsize (not independently benchmarked)}};
 
@@ -370,15 +382,23 @@ To eliminate cohort ambiguity across evaluations, all experiments in this thesis
 \draw [arrow] (resto.south) -- ++(0,-0.4) -| (a3.north);
 \draw [arrow] (resto.south) -- ++(0,-0.4) -| (a4.north);
 
-\draw [arrow] (a1.south) -- (a1.south |- valcore.north);
-\draw [arrow] (a2.south) -- (a2.south |- valcore.north);
-\draw [arrow] (a3.south) -- (a3.south |- valcore.north);
-\draw [arrow] (a4.south) -- (a4.south |- valcore.north);
+\draw [derivedarrow] (a1.south) -- (agree.north west);
+\draw [derivedarrow] (a3.south) -- (agree.north east);
 
-\draw [arrow] (valcore) -- (triage);
-\draw [arrow] (triage.south) -- ++(0,-0.4) -| (cur2.north);
-\draw [arrow] (triage.south) -- ++(0,-0.4) -| (cur5.north);
-\draw [arrow] (triage.south) -- ++(0,-0.4) -| (cur4.north);
+\draw [arrow] (a1.south) -- (a1.south |- saabox.north);
+\draw [arrow] (a2.south) -- (a2.south |- saabox.north);
+\draw [arrow] (a3.south) -- (a3.south |- saabox.north);
+\draw [arrow] (a2.south) -- (a2.south |- usaabox.north);
+\draw [arrow] (a3.south) -- (a3.south |- usaabox.north);
+\draw [derivedarrow] (agree.south) -- (agree.south |- usaabox.north);
+\draw [arrow, dotted] (a4.south) -- ++(0,-2.9) node[midway, right, font=\tiny] {feeds ablation/correlation study only (Ch.~\ref{ch:uncertainty_calibration}), not $U_{\text{SAA}}$};
+
+\draw [arrow] (saabox.south) |- ($(saabox.south)+(0,-0.3)$) -| (triage.north);
+\draw [arrow] (usaabox.south) |- ($(usaabox.south)+(0,-0.3)$) -| (triage.north);
+\draw [arrow] (triage) -- (coord);
+\draw [arrow] (coord.south) -- ++(0,-0.4) -| (cur2.north);
+\draw [arrow] (coord.south) -- ++(0,-0.4) -| (cur5.north);
+\draw [arrow] (coord.south) -- ++(0,-0.4) -| (cur4.north);
 
 \draw [arrow] (cur2.south) |- (hitl.west);
 \draw [arrow] (cur5.south) -- (hitl.north);
@@ -388,7 +408,7 @@ To eliminate cohort ambiguity across evaluations, all experiments in this thesis
 
 \end{tikzpicture}%
 }
-\caption{Decoupled 3-Tier Dual-Core Validation and Multi-Agent Curation (DCV-MAC) Architecture. The Tier 1 Validation Core integrates all 4 primary validation agents: Spatial Grounding (YOLOv11-seg+SAM), Zero-Shot Scene Classifier (SigLIP), Visual Reasoning Agent (LLaVA-OneVision), and Grounded Inscription Engine (Kosmos-2.5). Tier 2 downstream curation agents process validated metadata post-hoc.}
+\caption{Decoupled 3-Tier Dual-Core Validation and Multi-Agent Curation (DCV-MAC) Architecture. Tier 1's four models (solid green) feed \emph{two distinct} computations: the 3-term classification fusion $SAA_i$ and the 4-term disagreement proxy $U_{\text{SAA},i}$, which substitutes a derived Agreement signal (dashed, Object--VLM concordance) for OCR -- the two are related but not algebraically equivalent (Section~\ref{ch:methodology}). OCR separately feeds only the Tier~1 ablation/correlation study. Tier 3's Dual-LLM Coordinator is selective (triggered only above the disagreement threshold $\tau$) and is annotated with its real, audited status rather than a withdrawn benchmark figure. Tier 2 downstream curation agents process validated metadata post-hoc, per the Architectural Decoupling Rule.}
 \label{fig:full_pipeline_flow}
 \end{figure}
 
