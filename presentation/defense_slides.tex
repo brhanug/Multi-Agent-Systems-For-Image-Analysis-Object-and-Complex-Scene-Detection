@@ -238,7 +238,10 @@ Cross-modal disagreement ($U_{\text{SAA}}$) is a substantially stronger, zero-ma
 \draw[arrow] (coord.east) -- (index.west);
 \end{tikzpicture}
 
-\vspace{1mm}
+\vspace{0.5mm}
+\tiny\textit{Locally, Primary and Critic are the same model instance -- a real test found this catches 0/25 self-contradictions (Slide 2.3/A.5); frontier mode's independent-model pair remains unverified.}
+\normalsize
+\vspace{0.5mm}
 \begin{block}{\textbf{Architectural Decoupling Rule}}
 Tier 2 curation agents operate strictly on post-validation consensus metadata. They do NOT participate in the Tier 1 $SAA$ calculation, preventing mathematical feedback loops and circular reasoning.
 \end{block}
