@@ -221,7 +221,7 @@ Cross-modal disagreement ($U_{\text{SAA}}$) is a substantially stronger, zero-ma
 \node[tierbox2, right=of t1] (t2) {\textbf{TIER 2: Downstream Curation}\\Agent 2: Contradiction Det.\\Agent 4: Archive Linker\\Agent 5: Grounded OCR\\$\rightarrow$ \textbf{Consumes Metadata Post-Hoc}};
 
 % Dual-LLM Coordinator
-\node[coordbox, right=of t2] (coord) {\textbf{Dual-LLM Coordinator}\\Primary: reuses\\Tier 1's LLaVA-OV\\+ Critic Auditor};
+\node[coordbox, right=of t2] (coord) {\textbf{Dual-LLM Coordinator}\\Frontier-only\\Gemini proposes\\Claude audits};
 
 % Tier 3 Frontier Selective Routing
 \node[tierbox3, below=of coord, yshift=-0.2cm] (t3) {\textbf{TIER 3: Selective Routing}\\Gemini 2.5 Flash / Claude 3.5\\$\rightarrow$ Automated 2nd Opinion};
@@ -239,7 +239,7 @@ Cross-modal disagreement ($U_{\text{SAA}}$) is a substantially stronger, zero-ma
 \end{tikzpicture}
 
 \vspace{0.5mm}
-\tiny\textit{Locally, Primary and Critic are the same model instance -- a real test found this catches 0/25 self-contradictions (Slide 2.3/A.5); frontier mode's independent-model pair remains unverified.}
+\tiny\textit{Frontier-only, no local equivalent: a same-model local variant was tested and dropped after catching 0/25 self-contradictions (Slide 2.3/A.5); the frontier independent-model pair's own advantage remains unverified.}
 \normalsize
 \vspace{0.5mm}
 \begin{block}{\textbf{Architectural Decoupling Rule}}
@@ -254,16 +254,16 @@ Tier 2 curation agents operate strictly on post-validation consensus metadata. T
 \begin{block}{Tier 2: Downstream Curation}
 Runs \emph{after} Tier 1 computes $SAA_i$, only on already-accepted cases. It extracts historiographic value (contradictions, links, inscriptions) from trusted metadata -- it never re-judges trust, exactly what the Decoupling Rule prevents.
 \end{block}
-\begin{block}{Dual-LLM Coordinator: Propose, then Audit}
-\scriptsize Tier 1's other agents (YOLO, SigLIP, Kosmos-2.5) are narrow specialists -- \textbf{locally} (free), the \textbf{same} LLaVA-OneVision plays both roles, re-prompted. \textbf{Frontier} swaps in two separate models (Gemini proposes, Claude audits). A prior ``measured $F_1$ gap'' claim was hardcoded and withdrawn; a real test found the local critic never disagrees with itself (0/25, A.5).
+\begin{block}{Why Frontier-Only: A Local Design We Dropped}
+\scriptsize An earlier design reused Tier 1's LLaVA-OneVision locally (free) as both Primary and Critic, re-prompted. A real test found this catches \textbf{0/25} self-contradictions -- same weights, same beliefs, regardless of prompt. Dropped; no local second opinion exists (A.5).
 \end{block}
 
 \column{0.49\textwidth}
-\begin{block}{Tier 3: Frontier Selective Routing}
-Triggered \emph{only} for the small $\sigma > \tau$ fraction Tiers 1--2 cannot resolve. Paid frontier APIs (Gemini 2.5 Flash / Claude 3.5) act as an automated ``second opinion'' -- cheaper and faster than routing straight to a human (Local-vs-Frontier: unverified, Backup A.5).
+\begin{block}{Tier 3: Frontier-Only Selective Escalation}
+Triggered \emph{only} for the small $\sigma > \tau$ fraction Tiers 1--2 cannot resolve. Paid frontier APIs (Gemini 2.5 Flash proposes / Claude 3.5 audits) -- two structurally independent models, cheaper and faster than routing straight to a human. This independence advantage is itself unverified (API credit), but is a real, distinct claim the dropped local design never had (Backup A.5).
 \end{block}
 \begin{block}{Why an Escalation Ladder, Not One Model}
-Cost and latency increase at every tier (free deterministic $\to$ free heuristic $\to$ paid API $\to$ human), and each tier only sees what the previous one could not resolve. $U_{\text{SAA}}$ is what decides how far up the ladder an image has to go -- the cheap, deterministic signal this thesis proposes is what makes the expensive tiers rare rather than routine.
+Cost/latency increase per tier (free deterministic $\to$ free heuristic $\to$ paid API $\to$ human); each tier sees only what the last could not resolve. $U_{\text{SAA}}$ decides how far an image travels -- it is what keeps the expensive tiers rare.
 \end{block}
 \end{columns}
 \end{frame}
@@ -721,7 +721,7 @@ Remove Grounded OCR (Kosmos-2.5) & 0.1995 & $-0.0457$ \\
 \end{block}
 \end{frame}
 
-\begin{frame}{A.5 Local vs.\ Frontier Critic: Withdrawn Claim, Real Replacement}
+\begin{frame}{A.5 Why Local Tier 3 Was Dropped}
 \scriptsize
 \begin{columns}[T]
 \column{0.50\textwidth}
@@ -732,17 +732,17 @@ Remove Grounded OCR (Kosmos-2.5) & 0.1995 & $-0.0457$ \\
 \begin{block}{Real Replacement: Same-Model Critic Flag Rate}
 \scriptsize Same Primary-then-Critic protocol, real inference:
 \begin{itemize}
-  \item \textbf{Local} (LLaVA-OneVision, $n=25$): \textbf{0/25} flagged.
-  \item \textbf{Stronger same-model approx.} (Gemini Flash-Lite, $n=10$): \textbf{1/10} flagged, genuine catch.
+  \item \textbf{Local} (LLaVA-OneVision, $n=25$): \textbf{0/25} $\rightarrow$ dropped.
+  \item \textbf{Stronger approx.} (Gemini Flash-Lite, $n=10$): \textbf{1/10}, still same-model.
 \end{itemize}
 \end{block}
 
 \column{0.46\textwidth}
-\begin{block}{What This Does and Doesn't Show}
-\scriptsize Stronger models catch more of their own errors under re-prompting -- but this is still same-model self-review, not the documented cross-model pair (Gemini proposes, Claude audits). That genuine independence test remains \textbf{unrun} (Anthropic key lacked credit). The frontier design's rationale (disjoint weights can't share a blind spot) stands as an argument, not yet a measurement.
+\begin{block}{Why This Was Enough to Drop It}
+\scriptsize A stronger model catches slightly more of its own errors under re-prompting, but even that is same-model self-review, not the cross-model independence (Gemini proposes, Claude audits) the frontier design relies on. With zero verified value locally, Tier 3 is now frontier-only: the ambiguous residual either pays for a genuine second opinion, or goes straight to a human.
 \end{block}
-\begin{block}{Latency \& Cost (Unaffected)}
-\scriptsize Local: \$0.00, self-hosted. Frontier: $\approx\$0.85$/1k images -- independent of the withdrawn F1 claim.
+\begin{block}{Frontier's Own Test Remains Unrun}
+\scriptsize The genuine cross-model independence test (Anthropic key lacked credit) is unrun, not falsified. Disjoint weights can't share a blind spot is a real, distinct argument the dropped local design never had -- but it is still an argument, not yet a measurement.
 \end{block}
 \end{columns}
 \end{frame}
