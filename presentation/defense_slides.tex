@@ -422,7 +422,7 @@ When distilled student detectors are trained on automated teacher pseudo-labels:
 \centering
 \includegraphics[width=\textwidth]{self_training_teacher_results.png}
 \vskip 0.1cm
-\tiny \textit{Pseudo-Label Distillation Collapse: Proxy mAP (0.989) vs. Human mAP (0.1462).}
+\tiny \textit{Teacher-stage training progress (illustrative). The 0.989 vs.\ 0.1462 collapse is a separate final evaluation, not these curves' own endpoint.}
 \end{columns}
 \end{frame}
 
@@ -483,7 +483,7 @@ Conformal Risk Control (next slide) replaces the heuristic with a formally certi
 \begin{columns}[T]
 \column{0.50\textwidth}
 \begin{block}{In-Sample Calibration ($C_1$, $n_{\text{cal}}{=}400$)}
-Threshold $\hat{\lambda} = 0.2450$ at target $\alpha = 0.05$. Evaluating on the same-cohort held-out test split ($n_{\text{test}}=401$) appears to satisfy $\mathcal{R}(\hat{\lambda}) = \mathbf{0.0075} \le \alpha = 0.05$.
+Threshold $\hat{\lambda} = 0.5370$ at target $\alpha = 0.05$. Evaluating on the same-cohort held-out test split ($n_{\text{test}}=401$) appears to satisfy $\mathcal{R}(\hat{\lambda}) = \mathbf{0.0075} \le \alpha = 0.05$.
 \begin{itemize}
     \item \textbf{Automated Catalog Approval}: \textbf{87.5\%}
     \item \textbf{Human Error Recall}: \textbf{94.3\%} captured in review queue
@@ -863,12 +863,11 @@ Triage Overlap (Top 10\%, Jaccard) & $0.9739$ & \textcolor{PrismGreen}{\checkmar
   stagebox/.style={draw=HildesheimRed, fill=PrismRed!10, rounded corners=3pt, align=center, text width=1.9cm, minimum height=0.9cm, line width=1pt},
   arrow/.style={->, >=Stealth, line width=1.2pt, PrismOrange}
 ]
-\node[stagebox] (s1) {\textbf{STAGE 1: Baseline}\\$w{=}[0.5,0.2,0.2,0.1]$\\Heuristic Prior};
-\node[stagebox, right=of s1] (s2) {\textbf{STAGE 2: Shapley}\\$\phi{=}[0.33,0.28,0.20,0.19]$\\Exact Attribution};
-\node[stagebox, right=of s2] (s3) {\textbf{STAGE 3: Stacking}\\Platt Logistic\\$\mathbf{\text{ECE} < 0.001}$};
+\node[stagebox] (s1) {\textbf{Deployed: SAA}\\$w{=}[0.6,0.2,0.2]$\\Heuristic, all results};
+\node[stagebox, right=of s1] (s2) {\textbf{Interpretability: Shapley}\\$\phi{=}[0.33,0.28,0.20,0.19]$\\Exact attribution, not deployed};
 
-\draw[arrow] (s1) -- (s2);
-\draw[arrow] (s2) -- (s3);
+\draw[arrow, dashed] (s1) -- (s2) node[midway, above, font=\tiny] {separate study};
+\draw[arrow] (s1.south) -- ++(0,-0.35) node[below, font=\tiny, align=center] {Platt calibration\\applied here directly\\$\mathbf{\text{ECE} < 0.001}$};
 \end{tikzpicture}
 
 \vskip 0.2cm
@@ -876,14 +875,14 @@ Triage Overlap (Top 10\%, Jaccard) & $0.9739$ & \textcolor{PrismGreen}{\checkmar
 LLaVA-OneVision 7B ($\phi_1 = 0.330, 33.0\%$) and SAA Core ($\phi_2 = 0.283, 28.3\%$) provide over $61\%$ of total diagnostic signal.
 \end{block}
 \begin{alertblock}{\scriptsize Not the Deployed Weighting}
-\scriptsize This is a supplementary interpretability study. Every result elsewhere in this thesis uses the fixed heuristic weights ($w=[0.6,0.2,0.2]$), not these Shapley values -- Shapley attributions quantify contribution to a defined coalitional objective, not independent causal correctness.
+\scriptsize A supplementary interpretability study only -- quantifies contribution to a coalitional objective, not independent causal correctness. No result elsewhere uses these Shapley weights.
 \end{alertblock}
 
 \column{0.46\textwidth}
 \centering
 \includegraphics[width=\textwidth]{exp30_shapley_fusion_bars.png}
 \vskip 0.1cm
-\tiny \textit{Game-Theoretic Shapley Attribution Weights ($\phi_i$).}
+\tiny \textit{Downstream performance of Shapley-weighted fusion vs.\ equal-weight and VLM-only -- not a plot of the $\phi_i$ values themselves (those are at left).}
 \end{columns}
 \end{frame}
 

@@ -359,7 +359,7 @@ To eliminate cohort ambiguity across evaluations, all experiments in this thesis
 \node (usaabox) [subcorebox, below=0.35cm of corelabelnode.south east, anchor=north east] {\textbf{Disagreement Proxy} $U_{\text{SAA}, i}$\\[0.5mm]{\scriptsize $\operatorname{std}(A^{\text{object}}, A^{\text{agree}}, A^{\text{scene}}, A^{\text{vlm}})$}\\[0.5mm]{\scriptsize (Object, Agreement, Scene, VLM)}};
 
 % Calibration & Triage
-\node (triage) [box, below=0.55cm of $(saabox.south)!0.5!(usaabox.south)$, fill=orange!15, draw=orange!80!black, minimum width=8.6cm] {\textbf{Platt Scaling + SCI Complexity Adjustment}\\[1mm]{\scriptsize In-sample CRC ($\hat{\lambda}{=}0.2450$) appears to certify test risk $\le 0.05$; clean group-level re-evaluation shows the guarantee \textbf{violated} ($0.98\times$, chance-level) -- Ch.~\ref{ch:triage_risk_control}}};
+\node (triage) [box, below=0.55cm of $(saabox.south)!0.5!(usaabox.south)$, fill=orange!15, draw=orange!80!black, minimum width=8.6cm] {\textbf{Platt Scaling + SCI Complexity Adjustment}\\[1mm]{\scriptsize In-sample CRC ($\hat{\lambda}{=}0.5370$) appears to certify test risk $\le 0.05$; clean group-level re-evaluation shows the guarantee \textbf{violated} ($0.98\times$, chance-level) -- Ch.~\ref{ch:triage_risk_control}}};
 
 % Tier 3: Dual-LLM Coordinator (selective, only for the ambiguous residual)
 \node (coord) [coordbox, below=0.7cm of triage] {\textbf{Tier 3 (Selective): Dual-LLM Coordinator} -- only for $\sigma_i > \tau$\\[0.5mm]{\scriptsize \textbf{Local}: same LLaVA-OV as Primary \emph{and} Critic -- real test: 0/25 self-flags. \quad \textbf{Frontier}: Gemini proposes / Claude audits -- independence \textbf{unverified}}};
@@ -416,7 +416,7 @@ To eliminate cohort ambiguity across evaluations, all experiments in this thesis
 \caption{DCV-MAC Multi-Agent Validation Core and Triage Routing}
 \label{alg:dcv_mac_triage}
 \begin{algorithmic}[1]
-\Require Archival image scan $\mathbf{I}_{\text{raw}}$, Tier 1 agent ensemble $\{M_{\text{object}}, M_{\text{scene}}, M_{\text{vlm}}, M_{\text{ocr}}\}$, fixed heuristic fusion weights $\mathbf{w} = [w_o, w_s, w_v]$ (the deployed weighting used for every empirical result in this thesis; see remark below), Spatial Complexity Index estimator $\text{SCI}(\cdot)$, Platt calibration parameters $(A, B)$, Risk threshold $\hat{\lambda} = 0.2450$.
+\Require Archival image scan $\mathbf{I}_{\text{raw}}$, Tier 1 agent ensemble $\{M_{\text{object}}, M_{\text{scene}}, M_{\text{vlm}}, M_{\text{ocr}}\}$, fixed heuristic fusion weights $\mathbf{w} = [w_o, w_s, w_v]$ (the deployed weighting used for every empirical result in this thesis; see remark below), Spatial Complexity Index estimator $\text{SCI}(\cdot)$, Platt calibration parameters $(A, B)$, Risk threshold $\hat{\lambda} = 0.5370$.
 \Ensure Calibrated error probability $P(\text{error}_i)$, triage routing decision $d_i \in \{\text{Approve}, \text{Review}\}$, and enriched metadata record $\mathbf{M}_i$.
 \State \textbf{Generative Preprocessing:} $\mathbf{I}_{\text{cyc}} \leftarrow \text{CycleGAN}(\mathbf{I}_{\text{raw}})$, \quad $\mathbf{I}_{\text{sr}} \leftarrow \text{RealESRGAN}(\mathbf{I}_{\text{cyc}})$
 \State \quad $\mathbf{I}_{\text{refined}} \leftarrow \text{StableDiffusion}(\mathbf{I}_{\text{sr}}, \text{strength}=0.35)$
@@ -572,15 +572,15 @@ This discrepancy exposes the \textbf{Pseudo-Label Collapse Paradox}: high pseudo
 \begin{subfigure}{0.48\textwidth}
     \centering
     \includegraphics[width=\textwidth]{self_training_teacher_results.png}
-    \caption{Proxy Pseudo-Label Consistency ($\text{mAP}_{50} = 0.989$)}
+    \caption{Teacher-stage training progress}
 \end{subfigure}
 \hfill
 \begin{subfigure}{0.48\textwidth}
     \centering
     \includegraphics[width=\textwidth]{self_training_student_results.png}
-    \caption{True Human Expert Grounding Audit ($C_2, \text{mAP}_{50} = 0.1462$)}
+    \caption{Distilled student training progress}
 \end{subfigure}
-\caption{The Pseudo-Label Collapse Paradox (Figure 4.1). (a) Evaluating distilled student detectors against automated teacher pseudo-labels yields an artificially inflated proxy $\text{mAP}_{50} = 0.989$. (b) When audited against human expert bounding box annotations on Cohort $C_2$ ($n=300$), true human $\text{mAP}_{50}$ collapses to $0.1462$---demonstrating how student models memorize correlated teacher hallucinations.}
+\caption{The Pseudo-Label Collapse Paradox (Figure 4.1). These panels illustrate the self-training/distillation \emph{process} (loss and validation metrics over training epochs) for the teacher and distilled student stages -- the curves' own endpoints are intermediate training-time validation numbers on the synthetic pseudo-label split, not the headline comparison. The actual paradox is a separate, final evaluation: (a) scoring the distilled student against its own automated teacher pseudo-labels yields an artificially inflated proxy $\text{mAP}_{50} = 0.989$; (b) auditing that same final student against human expert bounding-box annotations on Cohort $C_2$ ($n=300$) collapses this to true human $\text{mAP}_{50} = 0.1462$---demonstrating how student models memorize correlated teacher hallucinations rather than real historical content.}
 \label{fig:pseudo_label_collapse_results}
 \end{figure}
 
@@ -795,7 +795,7 @@ Let $\alpha = 0.05$ denote the maximum acceptable target risk level ($5\%$ histo
     \mathcal{R}(\lambda) = \mathbb{E}\left[ \mathbb{I}(\text{sign}(S_{\text{fusion}} \ge \lambda) \neq y_{\text{expert}}) \right] \le \alpha
 \end{equation}
 
-Running conformal calibration on $n_{\text{cal}}=400$ yields the optimal risk-control threshold $\hat{\lambda} = 0.2450$. Evaluating on the held-out test set ($n_{\text{test}}=401$) demonstrates that:
+Running conformal calibration on $n_{\text{cal}}=400$ yields the optimal risk-control threshold $\hat{\lambda} = 0.5370$. Evaluating on the held-out test set ($n_{\text{test}}=401$) demonstrates that:
 \begin{equation}
     \mathcal{R}(\hat{\lambda}) = \mathbf{0.0075} \le \alpha = 0.05 \quad (\text{Conformal Risk Bound Satisfied})
 \end{equation}
@@ -844,7 +844,7 @@ The formal risk-control guarantee --- CRC's entire methodological advantage over
 \State \quad $\hat{\lambda} \leftarrow \inf \left\{ \lambda \in [0, 1] : \frac{n_{\text{cal}}}{n_{\text{cal}} + 1} \hat{R}(\lambda) + \frac{1}{n_{\text{cal}} + 1} \le \alpha \right\}$
 \State Evaluate empirical test risk on $C_{\text{test}}$: $\mathcal{R}_{\text{test}}(\hat{\lambda}) \leftarrow \frac{1}{n_{\text{test}}} \sum_{k=1}^{n_{\text{test}}} L_k(\hat{\lambda})$
 \State In-sample $C_1$ split: $\mathcal{R}_{\text{test}}(\hat{\lambda}) = 0.0075 \le \alpha = 0.05$ (bound satisfied). Clean group-level split (Section~\ref{sec:clean_holdout}): $\mathcal{R}_{\text{test}}(\hat{\lambda}) = 0.182 > \alpha$ for every $\alpha \le 0.15$ tested (bound \textbf{not} satisfied) --- the guarantee is only as reliable as the calibration distribution's coverage of the deployment population.
-\State \Return Threshold $\hat{\lambda} = 0.2450$ (in-sample calibration); see Table~\ref{tab:crc_clean_vs_leaky} for the clean re-evaluation.
+\State \Return Threshold $\hat{\lambda} = 0.5370$ (in-sample calibration); see Table~\ref{tab:crc_clean_vs_leaky} for the clean re-evaluation.
 \end{algorithmic}
 \end{algorithm}
 
@@ -886,7 +886,7 @@ This thesis presented the Dual-Core Validation and Multi-Agent Curation (DCV-MAC
 \begin{enumerate}
     \item \textbf{C1 (Pseudo-Label Collapse Warning)}: Uncovered the proxy-to-human mAP collapse ($0.989 \rightarrow 0.1462$), demonstrating that student self-training against synthetic teacher labels can mask severe domain-shift hallucinations.
     \item \textbf{C2 (Calibrated Cross-Modal Disagreement)}: Formulated $U_{\text{SAA}}$ derived from cross-modal model disagreement, achieving an error-detection $\text{ROC-AUC} = 0.9724$ on $C_1$ ($n=801$) and collapsing calibration error from $\text{ECE}=0.750 \to <0.001$ post-Platt scaling.
-    \item \textbf{C3 (Discovered Scope Limit of Disagreement-Based Triage)}: Derived distribution-free Conformal Risk Control bounds ($\hat{\lambda}=0.2450$) that appear to guarantee test risk $\mathcal{R}(\hat{\lambda})=0.0075 \le 0.05$ at $87.5\%$ certified automatic approval and $94.3\%$ error recall ($7.57\times$ lift) when calibrated in-sample on the positive-heavy $C_1$ cohort. Re-running the identical procedure on a clean, group-level, negative-control-inclusive partition (Section~\ref{sec:clean_holdout}) shows this guarantee does \emph{not} hold out-of-sample: efficiency lift collapses to $0.98\times$ (chance) and the formal risk bound is violated ($\mathcal{R}(\hat\lambda)=0.182$). The same clean re-evaluation finds the simpler SCI-tercile heuristic policy performs identically near chance ($0.98\times$ lift, Section~\ref{sec:complexity_triage}). Both are retained as a documented negative result: the thesis's operational contribution here is precisely bounding \emph{where} disagreement-based triage is and is not trustworthy, not a deployable triage system.
+    \item \textbf{C3 (Discovered Scope Limit of Disagreement-Based Triage)}: Derived distribution-free Conformal Risk Control bounds ($\hat{\lambda}=0.5370$) that appear to guarantee test risk $\mathcal{R}(\hat{\lambda})=0.0075 \le 0.05$ at $87.5\%$ certified automatic approval and $94.3\%$ error recall ($7.57\times$ lift) when calibrated in-sample on the positive-heavy $C_1$ cohort. Re-running the identical procedure on a clean, group-level, negative-control-inclusive partition (Section~\ref{sec:clean_holdout}) shows this guarantee does \emph{not} hold out-of-sample: efficiency lift collapses to $0.98\times$ (chance) and the formal risk bound is violated ($\mathcal{R}(\hat\lambda)=0.182$). The same clean re-evaluation finds the simpler SCI-tercile heuristic policy performs identically near chance ($0.98\times$ lift, Section~\ref{sec:complexity_triage}). Both are retained as a documented negative result: the thesis's operational contribution here is precisely bounding \emph{where} disagreement-based triage is and is not trustworthy, not a deployable triage system.
     \item \textbf{C4 (Downstream Archival Utility)}: Demonstrated semantic retrieval Precision@10 $=1.000$ (vs.\ $0.180$ keyword baseline) across a 10-query pilot. A genuine cross-institutional transfer pilot ($C_5$, $n=24$ real Europeana images, 10 institutions) shows the uncertainty signal responds substantially to real domain shift; a full transfer-of-generalization claim awaits human ground-truth annotation on this sample (Appendix~\ref{app:europeana}).
 \end{enumerate}
 
@@ -1021,7 +1021,7 @@ $U_{\text{SAA}}$ (cross-agent std) & 0.422 & --- \\
 
 \chapter{Supplementary Game-Theoretic Attribution Analysis (Shapley Values)}
 \label{app:shapley}
-To complement the heuristic production fusion weights ($w=[0.6,0.2,0.2]$ over the object, scene, and VLM agents; Chapter~\ref{ch:uncertainty_calibration}), we additionally executed \textbf{Exp 30: Shapley-Weighted Adaptive Fusion}, computing exact marginal contributions across all $2^N-1$ agent coalitions on $C_1$ based on Shapley values \cite{shapley1953}. The resulting attributions are detailed in Table~\ref{tab:shapley_weights} and visualized in Figure~\ref{fig:shapley_attribution}:
+To complement the heuristic production fusion weights ($w=[0.6,0.2,0.2]$ over the object, scene, and VLM agents; Chapter~\ref{ch:uncertainty_calibration}), we additionally executed \textbf{Exp 30: Shapley-Weighted Adaptive Fusion}, computing exact marginal contributions across all $2^N-1$ agent coalitions on $C_1$ based on Shapley values \cite{shapley1953}. The resulting attributions are detailed in Table~\ref{tab:shapley_weights}; Figure~\ref{fig:shapley_attribution} separately compares the downstream performance of fusing agents with these Shapley weights against an equal-weight baseline and the standalone VLM:
 
 \begin{table}[!htbp]
 \centering
@@ -1044,7 +1044,7 @@ Spatial Grounding Agent (YOLOv11-seg) & \textbf{0.192} & 19.2\% \\
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.7\textwidth]{exp30_shapley_fusion_bars.png}
-\caption{Game-Theoretic Shapley Attribution Weights ($\phi$) across the DCV-MAC Validation Core. LLaVA-OneVision VQA (0.330) and Scene-Aware Agreement (0.283) provide the largest marginal contributions to error detection.}
+\caption{Downstream Performance of Shapley-Weighted Fusion (Exp 30, $n=801$). Error-prediction AUROC and scene-presence F1 for Shapley-weighted fusion (using the $\phi$ weights in Table~\ref{tab:shapley_weights}) vs.\ an equal-weight baseline and the standalone VLM. AUROC is statistically similar across all three (0.9725/0.9725/0.9781); the differences are more visible in F1 (0.9405/0.9234/0.9234). This is a downstream check, not a plot of the $\phi$ values themselves -- see Table~\ref{tab:shapley_weights} for the attribution weights.}
 \label{fig:shapley_attribution}
 \end{figure}
 
