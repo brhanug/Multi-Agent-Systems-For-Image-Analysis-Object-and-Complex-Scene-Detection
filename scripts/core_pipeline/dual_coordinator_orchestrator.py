@@ -1,4 +1,25 @@
 #!/usr/bin/env python3
+"""
+dual_coordinator_orchestrator.py
+-----------------------------------
+CHANGE (following the architecture correction after a full-project audit):
+local mode no longer runs a same-model "Critic" pass. An earlier design
+re-prompted Tier 1's own LLaVA-OneVision instance as both Primary and
+Critic; a real mechanical test (run_local_dual_critic_ablation.py, 25 real
+images) found the local critic never once disagreed with its own Primary
+output (0/25) -- the same weights produce the same beliefs regardless of
+prompt. That local self-critique step has been removed here, not just
+documented as unreliable.
+
+Local mode now runs ONLY the Primary synthesis step (a real curation
+function -- reconciling sibling-agent outputs into one record still has
+genuine value) and routes using Tier 1's actual, validated U_triage signal
+(std of the 4 core agent scores, SCI-adjusted) against the real calibrated
+threshold lambda-hat=0.5370, instead of a disconnected local heuristic mock.
+Frontier mode is unchanged: Gemini proposes, Claude audits -- two
+structurally independent models, the only configuration with a real (if
+still unverified pending API credit) claim to a genuine second opinion.
+"""
 import os
 import sys
 import json
@@ -6,9 +27,15 @@ import argparse
 import base64
 import requests
 import yaml
+import csv
 from PIL import Image
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+# Real, calibrated in-sample CRC threshold (exp29_conformal_risk_control.py) --
+# used to route on Tier 1's actual signal when no genuine (frontier) critic ran.
+TRIAGE_LAMBDA_HAT = 0.5370
+SAA_WEIGHT, SCI_WEIGHT = 0.6, 0.4
 
 # ==============================
 # CONFIGURATION
@@ -31,6 +58,89 @@ KOSMOS_RESULTS_PATH = os.path.join(BASE_DIR, "results/kosmos_grounding.jsonl")
 SIGLIP_RESULTS_PATH = os.path.join(BASE_DIR, "results/scene_labels/scene_labels_siglip.json")
 
 OUTPUT_JSON = os.path.join(BASE_DIR, "results/multi_agent/upgraded_agent0_fusion.json")
+# Same source file exp29_conformal_risk_control.py calibrates lambda-hat against.
+AGENT_SCORES_PATH = os.path.join(BASE_DIR, "results/multi_agent/agent_comparison_scores.csv")
+CORE_AGENT_COLS = ["existing_pipeline_agent", "agreement_agent", "scene_agent", "vlm_agent"]
+
+
+def _normalize_short_id(raw_id: str) -> str:
+    """Match the normalize_id() convention used across this codebase's other
+    scripts: PPN1234.../00000411_2 -> 00000411_2."""
+    p = str(raw_id).replace("images/", "").replace("\\", "/")
+    p = p.split("/")[-1].rsplit(".", 1)[0]
+    parts = p.split("_")
+    return "_".join(parts[-2:]) if len(parts) >= 2 and parts[0].startswith("PPN") else p
+
+
+def load_real_triage_scores() -> dict:
+    """Loads Tier 1's real, already-computed U_triage per image -- used to
+    route images when no genuine (frontier) critic audit ran. Reproduces
+    exp29_conformal_risk_control.py's EXACT formula (unified_U = 0.6*std(core
+    agents) + 0.4*(1-mean(core agents))) over the SAME source file it
+    calibrates lambda-hat=0.5370 against, so the threshold comparison here is
+    actually meaningful. (Earlier draft of this function used the thesis's
+    documented-but-not-actually-matching formula, 0.4*(1-SCI) from a
+    separate scene-complexity file -- that produced systematically different,
+    near-always-lower U values than the real calibration population; fixed
+    to match the real script exactly.) Returns {short_image_id: u_triage}.
+
+    Known, already-disclosed behavior: lambda-hat=0.5370 was calibrated on
+    the curated C1 expert cohort (n=801, ~13.6% exceed it there). Verified
+    against a sample of the broader, unlabeled deployment corpus, this
+    threshold is crossed by close to none of it -- consistent with, not
+    contradicting, the thesis's own central negative finding (Section
+    clean_holdout / Table crc_clean_vs_leaky): this triage policy does not
+    generalize out-of-sample. Expect local mode to route almost everything
+    to semantic_index in practice; that is an honest reflection of the
+    documented limitation, not a bug in this routing logic.
+
+    SEPARATE, DEEPER ISSUE this function must defend against: the short
+    image_id (e.g. "00000047_1") is only unique WITHIN one PPN publication --
+    across the full corpus it collides constantly (verified: of 12,110 rows
+    in AGENT_SCORES_PATH, only 1,985 short ids are unique; "00000047_1" alone
+    is shared by 45+ different PPNs with genuinely different real scores).
+    This appears to be a pre-existing, codebase-wide convention (the same
+    normalize_id()-style short-id join is used by several other scripts in
+    this project) that was never exercised at full-corpus scale before --
+    every prior use was against the small, single-PPN-scoped C1/C2 expert
+    cohorts (n=801/n=300), where collisions are rare or absent. Silently
+    picking one of several colliding rows would be its own quiet fabrication
+    (presenting an arbitrary PPN's score as if it were THIS image's score),
+    so any short id that collides is deliberately EXCLUDED here rather than
+    resolved by guessing -- the caller's existing "no real score available"
+    path (route: hitl_queue) then applies honestly instead. A real fix
+    requires the orchestrator's own image identification to carry PPN
+    context end-to-end, which is out of scope for this change."""
+    scores: dict[str, float] = {}
+    ambiguous: set[str] = set()
+    if not os.path.exists(AGENT_SCORES_PATH):
+        print(f"⚠️ {AGENT_SCORES_PATH} not found -- real triage routing unavailable, will fall back to hitl_queue.")
+        return scores
+    with open(AGENT_SCORES_PATH, newline="") as f:
+        for row in csv.DictReader(f):
+            try:
+                core = [float(row[c]) for c in CORE_AGENT_COLS]
+                mean = sum(core) / len(core)
+                std = (sum((x - mean) ** 2 for x in core) / len(core)) ** 0.5
+                u_triage = SAA_WEIGHT * std + SCI_WEIGHT * (1 - mean)
+            except (KeyError, ValueError):
+                continue
+            short_id = _normalize_short_id(row["image_id"])
+            if short_id in ambiguous:
+                continue
+            if short_id in scores:
+                # Collision: this short id maps to >1 PPN. Don't guess which is
+                # "this" image -- drop it entirely, rather than silently keep
+                # whichever row happened to be read first/last.
+                del scores[short_id]
+                ambiguous.add(short_id)
+                continue
+            scores[short_id] = u_triage
+    if ambiguous:
+        print(f"⚠️ {len(ambiguous)} short image ids were ambiguous across multiple PPNs "
+              f"and excluded from real-triage routing (will fall back to hitl_queue for those).")
+    return scores
+
 
 def encode_image_base64(image_path):
     with open(image_path, "rb") as image_file:
@@ -121,7 +231,7 @@ def query_frontier_critic_claude(prompt, image_base64, api_key):
     except Exception:
         return None
 
-def process_single_image(img_id, img_entry, siglip_scenes, kosmos_txt, mode, keys, vllm_active):
+def process_single_image(img_id, img_entry, siglip_scenes, kosmos_txt, mode, keys, vllm_active, real_u_triage):
     try:
         img_name = img_entry["image_name"]
         img_path = os.path.join(IMAGE_DIR, img_name)
@@ -200,10 +310,13 @@ JSON format:
   "justification": "explanation of your audit",
   "route": "semantic_index" or "hitl_queue"
 }}"""
+            # Frontier-only: Claude audits Gemini's Primary output -- two structurally
+            # independent models. There is deliberately NO local vLLM fallback here
+            # (see module docstring): re-prompting Tier 1's own LLaVA-OneVision as a
+            # "critic" over its own Primary output was tested and found to add no
+            # verified value (0/25 real images ever flagged a contradiction).
             if mode == "frontier" and keys.get("claude"):
                 critic_response = query_frontier_critic_claude(critic_prompt, img_b64, keys.get("claude"))
-            elif vllm_active:
-                critic_response = query_vllm_with_image(critic_prompt, img_b64)
             else:
                 critic_response = None
 
@@ -228,27 +341,53 @@ JSON format:
                 "reasoning": f"Generated via rule-based fallback since {mode} VLM was unavailable."
             }
             
+        is_genuine_critic = critic_audit is not None
         if not critic_audit:
-            has_contradiction = len(yolo_dets) == 0 and len(kosmos_txt) > 50
-            confidence = 0.90 if len(yolo_dets) > 0 else 0.50
-            critic_audit = {
-                "contradictions_found": has_contradiction,
-                "confidence_score": confidence,
-                "justification": f"Heuristic validation check ({mode} offline).",
-                "route": "semantic_index" if (confidence >= 0.70 and not has_contradiction) else "hitl_queue"
-            }
+            # No genuine (frontier) critic ran for this image -- route using Tier 1's
+            # actual, calibrated U_triage signal instead of a disconnected heuristic
+            # mock. This is real data (std of the 4 core agent scores, SCI-adjusted)
+            # checked against the real calibrated threshold, not an invented "audit".
+            u_triage = real_u_triage.get(img_id)
+            if u_triage is not None:
+                is_ambiguous = u_triage > TRIAGE_LAMBDA_HAT
+                critic_audit = {
+                    "contradictions_found": None,
+                    "confidence_score": round(1.0 - min(u_triage, 1.0), 4),
+                    "justification": (
+                        f"No frontier critic ran (mode={mode}). Routed on Tier 1's real "
+                        f"U_triage={u_triage:.4f} vs. calibrated threshold={TRIAGE_LAMBDA_HAT} "
+                        f"-- not a local LLM audit (that step was tested and removed)."
+                    ),
+                    "route": "hitl_queue" if is_ambiguous else "semantic_index"
+                }
+            else:
+                # No real Tier 1 score available for this image either -- do not
+                # invent one; default to the conservative route.
+                critic_audit = {
+                    "contradictions_found": None,
+                    "confidence_score": None,
+                    "justification": f"No frontier critic and no real U_triage score available for {img_id}; defaulting to human review.",
+                    "route": "hitl_queue"
+                }
 
         assigned_route = critic_audit.get("route", "hitl_queue")
-        if critic_audit.get("contradictions_found", False) or critic_audit.get("confidence_score", 0.0) < 0.70:
-            assigned_route = "hitl_queue"
+        # The 0.70-confidence override below is specific to a genuine LLM critic's own
+        # self-reported confidence scale; it must NOT re-judge the real-triage-based
+        # fallback route above, which was already decided against the correct
+        # calibrated threshold (TRIAGE_LAMBDA_HAT) on a different scale.
+        if is_genuine_critic:
+            _conf = critic_audit.get("confidence_score")
+            if critic_audit.get("contradictions_found") or (_conf is not None and _conf < 0.70):
+                assigned_route = "hitl_queue"
 
+        _out_conf = critic_audit.get("confidence_score")
         return {
             "image_id": img_id,
             "image_name": img_name,
             "synthesized_metadata": primary_metadata,
             "critic_audit": critic_audit,
             "assigned_route": assigned_route,
-            "confidence_score": critic_audit.get("confidence_score", 0.5)
+            "confidence_score": _out_conf if _out_conf is not None else 0.5
         }
     except Exception as e:
         print(f"Error processing image {img_id}: {e}")
@@ -259,12 +398,19 @@ def main():
     parser.add_argument("--limit", type=int, default=None, help="Limit number of images for testing")
     parser.add_argument("--workers", type=int, default=4, help="Number of concurrent worker threads")
     parser.add_argument("--mode", type=str, default="local", choices=["local", "frontier"],
-                        help="Coordinator mode: local (LLaVA-OneVision) or frontier (Gemini + Claude)")
+                        help="Coordinator mode: local (Primary synthesis only via LLaVA-OneVision, "
+                             "routed on Tier 1's real U_triage signal -- no local critic, see module "
+                             "docstring) or frontier (Gemini proposes, Claude audits: two structurally "
+                             "independent models, the only configuration with a real second-opinion claim)")
     parser.add_argument("--gemini-key", type=str, default=None, help="Google Gemini API key")
     parser.add_argument("--claude-key", type=str, default=None, help="Anthropic Claude API key")
     args = parser.parse_args()
 
     os.makedirs(os.path.dirname(OUTPUT_JSON), exist_ok=True)
+
+    print("📂 Loading Tier 1's real U_triage scores (for routing when no frontier critic runs)...")
+    real_u_triage = load_real_triage_scores()
+    print(f"   Loaded {len(real_u_triage)} real triage scores.")
 
     # 1. Load inputs
     print("📂 Loading detection and scene labeling outputs...")
@@ -358,7 +504,8 @@ def main():
                 kosmos_txt,
                 args.mode,
                 keys,
-                vllm_active
+                vllm_active,
+                real_u_triage
             )
             future_to_img[future] = img_id
             
