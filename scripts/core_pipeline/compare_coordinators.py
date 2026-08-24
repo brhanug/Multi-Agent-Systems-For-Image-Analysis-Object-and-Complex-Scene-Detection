@@ -5,6 +5,26 @@ compare_coordinators.py
 Comparative Analysis: Local vLLM (LLaVA-OneVision) vs. Frontier Dual-LLM
 (Gemini 1.5 Flash + Claude 3.5 Sonnet) Coordinator.
 =============================================================================
+WARNING (full-project reproducibility audit): the "no API keys" fallback
+branch below prints "Running in METRIC COMPARATIVE STUDY mode (documented
+historical data)" and then hardcodes Contradiction F1-Score = 0.812 (local)
+and 0.965 (frontier) as literal constants. Neither value is computed
+anywhere in this script or anywhere else in the codebase -- there is no
+"documented historical data" behind them, and no gold contradiction labels
+exist in this project to compute a real F1 from. This is the code path
+that actually ran and produced results/multi_agent/coordinator_comparison.json;
+those two F1 numbers have been withdrawn from the thesis and defense slides.
+The "API keys present" branch below is also incomplete even if run: it
+calls Gemini (Primary) and Claude (Critic) on 5 images but never computes
+or saves an F1 score, and never exercises the local LLaVA-OneVision
+condition at all, so it could not have produced the "Local" F1 either way.
+
+A real, honest substitute question -- does the local same-model critic
+re-prompt ever actually flag anything different from its own Primary pass
+-- is answered instead by run_local_dual_critic_ablation.py, using real
+inference and no gold labels required (result: 0/25 real images flagged,
+see results/multi_agent/local_dual_critic_ablation_summary.json).
+
 This script compares:
 1. Current Local Dual-LLM Coordinator (LLaVA-OneVision 7B)
 2. Frontier API Dual-LLM Coordinator (Gemini 1.5 Flash as Primary + Claude 3.5 Sonnet as Critic)
@@ -13,7 +33,7 @@ It evaluates:
 - Latency (s per image)
 - Cost ($ per 1,000 images)
 - JSON Syntax Integrity (failure rate)
-- Contradiction Detection Recall (vs. human gold audit results)
+- Contradiction Detection Recall (vs. human gold audit results) -- NOT ACTUALLY IMPLEMENTED, see warning above
 """
 
 import os
@@ -102,17 +122,22 @@ def run_comparison():
     has_keys = bool(claude_key and gemini_key)
     
     if not has_keys:
-        print("\n⚠️ API keys missing. Running in METRIC COMPARATIVE STUDY mode (documented historical data).")
-        print("Providing comparative analysis of costs, API characteristics, and syntax logs.\n")
-        
-        # Output comparison report table
+        print("\n⚠️ API keys missing. Cannot run a real comparison.")
+        print("⚠️ WARNING: the numbers below are UNVERIFIED PLACEHOLDERS, not measurements --")
+        print("   see the module docstring. Do not cite the Contradiction F1-Score fields as real.\n")
+
+        # UNVERIFIED PLACEHOLDER TABLE -- not computed, not "documented historical data".
+        # Latency/cost/JSON-parse-rate fields are plausible illustrative figures only.
+        # Contradiction F1-Score fields specifically have been withdrawn from the thesis
+        # and defense slides; do not reintroduce them as if measured.
         comparison = {
             "Local LLaVA-OneVision Dual-LLM": {
                 "Mean Latency (s)": 3.75,
                 "API Cost ($/1k images)": "0.00 (Self-hosted)",
                 "JSON Parse Success Rate": "93.8%",
                 "Hardware Requirements": "1x A100 GPU (80GB)",
-                "Contradiction F1-Score": 0.812,
+                "Contradiction F1-Score": None,
+                "Contradiction F1-Score_UNVERIFIED_PLACEHOLDER_DO_NOT_CITE": 0.812,
                 "Epistemic Bias": "High (shared weights between Primary & Critic)"
             },
             "Frontier Dual-LLM (Gemini 1.5 Flash + Claude 3.5 Sonnet)": {
@@ -120,11 +145,12 @@ def run_comparison():
                 "API Cost ($/1k images)": "~0.85 (Asymmetric billing)",
                 "JSON Parse Success Rate": "100.0%",
                 "Hardware Requirements": "Serverless API client only",
-                "Contradiction F1-Score": 0.965,
+                "Contradiction F1-Score": None,
+                "Contradiction F1-Score_UNVERIFIED_PLACEHOLDER_DO_NOT_CITE": 0.965,
                 "Epistemic Bias": "Near-Zero (heterogeneous architectures & weights)"
             }
         }
-        
+
         print(json.dumps(comparison, indent=2))
         
         # Save comparison results
