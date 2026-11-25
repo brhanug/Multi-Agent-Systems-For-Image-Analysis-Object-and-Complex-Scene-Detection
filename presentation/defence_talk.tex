@@ -13,7 +13,7 @@
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta,fit,backgrounds,calc,shapes.geometric,shapes.misc,decorations.pathreplacing}
 \usepackage{pgfplots}\pgfplotsset{compat=1.18,every axis/.append style={tick label style={font=\scriptsize},label style={font=\scriptsize}},
-  /pgf/number format/.cd,fixed,precision=3,1000 sep={,}}
+  /pgf/number format/.cd,fixed,precision=3,1000 sep={{{,}}}}
 \usepackage[most]{tcolorbox}
 \graphicspath{{../latex_assets/}{defence_assets/}{images/}}
 
@@ -116,9 +116,9 @@
 
 
 \title{When Can an Automatic Answer Be Trusted?}
-\subtitle{Confidence, not disagreement, under a risk promise for historical illustrations}
+\subtitle{Confidence, Not Disagreement, Under a Risk Promise for Historical Illustrations}
 \author{Brhanu Atsbaha}
-\institute{Master's thesis \,·\, University of Hildesheim\\[2pt]Advisors: Prof.\ Dr.\ Thomas Mandl and Shereen Elsayed}
+\institute{Master Thesis \,·\, International Master in Data Analytics \,·\, University of Hildesheim\\[2pt]First advisor: Prof.\ Dr.\ Thomas Mandl \,·\, Second advisor: Shereen Elsayed}
 \date{Defence, 10 December 2026}
 
 \begin{document}
@@ -130,7 +130,7 @@
   \fill[soft] ($(current page.south west)+(0,0)$) rectangle ($(current page.south east)+(0,2.0)$);
 \end{tikzpicture}
 \vspace{0.9cm}
-{\small\color{muted}MULTI-AGENT SYSTEMS FOR IMAGE ANALYSIS: OBJECT AND COMPLEX SCENE DETECTION}\par\vspace{6pt}
+{\small\color{muted}MULTI AGENT SYSTEMS FOR IMAGE ANALYSIS: OBJECT AND COMPLEX SCENE DETECTION}\par\vspace{6pt}
 {\fontsize{26}{30}\selectfont\bfseries\color{navy}\inserttitle}\par\vspace{6pt}
 {\large\color{ink}\insertsubtitle}\par\vspace{0.9cm}
 {\bfseries\insertauthor}\par\vspace{2pt}
@@ -658,12 +658,12 @@ $0.18 < 0.372$ $\to$ \yes{approved}
 \begin{columns}[c,onlytextwidth]
 \column{0.58\textwidth}
 \begin{tikzpicture}
-\begin{axis}[xbar,width=8.0cm,height=5.6cm,xmin=0,xmax=5300,bar width=7pt,xtick={0,2000,4000},
+\begin{axis}[xbar,width=8.0cm,height=5.6cm,every node near coord/.append style={anchor=west},xmin=0,xmax=5300,bar width=7pt,xtick={0,2000,4000},xticklabels={0,{2,000},{4,000}},
   ytick={1,...,8},yticklabels={{(0, 1, 0)},{(1/3, 1, 1)},{(2/3, 1, 1)},{(2/3, .5, 1)},{(0, .5, 0)},{(1/3, .5, 1)},{(1, .5, 1)},{(1, 1, 1)}},y tick label style={font=\scriptsize},x tick label style={font=\scriptsize},
   xlabel={\scriptsize pictures},ylabel={\scriptsize $(A^{\text{object}}, A^{\text{scene}}, A^{\text{vlm}})$},
   nodes near coords,nodes near coords style={font=\tiny},axis lines*=left,xmajorgrids,grid style={line},
   scaled x ticks=false,enlarge y limits=0.07]
-\addplot[fill=oldc,draw=none] coordinates {(4154,8) (2580,7) (2217,6) (1208,5) (969,4) (565,3) (222,2) (195,1)};
+\addplot[fill=oldc,draw=none,point meta=explicit symbolic] coordinates {(4154,8) [4,154] (2580,7) [2,580] (2217,6) [2,217] (1208,5) [1,208] (969,4) [969] (565,3) [565] (222,2) [222] (195,1) [195]};
 \end{axis}
 \end{tikzpicture}
 \column{0.40\textwidth}
@@ -871,11 +871,11 @@ $\phantom{p} = \mathbf{0.97}$ $\to$ \yes{scene}\\[4pt]
 \begin{defbox}{Scene class}
 One learned mapping of all 27 numbers $\to$ six probabilities:\par
 \begin{tikzpicture}
-\begin{axis}[xbar,width=4.3cm,height=3.3cm,xmin=0,xmax=0.72,bar width=4pt,
+\begin{axis}[xbar,width=4.3cm,height=3.3cm,every node near coord/.append style={anchor=west},xmin=0,xmax=0.72,bar width=4pt,
   symbolic y coords={landscape,teaching,none,playing,drawing,family},ytick=data,
   y tick label style={font=\tiny},x tick label style={font=\tiny},nodes near coords,nodes near coords style={font=\tiny},
   axis lines*=left,enlarge y limits=0.1]
-\addplot[fill=mapc,draw=none] coordinates {(0.536,family) (0.321,drawing) (0.071,playing) (0.045,none) (0.024,teaching) (0.003,landscape)};
+\addplot[fill=mapc,draw=none,point meta=explicit symbolic] coordinates {(0.536,family) [0.54] (0.321,drawing) [0.32] (0.071,playing) [0.07] (0.045,none) [0.05] (0.024,teaching) [0.02] (0.003,landscape) [0.00]};
 \end{axis}
 \end{tikzpicture}\par
 answer: \textbf{family} (the human label)
@@ -884,11 +884,11 @@ answer: \textbf{family} (the human label)
 \begin{defbox}{Object classes}
 For each class: the mean of the three agents' probabilities.\par
 \begin{tikzpicture}
-\begin{axis}[xbar,width=4.2cm,height=3.3cm,xmin=0,xmax=1.15,bar width=3pt,
+\begin{axis}[xbar,width=4.2cm,height=3.3cm,every node near coord/.append style={anchor=west},xmin=0,xmax=1.15,bar width=3pt,
   symbolic y coords={vehicle,building,text,weapon,tree,animal,child,person},ytick=data,
   y tick label style={font=\tiny},x tick label style={font=\tiny},nodes near coords,nodes near coords style={font=\tiny},
   axis lines*=left,enlarge y limits=0.07]
-\addplot[fill=agent,draw=none] coordinates {(0.929,person) (0.366,child) (0.231,animal) (0.077,tree) (0.056,weapon) (0.047,text) (0.016,building) (0.003,vehicle)};
+\addplot[fill=agent,draw=none,point meta=explicit symbolic] coordinates {(0.929,person) [0.93] (0.366,child) [0.37] (0.231,animal) [0.23] (0.077,tree) [0.08] (0.056,weapon) [0.06] (0.047,text) [0.05] (0.016,building) [0.02] (0.003,vehicle) [0.00]};
 \end{axis}
 \end{tikzpicture}
 \end{defbox}
@@ -1288,22 +1288,22 @@ Needs no assumption about the models, only that new pictures are \emph{exchangea
 \begin{frame}{Backup \,·\, The first design's cut-off had to fall between two of the eight rows}
 \small
 \renewcommand{\arraystretch}{1.12}
-\begin{tabular}{@{}l r r l@{}}
+\begin{tabular}{@{}l r r r l@{}}
 \toprule
-Row $(A^{\text{object}}, A^{\text{scene}}, A^{\text{vlm}})$ & $U_{\text{triage}}$ & Pictures & At $\hat\lambda = 0.372$\\
+Row $(A^{\text{object}}, A^{\text{scene}}, A^{\text{vlm}})$ & $U_{\text{SAA}}$ & $U_{\text{triage}}$ & Pictures & At $\hat\lambda = 0.372$\\
 \midrule
-$(1, 1, 1)$ & 0.0000 & 4,154 & \yes{approved}\\
-$(\tfrac23, 1, 1)$ & 0.1821 & 565 & \yes{approved}\\
-$(1, 0.5, 1)$ & 0.2000 & 2,580 & \yes{approved}\\
-$(\tfrac23, 0.5, 1)$ & 0.2425 & 969 & \yes{approved}\\
-$(\tfrac13, 1, 1)$ & 0.3643 & 222 & \yes{approved}\\
-$(\tfrac13, 0.5, 1)$ & 0.3726 & 2,217 & \no{a person}\\
-$(0, 0.5, 0)$ & 0.5372 & 1,208 & \no{a person}\\
-$(0, 1, 0)$ & 0.5464 & 195 & \no{a person}\\
+$(1, 1, 1)$ & 0.0000 & 0.0000 & 4,154 & \yes{approved}\\
+$(\tfrac23, 1, 1)$ & 0.1924 & 0.1821 & 565 & \yes{approved}\\
+$(1, 0.5, 1)$ & 0.2500 & 0.2000 & 2,580 & \yes{approved}\\
+$(\tfrac23, 0.5, 1)$ & 0.2097 & 0.2425 & 969 & \yes{approved}\\
+$(\tfrac13, 1, 1)$ & 0.3849 & 0.3643 & 222 & \yes{approved}\\
+$(\tfrac13, 0.5, 1)$ & 0.3155 & 0.3726 & 2,217 & \no{a person}\\
+$(0, 0.5, 0)$ & 0.4787 & 0.5372 & 1,208 & \no{a person}\\
+$(0, 1, 0)$ & 0.5774 & 0.5464 & 195 & \no{a person}\\
 \bottomrule
 \end{tabular}
 \par\vspace{6pt}
-{\footnotesize Passing 0.3726 would approve a row whose $SAA$ sits exactly on 0.5 and whose errors break the 5\% promise, so the largest safe cut-off is 0.372 (the same in 2,000 resamples).}
+{\footnotesize $U_{\text{SAA}}$ from Table D.3 of the thesis; $U_{\text{triage}} = 0.6\,U_{\text{SAA}} + 0.4\,(1 - \text{mean of the four signals})$. Passing 0.3726 would approve a row whose $SAA$ sits exactly on 0.5 and whose errors break the 5\% promise, so the largest safe cut-off is 0.372 (the same in 2,000 resamples).}
 \end{frame}
 
 \begin{frame}{Backup \,·\, Do the weights 0.6 / 0.2 / 0.2 matter?}
