@@ -459,7 +459,7 @@ Role & Model & Takes in & Gives out & Time\\
 \color{agent}Object finder & YOLOv11m (retrained) & the picture & boxes with a class and a score $\to$ \textbf{8 numbers} & 0.06\,s\\
 \color{agent}Scene matcher & SigLIP & the picture + 12 sentences & a score per sentence $\to$ \textbf{6 numbers} & \\
 \color{agent}Describer & LLaVA-OneVision 7B & the picture + a yes/no question & how strongly it says ``yes'' $\to$ \textbf{13 numbers} & 1.56\,s\\
-\rowcolor{soft}\color{tiertwo}Text reader & Kosmos-2.5 & the picture & text and where it is & 3.23\,s\\
+\rowcolor{soft}\color{tiertwo}Text reader & Kosmos-2.5 & the picture & the text it reads, as markdown (no positions) & 3.23\,s\\
 \bottomrule
 \end{tabularx}
 \par\vspace{4pt}{\scriptsize\color{muted}Time per picture measured in the deployed run (object finder: the deployed detector) on one NVIDIA RTX A6000. The three blue agents decide; the text reader only feeds the Tier 2 helpers.}
@@ -472,11 +472,12 @@ Role & Model & Takes in & Gives out & Time\\
 \column{0.58\textwidth}
 \centering
 \begin{tikzpicture}
-\node[inner sep=0] (in) {\includegraphics[height=3.4cm]{restoration_input_2_new.jpg}};
-\node[inner sep=0,right=12mm of in] (out) {\includegraphics[height=3.4cm]{restoration_output_2_new.jpg}};
+\node[inner sep=0] (in) {\includegraphics[height=3.8cm]{restorer_zoom_raw.jpg}};
+\node[inner sep=0,right=10mm of in] (out) {\includegraphics[height=3.8cm]{restorer_zoom_restored.jpg}};
 \draw[arr,line width=1.5pt] (in.east)--node[below=2pt,font=\scriptsize,text=muted]{ESRGAN}(out.west);
 \node[io,above=1mm of in] {INPUT: raw scan};
-\node[io,above=1mm of out] {OUTPUT: same picture, restored ($2\times$)};
+\node[io,above=1mm of out] {OUTPUT: restored ($2\times$)};
+\node[below=1mm of in.south east,xshift=5mm,font=\scriptsize,text=muted] {Running example, the woman's face, zoomed in: real pipeline files};
 \end{tikzpicture}
 \column{0.40\textwidth}
 \small
@@ -486,18 +487,18 @@ Role & Model & Takes in & Gives out & Time\\
 \item The restored picture is never archival evidence: catalogue data always points to the original scan.
 \end{itemize}
 \begin{exbox}
-Does it help? Tested for the scene matcher: 0.329 restored vs 0.342 original. No measurable gain, and no result depends on it.
+Sharper, but the face is \textbf{redrawn}: she looks younger. Scene matcher: 0.329 restored vs 0.342 original. No gain; no result depends on it.
 \end{exbox}
 \end{columns}
-\note{Step one. Real-ESRGAN restores the scan once, at twice the size, and all agents see the restored version. I tested whether it helps the scene matcher: it does not measurably, so no result depends on restoration.}
+\note{Step one. Real-ESRGAN restores the scan once, at twice the size, and all agents see the restored version. This is the woman's face from our running example, zoomed in, before and after, taken from the pipeline's own files. The lines get darker and the paper cleaner, but look at the woman's face: the nose and mouth are redrawn. The restorer invents detail. I tested whether it helps the scene matcher: it does not measurably, so no result depends on restoration.}
 \end{frame}
 
 \begin{frame}{Agent 1 \,·\, The object finder (YOLOv11m)}
 \begin{columns}[T,onlytextwidth]
 \column{0.30\textwidth}
 \centering
-\includegraphics[height=3.9cm]{running_example.jpg}\par
-{\scriptsize\color{muted}Running example (a test picture)}
+\includegraphics[height=3.9cm]{object_finder_boxes.jpg}\par
+{\scriptsize\color{muted}Its real boxes on the running example}
 \column{0.33\textwidth}
 \begin{tikzpicture}[node distance=3mm,st/.style={box,text width=3.85cm,align=left,font=\scriptsize}]
 \node[st] (i) {\textbf{\color{muted}INPUT}\\the restored picture};
@@ -515,8 +516,8 @@ Does it help? Tested for the scene matcher: 0.329 restored vs 0.342 original. No
 \end{axis}
 \end{tikzpicture}
 \end{columns}
-\takeaway{It finds the woman (person 0.97) but misses the boy and the hen. Retrained on boxes from a stronger \emph{teacher} (Grounding DINO) on 11,028 archive pictures.}
-\note{The object finder is a YOLOv11 detector. It proposes boxes with a class and a score; for each class we keep the score of its best box, so 8 numbers. In our running example it is sure about a person, 0.97, but it misses the boy and the small hen under the bench. It was retrained on boxes from a stronger teacher model.}
+\takeaway{It boxes the boy (0.97) and the woman (0.90) as \emph{person}, never as \emph{child}; the hen gets only 0.01. Retrained on boxes from a stronger \emph{teacher} (Grounding DINO) on 11,028 archive pictures.}
+\note{The object finder is a YOLOv11 detector. It proposes boxes with a class and a score; for each class we keep the score of its best box, so 8 numbers. In our running example you see its real boxes: the boy as a person at 0.97, the woman as a person at 0.90, but neither as a child, and the hen under the bench only at 0.01. So the child score is 0 and the animal score 0.01. It was retrained on boxes from a stronger teacher model.}
 \end{frame}
 
 \begin{frame}{Agent 2 \,·\, The scene matcher (SigLIP)}
@@ -577,15 +578,22 @@ Does it help? Tested for the scene matcher: 0.329 restored vs 0.342 original. No
 
 \begin{frame}{The text reader (Kosmos-2.5) and the 27 numbers}
 \begin{columns}[T,onlytextwidth]
-\column{0.42\textwidth}
+\column{0.47\textwidth}
 \begin{defbox}{Text reader: Kosmos-2.5}
-\textbf{Input:} the picture.\\
-\textbf{Output:} the text it reads, each piece with a box (where it is).\\[3pt]
-\textbf{Not used to decide.} About half its outputs repeat themselves in a loop; of its ``real text'', only 52.5\% comes from pictures that have text. It feeds the Tier 2 inscription reader only.
+\begin{minipage}[t]{0.40\linewidth}\vspace{0pt}
+\includegraphics[width=\linewidth]{text_reader_frog.jpg}\par
+{\tiny\color{muted}Printed: Der Frosch / Rana / la r\'ana / la grenouille / the frog\par}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.56\linewidth}\vspace{0pt}
+{\scriptsize\color{muted}What it returned:}\\[1pt]
+{\ttfamily\scriptsize Der \textcolor{red!70!black}{Srofch}.\\ Name: La rana.\\ I am a\\ rana.\\ I am a\\ rana.\\ \dots}\\[1pt]
+{\scriptsize ``I am a / rana.'' \textbf{32 times}}
+\end{minipage}\\[4pt]
+\footnotesize\textbf{Not used to decide.} About half its outputs loop like this; of its ``real text'', only 52.5\% comes from pictures that have text. It feeds the Tier 2 inscription reader only.
 \end{defbox}
-\column{0.55\textwidth}
+\column{0.50\textwidth}
 \centering
-\begin{tikzpicture}[n/.style={draw=white,fill=agent,minimum size=4.2mm,inner sep=0},
+\begin{tikzpicture}[scale=0.82,transform shape,n/.style={draw=white,fill=agent,minimum size=4.2mm,inner sep=0},
                     s/.style={draw=white,fill=agent!60,minimum size=4.2mm,inner sep=0},
                     d/.style={draw=white,fill=agent!30,minimum size=4.2mm,inner sep=0}]
 \foreach \i in {0,...,7} \node[n] at (\i*0.42,0) {};
@@ -601,7 +609,7 @@ Does it help? Tested for the scene matcher: 0.329 restored vs 0.342 original. No
 \end{tikzpicture}\par\vspace{8pt}
 \footnotesize The three agents \textbf{never see each other's numbers}. What happens to the 27 numbers depends on the design: first the old one, then the corrected one.
 \end{columns}
-\note{The text reader reads inscriptions with their position. It does not decide anything: about half of its outputs loop, and its real-text bucket is only about half right. So the decision rests on 27 numbers from three independent agents.}
+\note{The text reader reads the text printed on a picture. Here is its real output for the frog page: it reads Der Srofch instead of Der Frosch, invents a line, misses the French and English names, and then repeats I am a, rana, thirty-two times. That is why it does not decide anything: about half of its outputs loop, and its real-text bucket is only about half right. So the decision rests on 27 numbers from three independent agents.}
 \end{frame}
 
 % =====================================================================================================
@@ -1063,7 +1071,7 @@ The system is sure there is a scene, unsure which one, and lists \textbf{person,
 \end{defbox}
 \column{0.32\textwidth}
 \begin{defbox}{Inscription reader}
-\textbf{Rule:} the text reader reads text and places it.\\[2pt]
+\textbf{Rule:} the text reader reads the text in the picture.\\[2pt]
 \textbf{Checked:} not usable as is; of its ``real text'', only 52.5\% comes from pictures with text.
 \end{defbox}
 \end{columns}
