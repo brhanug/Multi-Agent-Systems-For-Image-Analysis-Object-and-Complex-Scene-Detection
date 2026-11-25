@@ -2,8 +2,12 @@
 """Build the defence talk's model pictures from the pipeline's own files, so each shows a real result.
 
     restorer_zoom_raw.jpg / restorer_zoom_restored.jpg
-        The running example's face, cropped from the original scan and from the Real-ESRGAN output
+        Four faces from RESTORER_PIC, cropped from the original scan and from the Real-ESRGAN output
         the agents saw, at the same magnification (the restored scan is 2x, so its crop box is doubled).
+        The picture is one the restorer changes most: --rank recomputes, on a fixed random sample of
+        2,000 scans, how much each changes (mean absolute difference to the bicubic 2x original) and
+        how much sharper it gets (edge variance, restored scaled back vs original), and writes where
+        RESTORER_PIC and the running example fall (restoration_change_sample.json).
     object_finder_boxes.jpg
         The object finder (the retrained student detector) run on the restored running example, with
         every box it keeps at the scoring threshold. Its boxes go to object_finder_boxes_example.json;
@@ -14,6 +18,7 @@
 
     python make_real_example_figures.py            # write the pictures and the box file
     python make_real_example_figures.py --verify   # also check the boxes against the stored scores
+    python make_real_example_figures.py --rank     # also rank the restorer picture in the sample (minutes)
 """
 import argparse, glob, json, sys
 from pathlib import Path
@@ -25,7 +30,8 @@ OUT = BASE / "presentation/defence_assets"
 SR = BASE / "results/signal_rebuild"
 EXAMPLE = "PPN1756648816/00000272_0"          # the running example (old woman, boy, hen)
 FROG = "PPN1780419686/00000048_2"             # printed name in four languages
-FACE = (400, 175, 600, 410)                   # crop box in original-scan pixels
+RESTORER_PIC = "PPN1837157073/00000184_1"     # people at a table; small, soft scan
+FACE = (200, 165, 430, 340)                   # crop box in original-scan pixels (four faces)
 DETECTOR = BASE / "runs/detect/yolo11_gdino_consensus/weights/best.pt"
 CONF = 0.01                                    # same floor as run_yolo_class_scores.py
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
@@ -33,8 +39,8 @@ BLUE, ORANGE = (31, 94, 168), (214, 96, 16)
 
 
 def restorer():
-    a = Image.open(ORIG / f"{EXAMPLE}.jpg").convert("RGB")
-    b = Image.open(REST / f"{EXAMPLE}.jpg").convert("RGB")
+    a = Image.open(ORIG / f"{RESTORER_PIC}.jpg").convert("RGB")
+    b = Image.open(REST / f"{RESTORER_PIC}.jpg").convert("RGB")
     assert b.size == (2 * a.size[0], 2 * a.size[1]), "restored scan is not exactly 2x the original"
     x0, y0, x1, y1 = FACE
     size = ((x1 - x0) * 4, (y1 - y0) * 4)
@@ -76,13 +82,51 @@ def text_reader():
     raise SystemExit(f"no stored Kosmos output for {FROG}")
 
 
+def _change(rid):
+    """(mean abs difference to bicubic 2x original, sharpness ratio) for one scan, or None."""
+    import numpy as np
+    from PIL import ImageFilter
+    try:
+        a = Image.open(ORIG / f"{rid}.jpg").convert("L"); b = Image.open(REST / f"{rid}.jpg").convert("L")
+    except OSError:
+        return None
+    if b.size != (2 * a.size[0], 2 * a.size[1]) or min(a.size) < 300:
+        return None
+    up = np.asarray(a.resize(b.size, Image.BICUBIC), dtype=np.float32)
+    mad = float(np.abs(np.asarray(b, dtype=np.float32) - up).mean())
+    edge = lambda g: float(np.asarray(g.filter(ImageFilter.FIND_EDGES), dtype=np.float32).var())
+    return mad, edge(b.resize(a.size, Image.LANCZOS)) / max(edge(a), 1e-3)
+
+
+def rank_restorer(n=2000, seed=0):
+    import random
+    from concurrent.futures import ProcessPoolExecutor
+    ids = sorted(str(Path(p).relative_to(REST).with_suffix("")) for p in glob.glob(str(REST / "**/*.jpg"), recursive=True))
+    random.seed(seed); sample = random.sample(ids, n)
+    with ProcessPoolExecutor(16) as ex:
+        res = {r: v for r, v in zip(sample, ex.map(_change, sample, chunksize=20)) if v}
+    mads, sharps = [v[0] for v in res.values()], [v[1] for v in res.values()]
+    pct = lambda xs, x: round(100 * sum(y < x for y in xs) / len(xs), 1)
+    out = {"sample": n, "seed": seed, "usable": len(res),
+           "median_change": sorted(mads)[len(mads) // 2], "median_sharpness_ratio": sorted(sharps)[len(sharps) // 2]}
+    for name, rid in (("restorer_picture", RESTORER_PIC), ("running_example", EXAMPLE)):
+        mad, sh = _change(rid)
+        out[name] = {"picture": rid, "change": round(mad, 2), "change_percentile": pct(mads, mad),
+                     "sharpness_ratio": round(sh, 2), "sharpness_percentile": pct(sharps, sh)}
+    (SR / "restoration_change_sample.json").write_text(json.dumps(out, indent=1))
+    return out
+
+
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--verify", action="store_true"); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument("--verify", action="store_true")
+    ap.add_argument("--rank", action="store_true"); a = ap.parse_args()
     restorer()
     boxes = object_finder()
     kosmos = text_reader()
     print("object finder:", [(b["class"], b["score"]) for b in boxes])
     print("text reader:", kosmos[1:4], "... 'I am a' x", kosmos.count("I am a"))
+    if a.rank:
+        print("restoration sample:", json.dumps(rank_restorer()))
     if a.verify:
         stored = next(json.loads(l) for l in open(SR / "class_scores/new_student_class_scores.jsonl")
                       if f'"{EXAMPLE}"' in l)["max_conf"]

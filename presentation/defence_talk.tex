@@ -12,7 +12,7 @@
 \renewcommand{\tabularxcolumn}[1]{m{#1}}
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta,fit,backgrounds,calc,shapes.geometric,shapes.misc,decorations.pathreplacing}
-\usepackage{pgfplots}\pgfplotsset{compat=1.18,every axis/.append style={tick label style={font=\scriptsize},label style={font=\scriptsize}},
+\usepackage{pgfplots}\usepgfplotslibrary{fillbetween}\pgfplotsset{compat=1.18,every axis/.append style={tick label style={font=\scriptsize},label style={font=\scriptsize}},
   /pgf/number format/.cd,fixed,precision=3,1000 sep={{{,}}}}
 \usepackage[most]{tcolorbox}
 \graphicspath{{../latex_assets/}{defence_assets/}{images/}}
@@ -73,7 +73,7 @@
   {\small\color{muted}PART \thesection\ OF 6}\par\vspace{2pt}
   {\Huge\bfseries\color{navy}\insertsection}\par\vspace{1.0cm}
   \begin{tikzpicture}
-    \foreach \n [count=\i] in {The problem,Words and measures,The models,The first design,The corrected design,Results and meaning}{
+    \foreach \n [count=\i] in {Introduction,Terms and metrics,The models,Deployed system,Corrected system,Results}{
       \ifnum\i=\thesection
         \node[draw=navy,fill=navy,text=white,rounded corners=3pt,minimum width=2.1cm,minimum height=0.8cm,font=\scriptsize\bfseries,align=center,text width=1.95cm] at (\i*2.28,0) {\n};
       \else
@@ -148,39 +148,25 @@
 \end{frame}
 
 
-% =====================================================================================================
-\section{The problem}
-
-\begin{frame}{The archive: 12,110 illustrations from historical books}
-\begin{columns}[T,onlytextwidth]
-\column{0.58\textwidth}
-\centering
-\begin{tikzpicture}
-\node[inner sep=0] (a) {\includegraphics[height=2.35cm]{class_family.jpg}};
-\node[inner sep=0,right=2mm of a] (b) {\includegraphics[height=2.35cm]{class_landscape.jpg}};
-\node[inner sep=0,below=2mm of a.south west,anchor=north west] (c) {\includegraphics[height=2.35cm]{class_playing.jpg}};
-\node[inner sep=0,right=2mm of c] (d) {\includegraphics[height=2.35cm]{none_sheet_music.jpg}};
-\node[inner sep=0,right=2mm of d] (e) {\includegraphics[height=2.35cm]{none_ornament.jpg}};
+\begin{frame}{Outline}
+\vspace{4pt}
+\begin{tikzpicture}[row/.style={anchor=west,font=\small},num/.style={circle,fill=navy,text=white,font=\small\bfseries,minimum size=6.5mm,inner sep=0}]
+\foreach \n/\t/\d [count=\i from 0] in {
+  1/Introduction/{The problem, the two tasks, the research question and related work},
+  2/Terms and metrics/{The terms and evaluation metrics used in the talk},
+  3/The models/{The four models: what each takes as input and what it returns},
+  4/The deployed system/{The system as first built, and three problems found in it},
+  5/The corrected system/{The improved system, step by step, with one picture as example},
+  6/Results and conclusion/{Results, contributions, limitations}}{
+  \node[num] at (0,-\i*0.95) {\n};
+  \node[row] at (0.55,-\i*0.95+0.14) {\textbf{\color{navy}\t}};
+  \node[row,font=\footnotesize,text=muted] at (0.55,-\i*0.95-0.2) {\d};}
 \end{tikzpicture}
-\column{0.40\textwidth}
-\small
-\begin{itemize}\setlength\itemsep{4pt}
-\item Digitised historical books (Colibri collection): every illustration is cut from its page and becomes one \textbf{picture}.
-\item Pictures are old prints: line drawings, engravings, stains, faded ink. Modern models were trained on photos.
-\item Not every picture shows a scene: sheet music, ornaments, maps and text pages are pictures too.
-\end{itemize}
-\vspace{2pt}
-{\footnotesize\begin{tabular}{@{}l r@{}}
-\toprule
-All pictures & 12,110\\
-Labelled pool (scene or not) & 1,250\\
-\quad from & 550 books\\
-With hand-drawn boxes & 300\\
-\bottomrule
-\end{tabular}}
-\end{columns}
-\note{The data: 12,110 illustrations from digitised historical books. They are prints, not photographs, which is exactly where modern models are weakest. A labelled pool of 1,250 pictures from 550 books is used for learning and testing; 300 pictures have boxes drawn by hand for the object tasks.}
+\note{The talk has six parts. First the problem and the research question, then the terms and metrics I use, then the models one by one. After that the system as first deployed and what was wrong with it, the corrected system step by step, and finally the results and contributions.}
 \end{frame}
+
+% =====================================================================================================
+\section{Introduction}
 
 \begin{frame}{Two tasks, fixed at the start}
 \begin{columns}[T,onlytextwidth]
@@ -303,9 +289,9 @@ RQ4 \;Retrieval, cross-archive links? & {\color{risk}\textbf{Partially}}\\
 \end{frame}
 
 % =====================================================================================================
-\section{Words and measures}
+\section{Terms and metrics}
 
-\begin{frame}{Key words, in plain language}
+\begin{frame}{Key terms}
 \renewcommand{\defboxfont}{\scriptsize}
 \begin{columns}[T,onlytextwidth]
 \column{0.32\textwidth}
@@ -342,7 +328,7 @@ Pictures of one book are only in training \emph{or} only in testing, never both.
 \note{A few words I will use throughout. An agent is one model. A pseudo-label is a label made by a model, not a person. Zero-shot means the model was never trained on this archive. Uncertainty is simply how close a probability is to a coin flip. Disagreement is how much the agents differ; that was the first design's idea of uncertainty.}
 \end{frame}
 
-\begin{frame}{The risk promise, in plain language}
+\begin{frame}{Conformal risk control: notation}
 \renewcommand{\defboxfont}{\scriptsize}
 \begin{columns}[T,onlytextwidth]
 \column{0.50\textwidth}
@@ -377,43 +363,80 @@ A method that picks the largest $\lambda$ for which the calibration pictures sho
 \note{The promise has three parts. Alpha is the promised risk. Lambda is the cut-off on uncertainty. The calibration set is a held-back set of labelled pictures used only to choose lambda. Conformal risk control picks the largest lambda that keeps the promise on those pictures. Important: the promise counts approved-and-wrong among all pictures, not the error rate among the approved ones.}
 \end{frame}
 
-\begin{frame}{The measures, explained with a picture}
+\begin{frame}{Evaluation metrics (1 of 2): ranking and classification}
 \renewcommand{\defboxfont}{\scriptsize}
 \begin{columns}[T,onlytextwidth]
-\column{0.49\textwidth}
-\begin{defbox}{AUROC: does a score rank errors first?}
-Take one wrong and one right answer at random. AUROC = the chance the score gives the wrong one the higher value.\par
-\begin{tikzpicture}[x=4.6cm,y=1cm]
-\draw[line,thick] (0,0)--(1,0);
-\foreach \x/\l in {0/0,0.5/0.5,1/1}{\draw[muted] (\x,0.08)--(\x,-0.08) node[below,font=\scriptsize]{\l};}
-\node[font=\scriptsize,text=pers,above] at (0,0.05) {wrong way};
-\node[font=\scriptsize,text=muted,above] at (0.5,0.05) {coin flip};
-\node[font=\scriptsize,text=okc,above] at (1,0.05) {perfect};
+\column{0.52\textwidth}
+\begin{defbox}{AUROC (area under the ROC curve)}
+Sort the pictures by a score. For every threshold, compute\\
+\quad TPR $=\frac{TP}{TP+FN}$ \quad and \quad FPR $=\frac{FP}{FP+TN}$.\\
+AUROC is the area under the curve of TPR against FPR; equivalently, $P(\text{score}_{\text{error}} > \text{score}_{\text{correct}})$ for a random pair.\par\centering
+\begin{tikzpicture}
+\begin{axis}[width=5.0cm,height=3.9cm,xmin=0,xmax=1,ymin=0,ymax=1,xlabel={\scriptsize FPR},ylabel={\scriptsize TPR},
+  xtick={0,0.5,1},ytick={0,0.5,1},axis lines*=left,grid=major,grid style={line}]
+\addplot[name path=roc,navy,very thick,domain=0:1,samples=60] {1-(1-x)^3.2};
+\addplot[name path=base,draw=none,domain=0:1] {0};
+\addplot[navy!12] fill between[of=roc and base];
+\addplot[muted,dashed,domain=0:1] {x};
+\node[font=\tiny,text=navy] at (axis cs:0.62,0.42) {area = AUROC};
+\node[font=\tiny,text=muted,rotate=38] at (axis cs:0.72,0.62) {random: 0.5};
+\end{axis}
 \end{tikzpicture}
-\end{defbox}\vspace{3pt}
-\begin{defbox}{Balanced accuracy}
-The share found per class, averaged over the classes, so a rare class counts as much as a common one.
 \end{defbox}
-\column{0.49\textwidth}
-\begin{defbox}{AP50 (mAP50) for boxes}
-A found box counts if it overlaps the person's box enough: \emph{IoU} (overlap ÷ union) $\geq 0.5$. AP50 summarises how many boxes are found and how many are right; mAP50 averages it over classes.\par\centering
-\begin{tikzpicture}[scale=0.55]
-\draw[okc,very thick] (0,0) rectangle (2.4,1.6);
-\draw[agent,very thick,dashed] (0.6,0.3) rectangle (3.0,1.9);
-\fill[mapc,opacity=0.25] (0.6,0.3) rectangle (2.4,1.6);
-\node[font=\tiny,text=okc] at (0.5,-0.3) {person's box};
-\node[font=\tiny,text=agent] at (2.7,2.2) {model's box};
-\end{tikzpicture}
+\column{0.45\textwidth}
+\begin{defbox}{Balanced accuracy}
+Recall per class, averaged over the $K$ classes:\\[2pt]
+\centering$\text{BA} = \frac{1}{K}\sum_{k=1}^{K}\frac{\text{correct in class } k}{\text{pictures of class } k}$\par\raggedright
+\vspace{2pt}Example: no scene 90\%, drawing 80\%, family 20\% $\to$ BA $= 0.63$ (accuracy would favour the large classes).
 \end{defbox}\vspace{3pt}
-\begin{defbox}{Cohen's $\kappa$ (kappa)}
-Agreement between two raters beyond chance: 0 = chance, 1 = always the same.
+\begin{defbox}{Cohen's $\kappa$}
+Agreement between two raters beyond chance:\\[2pt]
+\centering$\kappa = \frac{p_o - p_e}{1 - p_e}$\par\raggedright
+$p_o$: observed agreement; $p_e$: agreement expected by chance from each rater's label frequencies. $\kappa = 0$: chance level; $\kappa = 1$: perfect.
 \end{defbox}
 \end{columns}
-\note{Four measures. AUROC asks whether a score puts the errors first: 0.5 is a coin flip, 1 is perfect, below 0.5 points the wrong way. Balanced accuracy averages over classes so rare classes count. AP50 is the standard detection measure: a box counts when it overlaps the human box by at least half. Kappa is agreement between people beyond chance.}
+\note{AUROC: sort by a score, sweep the threshold, plot true-positive rate against false-positive rate; the area under that curve is the probability that a random error gets a higher score than a random correct answer. 0.5 is random. Balanced accuracy averages the recall of each class, so small classes like family count as much as no scene. Cohen's kappa corrects the observed agreement between two raters for the agreement expected by chance.}
+\end{frame}
+
+\begin{frame}{Evaluation metrics (2 of 2): object detection}
+\renewcommand{\defboxfont}{\scriptsize}
+\begin{columns}[T,onlytextwidth]
+\column{0.40\textwidth}
+\begin{defbox}{IoU and matching}
+\centering
+\begin{tikzpicture}[scale=0.62]
+\draw[okc,very thick] (0,0) rectangle (2.6,1.8);
+\draw[agent,very thick,dashed] (0.8,0.5) rectangle (3.4,2.3);
+\fill[mapc,opacity=0.28] (0.8,0.5) rectangle (2.6,1.8);
+\node[font=\tiny,text=okc,anchor=north west] at (0,-0.05) {ground truth $G$};
+\node[font=\tiny,text=agent,anchor=south east] at (3.4,2.35) {prediction $P$};
+\end{tikzpicture}\par
+$\text{IoU} = \dfrac{|P \cap G|}{|P \cup G|}$\par\raggedright\vspace{3pt}
+\textbf{TP}: same class and IoU $\geq 0.5$ (each ground-truth box matched once)\\
+\textbf{FP}: a prediction with no match\\
+\textbf{FN}: a ground-truth box with no match
+\end{defbox}
+\column{0.57\textwidth}
+\begin{defbox}{Precision, recall and AP}
+Precision $=\frac{TP}{TP+FP}$ \qquad Recall $=\frac{TP}{TP+FN}$\\
+Lowering the score threshold traces the precision--recall curve. \textbf{AP50} is the area under it for one class (IoU threshold 0.5); \textbf{mAP50} is the mean over the 8 classes.\par\centering
+\begin{tikzpicture}
+\begin{axis}[width=5.4cm,height=3.6cm,xmin=0,xmax=1,ymin=0,ymax=1.02,xlabel={\scriptsize recall},ylabel={\scriptsize precision},
+  xtick={0,0.5,1},ytick={0,0.5,1},axis lines*=left,grid=major,grid style={line}]
+\addplot[name path=pr,const plot,navy,very thick] coordinates {(0,1) (0.15,1) (0.15,0.9) (0.3,0.9) (0.3,0.78) (0.45,0.78) (0.45,0.62) (0.6,0.62) (0.6,0.45) (0.7,0.45) (0.7,0.3) (0.75,0.3)};
+\addplot[name path=b2,draw=none] coordinates {(0,0) (0.75,0)};
+\addplot[navy!12] fill between[of=pr and b2];
+\node[font=\tiny,text=navy] at (axis cs:0.35,0.35) {area = AP};
+\end{axis}
+\end{tikzpicture}\par\raggedright
+{\tiny\color{muted}Curve for illustration. In the thesis: mAP50 0.768 against the teacher's labels, 0.146 against human boxes.}
+\end{defbox}
+\end{columns}
+\note{For boxes: IoU is the overlap of a predicted and a ground-truth box divided by their union. A prediction is a true positive if it has the right class and IoU of at least 0.5; unmatched predictions are false positives, unmatched ground-truth boxes false negatives. Precision and recall follow, and lowering the score threshold traces the precision-recall curve. AP50 is the area under that curve for one class, mAP50 the mean over the eight classes. That is the 0.768 and 0.146.}
 \end{frame}
 
 \begin{frame}{Abbreviations used in this talk}
-\small
+\footnotesize
 \begin{columns}[T,onlytextwidth]
 \column{0.49\textwidth}
 \renewcommand{\arraystretch}{1.12}
@@ -426,6 +449,7 @@ IoU & Intersection over union: overlap of two boxes\\
 $\kappa$ & Cohen's kappa: agreement between raters\\
 $\alpha$, $\lambda$, $u$ & Risk level, cut-off, uncertainty\\
 OCR & Optical character recognition (reading text)\\
+NMS & Non-maximum suppression (removes duplicate boxes)\\
 \bottomrule
 \end{tabular}
 \column{0.49\textwidth}
@@ -437,6 +461,8 @@ YOLO & ``You only look once'': a fast object detector (YOLOv11)\\
 SigLIP & An image--text matching model (zero-shot)\\
 LLaVA & A vision-language model (LLaVA-OneVision 7B)\\
 ESRGAN & The image restorer (Real-ESRGAN)\\
+ViT, MLP & Vision transformer; multi-layer perceptron\\
+LLM & Large language model (here Qwen2-7B)\\
 SAA & Scene-aware agreement: the first design's decision score\\
 $U_{\text{SAA}}$ & The first design's disagreement score\\
 \bottomrule
@@ -469,28 +495,55 @@ Role & Model & Takes in & Gives out & Time\\
 
 \begin{frame}{Step \stepn{1} \,·\, The restorer (Real-ESRGAN)}
 \begin{columns}[c,onlytextwidth]
-\column{0.58\textwidth}
+\column{0.62\textwidth}
 \centering
 \begin{tikzpicture}
-\node[inner sep=0] (in) {\includegraphics[height=3.8cm]{restorer_zoom_raw.jpg}};
-\node[inner sep=0,right=10mm of in] (out) {\includegraphics[height=3.8cm]{restorer_zoom_restored.jpg}};
+\node[inner sep=0] (in) {\includegraphics[height=3.0cm]{restorer_zoom_raw.jpg}};
+\node[inner sep=0,right=12mm of in] (out) {\includegraphics[height=3.0cm]{restorer_zoom_restored.jpg}};
 \draw[arr,line width=1.5pt] (in.east)--node[below=2pt,font=\scriptsize,text=muted]{ESRGAN}(out.west);
 \node[io,above=1mm of in] {INPUT: raw scan};
 \node[io,above=1mm of out] {OUTPUT: restored ($2\times$)};
-\node[below=1mm of in.south east,xshift=5mm,font=\scriptsize,text=muted] {Running example, the woman's face, zoomed in: real pipeline files};
+\node[below=1.5mm of in.south east,xshift=4mm,font=\scriptsize,text=muted,align=center] {Zoomed in on four faces. One of the scans it changes most\\(top 0.2\% of 1,719 sampled); real pipeline files.};
 \end{tikzpicture}
-\column{0.40\textwidth}
+\column{0.36\textwidth}
 \small
 \begin{itemize}\setlength\itemsep{4pt}
-\item A neural network trained to turn a low-quality image into a sharp one (\emph{super-resolution}).
+\item A network trained to turn a low-quality image into a sharp one (\emph{super-resolution}).
 \item Run \textbf{once} per scan; every agent sees the restored picture.
-\item The restored picture is never archival evidence: catalogue data always points to the original scan.
+\item Never archival evidence: catalogue data points to the original scan.
 \end{itemize}
 \begin{exbox}
-Sharper, but the face is \textbf{redrawn}: she looks younger. Scene matcher: 0.329 restored vs 0.342 original. No gain; no result depends on it.
+Crisp lines, but the faces are \textbf{redrawn}. Scene matcher: 0.329 restored vs 0.342 original. No gain; no result depends on it.
 \end{exbox}
 \end{columns}
-\note{Step one. Real-ESRGAN restores the scan once, at twice the size, and all agents see the restored version. This is the woman's face from our running example, zoomed in, before and after, taken from the pipeline's own files. The lines get darker and the paper cleaner, but look at the woman's face: the nose and mouth are redrawn. The restorer invents detail. I tested whether it helps the scene matcher: it does not measurably, so no result depends on restoration.}
+\note{Step one. Real-ESRGAN restores every scan once, at twice the size, and all agents see the restored version. This is one of the scans it changes most, zoomed in on four faces, from the pipeline's own files: a soft grey scan becomes crisp black lines. But look at the faces: eyes and mouths are redrawn, so the restorer invents detail. On a typical scan the change is much smaller. I tested whether it helps the scene matcher: it does not measurably, so no result depends on restoration.}
+\end{frame}
+
+\begin{frame}{How YOLOv11m works: from image to 8 numbers}
+\centering
+\begin{tikzpicture}[st/.style={box,text width=2.55cm,minimum height=1.25cm,font=\scriptsize,align=center},
+  sh/.style={font=\tiny,text=muted,align=center,text width=2.6cm},
+  ar/.style={->,thick,color=muted}]
+\node[st] (a) at (0,0) {\textbf{Input}\\restored picture};
+\node[st] (b) at (3.05,0) {\textbf{Letterbox resize}\\to $640\times640$};
+\node[st,draw=agent,fill=agentbg] (c) at (6.1,0) {\textbf{Backbone}\\convolutions\\(C3k2, SPPF, C2PSA)};
+\node[st,draw=agent,fill=agentbg] (d) at (9.15,0) {\textbf{Neck}\\feature pyramid\\(FPN + PAN)};
+\node[st,draw=agent,fill=agentbg] (e) at (9.15,-2.2) {\textbf{Detection head}\\anchor-free; per cell: box + 8 class scores};
+\node[st] (f) at (6.1,-2.2) {\textbf{Filter}\\score $\geq 0.01$, then NMS (IoU 0.7)};
+\node[st] (g) at (3.05,-2.2) {\textbf{Detections}\\class, score, box};
+\node[st,draw=mapc,fill=mapbg] (h) at (0,-2.2) {\textbf{Our report}\\best score per class $\to$ 8 numbers};
+\draw[ar] (a)--(b); \draw[ar] (b)--(c); \draw[ar] (c)--(d); \draw[ar] (d)--(e); \draw[ar] (e)--(f); \draw[ar] (f)--(g); \draw[ar] (g)--(h);
+\node[sh,below=0.5mm of b] {$640\times640\times3$};
+\node[sh,below=0.5mm of d] {3 scales: $80^2, 40^2, 20^2$ cells};
+\node[sh,below=0.5mm of e] {8,400 candidate boxes};
+\node[sh,below=0.5mm of g] {here: person 0.97, person 0.90, animal 0.01};
+\node[sh,below=0.5mm of h] {person 0.97, animal 0.01, 6 classes 0};
+\end{tikzpicture}
+\vfill
+\begin{keybox}
+\textbf{Training:} YOLOv11m, pre-trained on COCO, fine-tuned at 640 px on 11,028 archive pictures with boxes from a Grounding DINO teacher, 8 classes (person, child, animal, building, weapon, vehicle, tree, text).
+\end{keybox}
+\note{YOLO in steps. The picture is letterboxed to 640 by 640. The convolutional backbone extracts features, the neck combines them at three scales, 80 by 80, 40 by 40 and 20 by 20 cells, and the anchor-free head predicts at every cell a box and eight class scores: 8,400 candidates. Candidates under 0.01 are dropped and non-maximum suppression at IoU 0.7 removes duplicates. What remains are detections with class, score and box. Our report keeps the best score per class: eight numbers. For the example: person 0.97 for the boy, 0.90 for the woman, animal 0.01 for the hen.}
 \end{frame}
 
 \begin{frame}{Agent 1 \,·\, The object finder (YOLOv11m)}
@@ -518,6 +571,33 @@ Sharper, but the face is \textbf{redrawn}: she looks younger. Scene matcher: 0.3
 \end{columns}
 \takeaway{It boxes the boy (0.97) and the woman (0.90) as \emph{person}, never as \emph{child}; the hen gets only 0.01. Retrained on boxes from a stronger \emph{teacher} (Grounding DINO) on 11,028 archive pictures.}
 \note{The object finder is a YOLOv11 detector. It proposes boxes with a class and a score; for each class we keep the score of its best box, so 8 numbers. In our running example you see its real boxes: the boy as a person at 0.97, the woman as a person at 0.90, but neither as a child, and the hen under the bench only at 0.01. So the child score is 0 and the animal score 0.01. It was retrained on boxes from a stronger teacher model.}
+\end{frame}
+
+\begin{frame}{How SigLIP works: from image and sentences to 6 numbers}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[st/.style={box,text width=2.55cm,minimum height=1.25cm,font=\scriptsize,align=center},
+  sh/.style={font=\tiny,text=muted,align=center,text width=2.6cm},
+  ar/.style={->,thick,color=muted}]
+\node[st] (a) at (0,0) {\textbf{Image}\\restored picture};
+\node[st] (b) at (3.05,0) {\textbf{Resize}\\to $384\times384$};
+\node[st] (c) at (6.1,0) {\textbf{Patches}\\$27\times27 = 729$ of $14\times14$ px};
+\node[st,draw=agent,fill=agentbg] (d) at (9.15,0) {\textbf{Vision transformer}\\27 layers $\to$ image embedding $v$};
+\node[st] (e) at (0,-2.2) {\textbf{Sentence}\\``a historical illustration of a family scene''};
+\node[st] (f) at (3.05,-2.2) {\textbf{Tokenise}\\pad to 64 tokens};
+\node[st,draw=agent,fill=agentbg] (g) at (6.1,-2.2) {\textbf{Text transformer}\\27 layers $\to$ text embedding $u$};
+\node[st,draw=mapc,fill=mapbg,minimum height=3.45cm,text width=2.3cm] (h) at (12.1,-1.1) {\textbf{Score}\\[3pt]$s = \sigma\big(e^{t}\cos(u,v) + b\big)$\\[4pt]one score per sentence, 0 to 1};
+\draw[ar] (a)--(b); \draw[ar] (b)--(c); \draw[ar] (c)--(d); \draw[ar] (e)--(f); \draw[ar] (f)--(g);
+\draw[ar] (d.east)--(d.east -| h.west); \draw[ar] (g.east)--(g.east -| h.west);
+\node[sh,below=0.5mm of d] {$v \in \mathbb{R}^{1152}$, normalised};
+\node[sh,below=0.5mm of g] {$u \in \mathbb{R}^{1152}$, normalised};
+\node[sh,below=0.5mm of h] {$t, b$: learned scale and bias};
+\end{tikzpicture}}
+\vfill
+\begin{keybox}
+\textbf{Our report:} 12 sentences (5 scene, 7 ``not a scene'') $\to$ 12 scores; we keep the 5 scene scores and the highest ``not a scene'' score: \textbf{6 numbers}. Each score uses a sigmoid on its own (no softmax), so ``none fits'' is possible. Example: family 0.327, drawing 0.157.
+\end{keybox}
+\note{SigLIP has two transformers. The image is resized to 384 by 384 and cut into 729 patches of 14 by 14 pixels; the vision transformer turns them into one 1,152-dimensional embedding. Each sentence is tokenised to 64 tokens and turned into a text embedding of the same size. The score is the cosine similarity, scaled and shifted by two learned numbers and passed through a sigmoid, so each sentence is scored on its own. With 12 sentences we keep five scene scores and the best not-a-scene score.}
 \end{frame}
 
 \begin{frame}{Agent 2 \,·\, The scene matcher (SigLIP)}
@@ -548,6 +628,33 @@ Sharper, but the face is \textbf{redrawn}: she looks younger. Scene matcher: 0.3
 \footnotesize\emph{Zero-shot}: SigLIP was never trained on this archive; it only compares the picture with sentences.
 \end{columns}
 \note{SigLIP turns the picture and a sentence into vectors and measures how similar they are. We give it five scene sentences and seven not-a-scene sentences. Each is scored on its own, so the model can say that none fits; the old design used a forced choice that could not say no scene. For our example, family scores highest.}
+\end{frame}
+
+\begin{frame}{How LLaVA-OneVision works: from image and question to a yes-strength}
+\centering
+\begin{tikzpicture}[st/.style={box,text width=2.55cm,minimum height=1.25cm,font=\scriptsize,align=center},
+  sh/.style={font=\tiny,text=muted,align=center,text width=2.6cm},
+  ar/.style={->,thick,color=muted}]
+\node[st] (a) at (0,0) {\textbf{Image}\\long side $\leq 640$ px};
+\node[st] (b) at (3.05,0) {\textbf{AnyRes crops}\\overview + tiles, each $384\times384$};
+\node[st,draw=agent,fill=agentbg] (c) at (6.1,0) {\textbf{SigLIP encoder}\\729 tokens per crop};
+\node[st,draw=agent,fill=agentbg] (d) at (9.15,0) {\textbf{Projector}\\2-layer MLP (GELU) $\to$ word space};
+\node[st] (e) at (0,-2.2) {\textbf{Question}\\``Does this picture show a building? Answer yes or no.''};
+\node[st] (f) at (3.05,-2.2) {\textbf{Chat prompt}\\image tokens + question tokens};
+\node[st,draw=agent,fill=agentbg] (g) at (6.1,-2.2) {\textbf{Qwen2-7B}\\28 layers; next-token logits};
+\node[st,draw=mapc,fill=mapbg] (h) at (9.15,-2.2) {\textbf{Yes-strength}\\$\frac{P(\text{yes})}{P(\text{yes}) + P(\text{no})}$};
+\draw[ar] (a)--(b); \draw[ar] (b)--(c); \draw[ar] (c)--(d); \draw[ar] (e)--(f); \draw[ar] (f)--(g); \draw[ar] (g)--(h);
+\draw[ar] (d.south) -- ++(0,-0.45) -| (f.north);
+\node[sh,below=0.5mm of c] {1,152-d per token};
+\node[sh,below=0.5mm of d] {3,584-d per token};
+\node[sh,below=0.5mm of g] {softmax over 152,128 tokens};
+\node[sh,below=0.5mm of h] {sum of ``yes''/``Yes'' and ``no''/``No'' tokens};
+\end{tikzpicture}
+\vfill
+\begin{keybox}
+\textbf{Our report:} 13 questions (5 scenes, 8 objects) $\to$ \textbf{13 numbers}, read from the first answer token, not from generated text. Example: child 0.995, person 0.989, animal 0.311, drawing 0.985. Same prompt wording for every picture; no training on the archive.
+\end{keybox}
+\note{LLaVA-OneVision in steps. The picture, at most 640 pixels on its long side, is cut into an overview and tiles of 384 by 384. A SigLIP vision encoder turns each crop into 729 tokens, and a two-layer projector maps them into the word space of the language model. The question goes into a chat prompt after the image tokens. Qwen2-7B produces logits for the next token over its 152,128-token vocabulary; after a softmax we add up the probabilities of yes and of no and take yes over yes plus no. Thirteen questions give thirteen numbers.}
 \end{frame}
 
 \begin{frame}{Agent 3 \,·\, The describer (LLaVA-OneVision 7B)}
@@ -613,7 +720,7 @@ Sharper, but the face is \textbf{redrawn}: she looks younger. Scene matcher: 0.3
 \end{frame}
 
 % =====================================================================================================
-\section{The first design}
+\section{The deployed system}
 
 \begin{frame}{The first design, as deployed on all 12,110 pictures}
 \centering
@@ -810,7 +917,7 @@ Conformal risk control & $\to$ & \textbf{unchanged}\\
 \end{frame}
 
 % =====================================================================================================
-\section{The corrected design}
+\section{The corrected system}
 
 \begin{frame}{The corrected design at a glance}
 \centering
@@ -1080,7 +1187,7 @@ The system is sure there is a scene, unsure which one, and lists \textbf{person,
 \end{frame}
 
 % =====================================================================================================
-\section{Results and meaning}
+\section{Results and conclusion}
 
 \begin{frame}{How the results were tested}
 \begin{columns}[T,onlytextwidth]
