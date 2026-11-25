@@ -380,8 +380,8 @@ $U_{\text{SAA}}$ & The first design's disagreement score\\
 \section{The models}
 
 \begin{frame}{Five models, one job each}
-\small
-\renewcommand{\arraystretch}{1.25}
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
 \begin{tabularx}{\textwidth}{@{}>{\bfseries}l l X X r@{}}
 \toprule
 Role & Model & Takes in & Gives out & Time\\
@@ -430,7 +430,7 @@ Does it help? Tested for the scene matcher: 0.329 restored vs 0.342 original. No
 \includegraphics[height=3.9cm]{running_example.jpg}\par
 {\scriptsize\color{muted}Running example (a test picture)}
 \column{0.33\textwidth}
-\begin{tikzpicture}[node distance=3mm,st/.style={box,text width=4.1cm,align=left,font=\scriptsize}]
+\begin{tikzpicture}[node distance=3mm,st/.style={box,text width=3.85cm,align=left,font=\scriptsize}]
 \node[st] (i) {\textbf{\color{muted}INPUT}\\the restored picture};
 \node[st,draw=agent,fill=agentbg,below=of i] (m) {\textbf{\color{muted}MODEL}\\a detector: proposes boxes, each with a class and a score from 0 to 1};
 \node[st,below=of m] (o) {\textbf{\color{muted}OUTPUT}\\for each of the 8 classes, the score of its best box (0 if none) $\to$ \textbf{8 numbers}};
@@ -438,7 +438,7 @@ Does it help? Tested for the scene matcher: 0.329 restored vs 0.342 original. No
 \end{tikzpicture}
 \column{0.34\textwidth}
 \begin{tikzpicture}
-\begin{axis}[xbar,width=5.4cm,height=5.0cm,xmin=0,xmax=1.2,bar width=5pt,
+\begin{axis}[xbar,width=5.0cm,height=5.0cm,xmin=0,xmax=1.2,bar width=5pt,
   symbolic y coords={text,tree,vehicle,weapon,building,animal,child,person},ytick=data,
   nodes near coords,nodes near coords style={font=\tiny},axis lines*=left,xmajorgrids,grid style={line},
   enlarge y limits=0.08,title={\scriptsize what it reports here}]
@@ -519,16 +519,16 @@ Does it help? Tested for the scene matcher: 0.329 restored vs 0.342 original. No
 \begin{tikzpicture}[n/.style={draw=white,fill=agent,minimum size=4.2mm,inner sep=0},
                     s/.style={draw=white,fill=agent!60,minimum size=4.2mm,inner sep=0},
                     d/.style={draw=white,fill=agent!30,minimum size=4.2mm,inner sep=0}]
-\foreach \i in {0,...,7} \node[n] at (\i*0.45,0) {};
-\foreach \i in {0,...,5} \node[s] at (\i*0.45,-0.9) {};
-\foreach \i in {0,...,12} \node[d] at (\i*0.45,-1.8) {};
+\foreach \i in {0,...,7} \node[n] at (\i*0.42,0) {};
+\foreach \i in {0,...,5} \node[s] at (\i*0.42,-0.9) {};
+\foreach \i in {0,...,12} \node[d] at (\i*0.42,-1.8) {};
 \node[anchor=east,font=\scriptsize] at (-0.35,0) {object finder};
 \node[anchor=east,font=\scriptsize] at (-0.35,-0.9) {scene matcher};
 \node[anchor=east,font=\scriptsize] at (-0.35,-1.8) {describer};
-\node[font=\scriptsize,anchor=west] at (3.45,0) {8};
-\node[font=\scriptsize,anchor=west] at (2.55,-0.9) {6};
-\node[font=\scriptsize,anchor=west] at (5.75,-1.8) {13};
-\draw[decorate,decoration={brace,amplitude=5pt,mirror},thick,muted] (-0.2,-2.15)--(5.6,-2.15) node[midway,below=6pt,font=\small\bfseries,text=navy]{27 numbers per picture, all between 0 and 1};
+\node[font=\scriptsize,anchor=west] at (3.2,0) {8};
+\node[font=\scriptsize,anchor=west] at (2.35,-0.9) {6};
+\node[font=\scriptsize,anchor=west] at (5.3,-1.8) {13};
+\draw[decorate,decoration={brace,amplitude=5pt,mirror},thick,muted] (-0.2,-2.15)--(5.2,-2.15) node[midway,below=6pt,font=\small\bfseries,text=navy]{27 numbers per picture, all between 0 and 1};
 \end{tikzpicture}\par\vspace{8pt}
 \footnotesize The three agents \textbf{never see each other's numbers}. What happens to the 27 numbers depends on the design: first the old one, then the corrected one.
 \end{columns}
@@ -683,9 +683,9 @@ Every picture in a row gets the \textbf{same decision} and the \textbf{same unce
 \begin{columns}[T,onlytextwidth]
 \column{0.56\textwidth}
 \begin{tikzpicture}
-\begin{axis}[ybar,width=8.4cm,height=5.0cm,ymin=0,ymax=1,bar width=10pt,
-  symbolic x coords={pre-registered test,objects,scene presence},xtick=data,xticklabels={{fixed in advance},{within task: objects},{within task: scene}},
-  x tick label style={font=\scriptsize},y tick label style={font=\scriptsize},ylabel={\scriptsize AUROC for ranking errors},
+\begin{axis}[ybar,width=7.6cm,height=5.0cm,ymin=0,ymax=1,bar width=10pt,
+  symbolic x coords={pre-registered test,objects,scene presence},xtick=data,xticklabels={{fixed in\\advance},{objects\\(within task)},{scene\\(within task)}},
+  x tick label style={font=\scriptsize,align=center},y tick label style={font=\scriptsize},ylabel={\scriptsize AUROC for ranking errors},
   nodes near coords,nodes near coords style={font=\tiny,/pgf/number format/precision=3,rotate=90,anchor=west},axis lines*=left,ymajorgrids,grid style={line},
   legend style={font=\scriptsize,at={(0.5,1.02)},anchor=south,legend columns=2,draw=none},enlarge x limits=0.25,ymax=1.12,ytick={0,0.25,0.75,1},
   extra y ticks={0.5},extra y tick labels={\color{pers}coin flip 0.5},extra y tick style={grid=major,grid style={pers,dashed,thick},tick label style={font=\tiny}}]
@@ -810,15 +810,15 @@ Conformal risk control & $\to$ & \textbf{unchanged}\\
 \begin{defbox}{Logistic regression (learned on training books)}
 Each number gets a \textbf{weight}: how much it counts as evidence for ``scene''. Add them up with a \textbf{bias}, then squeeze the sum into 0--1:\\[2pt]
 \centering$p = \dfrac{1}{1 + e^{-(\text{bias} + \sum \text{weight}\times\text{number})}}$
-\end{defbox}\vspace{4pt}
+\end{defbox}\vspace{2pt}
 \begin{exbox}
 Object finder: $0.41 + 3.52\times0.972 + 2.40\times0.013 = 3.86 \to p = \mathbf{0.98}$\\
 Scene matcher: sum $2.72 \to \mathbf{0.94}$\quad Describer: sum $4.55 \to \mathbf{0.99}$
 \end{exbox}
-\vspace{2pt}{\footnotesize Sheet music: ``no scene'' 0.89 $\to 2.01 - 2.83\times0.89 = -0.51 \to p = 0.38$.}
+\vspace{1pt}{\scriptsize Sheet music: ``no scene'' 0.89 $\to 2.01 - 2.83\times0.89 = -0.51 \to p = 0.38$.}
 \column{0.47\textwidth}
 \begin{tikzpicture}
-\begin{axis}[width=6.4cm,height=4.6cm,xmin=-6,xmax=6,ymin=0,ymax=1.05,
+\begin{axis}[width=6.4cm,height=4.3cm,xmin=-6,xmax=6,ymin=0,ymax=1.05,
   xlabel={\scriptsize sum (bias + weights $\times$ numbers)},ylabel={\scriptsize probability $p$},
   x tick label style={font=\scriptsize},y tick label style={font=\scriptsize},axis lines*=left,grid=major,grid style={line}]
 \addplot[mapc,very thick,domain=-6:6,samples=120] {1/(1+exp(-x))};
