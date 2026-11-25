@@ -42,7 +42,9 @@ def ece(y_true, y_prob, n_bins=10):
     y_true = np.asarray(y_true)
     y_prob = np.asarray(y_prob)
     for i in range(n_bins):
-        mask = (y_prob >= bins[i]) & (y_prob < bins[i + 1])
+        # the last bin includes 1.0 (fixed 26 Nov 2026: before, a score of exactly 1.0 fell into no bin
+        # but still counted in the denominator, which understated the ECE of every max-normalised score)
+        mask = (y_prob >= bins[i]) & ((y_prob < bins[i + 1]) | ((i == n_bins - 1) & (y_prob <= bins[i + 1])))
         if mask.sum() == 0:
             continue
         total += mask.sum() * abs(y_true[mask].mean() - y_prob[mask].mean())
