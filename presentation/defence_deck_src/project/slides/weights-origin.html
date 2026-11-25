@@ -1,0 +1,29 @@
+<section id="weights-origin" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:96px 128px 140px;display:flex;flex-direction:column;gap:20px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Step ③ in detail · where 0.41, 2.40 and −0.18 come from</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:56px;font-weight:600;line-height:1.1;color:#1E2733">The weights are learned from 749 labelled pictures</h2>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:14px">
+<p style="font-size:25px;line-height:1.4"><b>Algorithm 1</b> takes the 749 training pictures. For each: the object finder’s 8 numbers and the human label (scene = 1, no scene = 0).</p>
+<p style="font-size:25px;line-height:1.4">The logistic regression searches for the <b>bias</b> and <b>8 weights</b> whose probabilities fit those labels best. It found:</p>
+<table style="font-size:24px;color:#3E4A57;width:820px">
+<tr><th style="width:50%">Number</th><th style="width:50%">Learned weight</th></tr>
+<tr><td>bias (no evidence at all)</td><td><b>0.41</b></td></tr>
+<tr><td>person</td><td>+3.52</td></tr>
+<tr><td>animal</td><td><b>+2.40</b></td></tr>
+<tr><td>tree · building · vehicle · weapon</td><td>+1.40 · +0.62 · +0.48 · +0.35</td></tr>
+<tr><td>child · text</td><td>−0.05 · <b>−0.18</b></td></tr>
+</table>
+</div>
+<div style="width:700px;background:#1E2733;border-radius:16px;padding:30px;display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;color:#E8B07A">THE EXAMPLE, WORKED OUT</p>
+<p style="font-size:25px;line-height:1.45;color:#F3EEE4">sum = bias + Σ weight × number</p>
+<p style="font-size:25px;line-height:1.45;color:#F3EEE4">Only two numbers are not zero: person 0.972 and animal 0.013:</p>
+<p style="font-size:27px;line-height:1.45;color:#F3EEE4"><b>0.41 + 3.52 × 0.972 + 2.40 × 0.013 = 3.86</b></p>
+<p style="font-size:25px;line-height:1.45;color:#F3EEE4">p = 1 ÷ (1 + e<span style="color:#E8B07A">−3.86</span>) = 1 ÷ 1.021 = <b>0.98</b></p>
+<p style="font-size:24px;line-height:1.4;color:#C9D3DC">+ pushes towards “scene”, − away. With no evidence p = 1 ÷ (1 + e<span style="color:#E8B07A">−0.41</span>) = 0.60: most training pictures are scenes.</p>
+<p style="font-size:24px;line-height:1.4;color:#C9D3DC">Same for the others: scene matcher → 0.94, describer → 0.99.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:56px;width:1664px;font-size:24px;color:#7A8591">Part 3 of 5 · The corrected design</p>
+<aside>Where do 0.41, 2.40 and minus 0.18 come from? From Algorithm 1. It takes the 749 training pictures, and for each one the object finder’s eight numbers and the human label: 1 for scene, 0 for no scene. The logistic regression searches for the bias and the eight weights whose predicted probabilities fit these labels best. The table shows what it found: a bias of 0.41, a weight of plus 3.52 for person, plus 2.40 for animal, smaller positive weights for tree, building, vehicle and weapon, and slightly negative weights for child and text. Positive weights push towards “scene”, negative ones away. Now the example: its sum is the bias plus each weight times its number. Six of its eight numbers are zero; the others are person 0.972 and animal 0.013. So: 0.41, plus 3.52 times 0.972, plus 2.40 times 0.013, equals 3.86. The logistic function turns 3.86 into 0.98. And the bias alone gives 0.60 — with no evidence the system leans to “scene”, because most training pictures are scenes. The scene matcher and describer have their own learned weights, giving 0.94 and 0.99 for the example.</aside>
+</section>

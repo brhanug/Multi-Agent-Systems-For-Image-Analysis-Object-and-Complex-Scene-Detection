@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparative Analysis — Visual Historian-MAS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d0f;
+  --surface: #141416;
+  --surface2: #1c1c1f;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #e8e6e0;
+  --muted: #888680;
+  --faint: #444240;
+  --gold: #d4a84b;
+  --gold2: #f0c870;
+  --teal: #4ac8b0;
+  --coral: #e06b5a;
+  --blue: #5b9bd5;
+  --purple: #9b82e8;
+  --green: #5dba7a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 2px; }
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px;
+  background: rgba(13,13,15,0.88);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-brand { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--gold); letter-spacing: 0.14em; text-transform: uppercase; }
+.nav-links { display: flex; gap: 28px; }
+.nav-link { font-size: 12px; color: var(--muted); cursor: pointer; transition: color 0.2s; text-decoration: none; letter-spacing: 0.04em; }
+.nav-link:hover { color: var(--text); }
+
+/* HERO */
+.hero {
+  min-height: 100vh; display: flex; align-items: center;
+  padding: 120px 48px 80px;
+  position: relative; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 70% 40%, rgba(212,168,75,0.07) 0%, transparent 70%),
+              radial-gradient(ellipse 40% 60% at 20% 70%, rgba(74,200,176,0.05) 0%, transparent 60%);
+}
+.hero-grid {
+  position: absolute; inset: 0; opacity: 0.03;
+  background-image: linear-gradient(var(--border2) 1px, transparent 1px),
+                    linear-gradient(90deg, var(--border2) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.hero-content { position: relative; max-width: 820px; }
+.hero-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--gold); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+.hero-eyebrow::before { content: ''; display: block; width: 32px; height: 1px; background: var(--gold); }
+.hero h1 { font-family: 'Libre Baskerville', serif; font-size: clamp(32px, 4.5vw, 62px); font-weight: 700; line-height: 1.08; margin-bottom: 24px; }
+.hero h1 em { font-style: italic; color: var(--gold); }
+.hero-desc { font-size: 17px; color: var(--muted); font-weight: 300; line-height: 1.75; max-width: 580px; margin-bottom: 48px; }
+.hero-refs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.ref-card { background: var(--surface); padding: 20px 22px; }
+.ref-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
+.ref-title { font-size: 13px; font-weight: 500; line-height: 1.4; margin-bottom: 4px; }
+.ref-meta { font-size: 11px; color: var(--muted); }
+
+/* SECTIONS */
+.section { padding: 100px 48px; position: relative; }
+.section + .section { border-top: 1px solid var(--border); }
+
+.section-header { margin-bottom: 64px; }
+.section-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--gold); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+.section-tag::before { content: ''; display: block; width: 20px; height: 1px; background: var(--gold); }
+.section-title { font-family: 'Libre Baskerville', serif; font-size: clamp(24px, 3vw, 40px); font-weight: 700; line-height: 1.1; }
+.section-title em { font-style: italic; color: var(--muted); }
+
+/* COMPARISON TABLE */
+.comp-table { width: 100%; border-collapse: collapse; margin-bottom: 48px; }
+.comp-table th { padding: 14px 20px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border2); background: var(--surface); }
+.comp-table td { padding: 16px 20px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 14px; line-height: 1.6; }
+.comp-table tr:hover td { background: rgba(255,255,255,0.02); }
+.comp-table td:first-child { font-weight: 500; color: var(--text); white-space: nowrap; }
+.win { color: var(--teal); }
+.lose { color: var(--coral); }
+.partial { color: var(--gold); }
+
+/* VERSUS CARDS */
+.versus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--border); margin-bottom: 48px; }
+.versus-panel { background: var(--surface); padding: 36px 32px; }
+.versus-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border2); }
+.versus-label.them { color: var(--coral); }
+.versus-label.you { color: var(--teal); }
+.versus-item { display: flex; gap: 14px; margin-bottom: 18px; }
+.versus-item:last-child { margin-bottom: 0; }
+.versus-bullet { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 8px; }
+.them .versus-bullet { background: var(--coral); }
+.you .versus-bullet { background: var(--teal); }
+.versus-text { font-size: 14px; line-height: 1.65; color: var(--muted); }
+.versus-text strong { color: var(--text); font-weight: 500; }
+
+/* STRENGTH / WEAKNESS CARDS */
+.sw-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1px; background: var(--border); margin-bottom: 48px; }
+.sw-card { background: var(--surface); padding: 32px 28px; position: relative; overflow: hidden; }
+.sw-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.sw-card.strength::before { background: var(--teal); }
+.sw-card.weakness::before { background: var(--coral); }
+.sw-card.priority::before { background: var(--gold); }
+.sw-card.opportunity::before { background: var(--purple); }
+.sw-type { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 12px; }
+.strength .sw-type { color: var(--teal); }
+.weakness .sw-type { color: var(--coral); }
+.priority .sw-type { color: var(--gold); }
+.opportunity .sw-type { color: var(--purple); }
+.sw-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; line-height: 1.3; }
+.sw-body { font-size: 13px; line-height: 1.65; color: var(--muted); }
+.sw-body strong { color: var(--text); }
+
+/* PRIORITY ACTIONS */
+.priority-list { display: flex; flex-direction: column; gap: 2px; background: var(--border); margin-bottom: 48px; }
+.priority-item { background: var(--surface); display: grid; grid-template-columns: 72px 1fr auto; align-items: start; gap: 0; }
+.priority-num { font-family: 'Libre Baskerville', serif; font-size: 40px; font-weight: 700; color: var(--faint); padding: 28px 24px; border-right: 1px solid var(--border); display: flex; align-items: center; justify-content: center; }
+.priority-body { padding: 28px 32px; }
+.priority-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
+.p1 .priority-tag { color: var(--coral); }
+.p2 .priority-tag { color: var(--gold); }
+.p3 .priority-tag { color: var(--blue); }
+.p4 .priority-tag { color: var(--purple); }
+.p5 .priority-tag { color: var(--teal); }
+.priority-title { font-size: 16px; font-weight: 600; margin-bottom: 10px; }
+.priority-desc { font-size: 14px; line-height: 1.7; color: var(--muted); }
+.priority-desc strong { color: var(--text); }
+.priority-effort { padding: 28px 24px; border-left: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-width: 110px; }
+.effort-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--faint); letter-spacing: 0.1em; text-transform: uppercase; }
+.effort-val { font-size: 13px; font-weight: 500; text-align: center; }
+
+/* VERDICT BOX */
+.verdict { background: var(--surface2); border: 1px solid var(--border2); padding: 40px 48px; position: relative; overflow: hidden; margin-bottom: 48px; }
+.verdict::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, var(--gold), var(--teal)); }
+.verdict-title { font-family: 'Libre Baskerville', serif; font-size: 22px; font-weight: 700; margin-bottom: 20px; }
+.verdict-text { font-size: 15px; line-height: 1.8; color: var(--muted); }
+.verdict-text strong { color: var(--text); }
+
+/* CODE BLOCK */
+.code-block { background: var(--surface); border: 1px solid var(--border2); padding: 24px 28px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7; color: var(--muted); overflow-x: auto; margin: 24px 0; }
+.code-block .kw { color: var(--purple); }
+.code-block .str { color: var(--teal); }
+.code-block .comment { color: var(--faint); }
+.code-block .num { color: var(--gold); }
+
+/* RADAR / SCORE TABLE */
+.score-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); margin-bottom: 48px; }
+.score-cell { background: var(--surface); padding: 24px 20px; text-align: center; }
+.score-label { font-size: 12px; color: var(--muted); margin-bottom: 10px; line-height: 1.3; }
+.score-val { font-family: 'Libre Baskerville', serif; font-size: 32px; font-weight: 700; }
+.score-sub { font-size: 11px; color: var(--faint); margin-top: 4px; }
+.score-val.high { color: var(--teal); }
+.score-val.mid { color: var(--gold); }
+.score-val.low { color: var(--coral); }
+
+/* BAR ROW */
+.bar-row { margin-bottom: 14px; }
+.bar-label { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; }
+.bar-name { color: var(--text); }
+.bar-pct { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.bar-track { height: 5px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+
+/* QUOTE */
+.pull-quote { border-left: 2px solid var(--gold); padding: 20px 28px; margin: 32px 0; background: rgba(212,168,75,0.04); }
+.pull-quote p { font-family: 'Libre Baskerville', serif; font-size: 18px; font-style: italic; line-height: 1.6; color: var(--text); }
+.pull-quote cite { font-size: 12px; color: var(--muted); display: block; margin-top: 10px; font-style: normal; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.08em; }
+
+/* FOOTER */
+footer { padding: 60px 48px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 24px; }
+.footer-note { font-size: 12px; color: var(--faint); line-height: 1.8; }
+.footer-mark { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--gold); }
+
+/* DIVIDER */
+hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+/* PROSE */
+.prose { max-width: 740px; font-size: 15px; line-height: 1.8; color: var(--muted); margin-bottom: 40px; }
+.prose strong { color: var(--text); font-weight: 500; }
+
+@media(max-width: 760px) {
+  nav { padding: 0 20px; }
+  .hero, .section { padding: 80px 20px 60px; }
+  .versus-grid, .score-grid { grid-template-columns: 1fr; }
+  .priority-item { grid-template-columns: 1fr; }
+  .priority-num { padding: 16px; border-right: none; border-bottom: 1px solid var(--border); }
+  .priority-effort { border-left: none; border-top: 1px solid var(--border); flex-direction: row; }
+  footer { padding: 40px 20px; }
+  .hero-refs { grid-template-columns: 1fr; }
+}
+
+/* ANIMATE */
+@keyframes fadeUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform:none; } }
+.anim { opacity: 0; animation: fadeUp 0.7s forwards; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">Visual Historian-MAS — Comparative Review</div>
+  <div class="nav-links">
+    <a class="nav-link" href="#carion">vs Carion</a>
+    <a class="nav-link" href="#dota">vs DOtA</a>
+    <a class="nav-link" href="#coelho">vs Coelho</a>
+    <a class="nav-link" href="#strengths">Strengths</a>
+    <a class="nav-link" href="#priorities">Action Plan</a>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content anim">
+    <div class="hero-eyebrow">Detailed comparative analysis · May 2026</div>
+    <h1>Where your thesis <em>leads</em>,<br>where it needs<br><em>to go</em></h1>
+    <p class="hero-desc">A rigorous head-to-head comparison of Visual Historian-MAS against three reference works — DETR (Carion 2020), DOtA (CVPR 2025), and Coelho et al. (Springer 2023) — with a prioritised action plan to reach publication readiness.</p>
+
+    <div class="hero-refs">
+      <div class="ref-card">
+        <div class="ref-num">Reference 01</div>
+        <div class="ref-title">Multi-agent RL and Object Detection as Structured Prediction</div>
+        <div class="ref-meta">Nicolas Carion · Paris PSL · 2020 · DETR paper</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-num">Reference 02</div>
+        <div class="ref-title">Learning to Detect Objects from Multi-Agent LiDAR Scans without Manual Labels (DOtA)</div>
+        <div class="ref-meta">Xia et al. · CVPR 2025 · arXiv 2503.08421</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-num">Reference 03</div>
+        <div class="ref-title">Multi-agent System for Multimodal ML Object Detection</div>
+        <div class="ref-meta">Coelho et al. · Springer 2023 · Hybrid AI Systems</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OVERVIEW SCORES ═══ -->
+<section class="section" id="overview">
+  <div class="section-header">
+    <div class="section-tag">At a glance</div>
+    <div class="section-title">How the four works <em>compare</em></div>
+  </div>
+
+  <table class="comp-table">
+    <thead>
+      <tr>
+        <th>Dimension</th>
+        <th>Visual Historian-MAS (yours)</th>
+        <th>Carion / DETR</th>
+        <th>DOtA (CVPR 2025)</th>
+        <th>Coelho et al.</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Mathematical rigour</td>
+        <td class="partial">Moderate — operational descriptions, some ECE/Pearson</td>
+        <td class="win">High — formal loss functions, Hungarian matching, convergence proofs</td>
+        <td class="win">High — contrastive loss, multi-scale encoding, AP benchmarks</td>
+        <td class="lose">Low — system design paper, no formal derivations</td>
+      </tr>
+      <tr>
+        <td>External benchmarking</td>
+        <td class="lose">Internal only — Colibri archive, no cross-dataset validation</td>
+        <td class="win">COCO — directly comparable to SOTA Faster-RCNN</td>
+        <td class="win">V2V4Real + OPV2V — two standardised LiDAR datasets</td>
+        <td class="partial">Practical scenario — not formally benchmarked</td>
+      </tr>
+      <tr>
+        <td>Gold-label validation</td>
+        <td class="lose">500-image worksheet exists — currently 0% filled</td>
+        <td class="win">COCO annotations used throughout</td>
+        <td class="win">LiDAR pose/shape as supervisory signal</td>
+        <td class="partial">Sensor-fusion dataset, limited scale</td>
+      </tr>
+      <tr>
+        <td>Multimodal reasoning depth</td>
+        <td class="win">Highest — OCR, VQA, scene graphs, retrieval, demographic, geo</td>
+        <td class="lose">Detection only — no language, scene, or OCR reasoning</td>
+        <td class="lose">3D LiDAR detection only — no semantic reasoning</td>
+        <td class="partial">Radar + image + acoustic — sensor fusion, not semantic reasoning</td>
+      </tr>
+      <tr>
+        <td>Epistemic / HITL framing</td>
+        <td class="win">Core contribution — disagreement as uncertainty signal, HITL routing</td>
+        <td class="lose">None — treats model output as ground truth</td>
+        <td class="partial">Multi-view consistency used for label quality — not epistemic</td>
+        <td class="lose">None — no uncertainty quantification</td>
+      </tr>
+      <tr>
+        <td>Calibration analysis</td>
+        <td class="partial">VLM ECE = 0.000 reported, fusion ECE = 0.319</td>
+        <td class="lose">Not addressed</td>
+        <td class="lose">Not addressed</td>
+        <td class="lose">Not addressed</td>
+      </tr>
+      <tr>
+        <td>Domain adaptation novelty</td>
+        <td class="win">Restoration-first inversion: normalise domain INTO modern distribution</td>
+        <td class="partial">No domain adaptation — standard COCO images</td>
+        <td class="partial">Unsupervised — no domain shift addressed</td>
+        <td class="partial">Docker-container sensor fusion, no adaptation novelty</td>
+      </tr>
+      <tr>
+        <td>Agent independence</td>
+        <td class="lose">Agents share the same restored image, VLM priors — correlated errors</td>
+        <td class="win">Mathematically decoupled agent assignments (Hungarian)</td>
+        <td class="win">Spatial independence across physically separate LiDAR vehicles</td>
+        <td class="partial">Modular containers but no formal independence analysis</td>
+      </tr>
+      <tr>
+        <td>Publication track record</td>
+        <td class="partial">Thesis — not yet published</td>
+        <td class="win">ECCV 2020 — top-tier venue, 10,000+ citations</td>
+        <td class="win">CVPR 2025 — top-tier venue</td>
+        <td class="partial">Springer workshop chapter</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ VS CARION ═══ -->
+<section class="section" id="carion">
+  <div class="section-header">
+    <div class="section-tag">Reference 01</div>
+    <div class="section-title">You vs <em>Carion / DETR</em></div>
+  </div>
+
+  <div class="prose">
+    Carion's thesis is the most mathematically mature of the three references. It formally derives detection as set prediction using bipartite matching with a Hungarian algorithm loss, provides convergence analysis, and validates on COCO against Faster-RCNN. The gap with your work is primarily in <strong>formalism and external benchmarking</strong>, not in intellectual ambition.
+  </div>
+
+  <div class="versus-grid">
+    <div class="versus-panel them">
+      <div class="versus-label them">Where Carion beats you</div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Formal loss derivation.</strong> The Hungarian matching loss is mathematically proven to force unique, permutation-invariant predictions. Your SAA metric is operationally defined but lacks probabilistic derivation — why does σ(agent scores) measure epistemic uncertainty? There is no Bayesian justification stated in the thesis.</div>
+      </div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Standardised benchmark.</strong> COCO enables direct SOTA comparison. Carion can say exactly how DETR compares to Faster-RCNN, RetinaNet, and every subsequent work. Your mAP50 = 0.989 is measured on your own pseudo-labels — it is not externally verifiable without access to Colibri and the pipeline.</div>
+      </div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Ablation isolation.</strong> Carion isolates encoder depth, decoder depth, and loss components independently with all else held fixed. Your ablation removes agents but the baseline "monolithic" pipeline still contains six sub-scores — the variable being ablated is not cleanly isolated.</div>
+      </div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Convergence behaviour.</strong> Carion reports training curves and convergence properties. Your iterative self-training convergence (student-teacher alignment 0.404→0.424) is reported but not theoretically analysed — is it guaranteed to converge?</div>
+      </div>
+    </div>
+    <div class="versus-panel you">
+      <div class="versus-label you">Where you beat Carion</div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Semantic scope.</strong> DETR detects bounding boxes. Your system additionally performs OCR layout parsing, VQA binary screening, scene graph generation, semantic retrieval via FAISS, demographic profiling, and temporal trend analysis. The intellectual scope is 6–7× broader.</div>
+      </div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Epistemic framing.</strong> Carion treats model output as ground truth — a bounding box prediction is either correct or not vs COCO annotations. You treat ALL model outputs as evidence under uncertainty, routing disagreements to human experts. This is a fundamentally more mature philosophy for real-world AI deployment.</div>
+      </div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Zero-annotation domain adaptation.</strong> Carion uses COCO labels. You build a functional 37-class detector for a domain with ZERO existing annotations — starting from mAP50 = 0.005 and reaching 0.989. This is a harder problem and a more practically important result.</div>
+      </div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>HITL as architecture.</strong> No CV paper of this era integrates human-in-the-loop routing as a first-class architectural component with precision and efficiency analysis. You show 2.5× reviewer effort reduction — that is a practical contribution Carion does not attempt.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pull-quote">
+    <p>"The single most important gap vs Carion: your uncertainty metric (σ of agent scores) has no theoretical grounding. You need to write one paragraph — or ideally a formal proposition — explaining WHY inter-agent disagreement is a valid proxy for epistemic uncertainty in the absence of ground truth labels."</p>
+    <cite>Derived from reviewer feedback + Carion comparison</cite>
+  </div>
+
+  <div class="code-block">
+<span class="comment"># What the thesis currently says (operational):</span>
+uncertainty = pstdev(list(agent_scores.values()))
+<span class="comment"># What needs to be added (theoretical justification):</span>
+<span class="comment"># Proposition 1: Under the assumption that agents have uncorrelated error distributions,</span>
+<span class="comment"># E[σ(s₁...sₙ)] is monotonically increasing in the entropy of the true label distribution.</span>
+<span class="comment"># Proof sketch: if all agents agree (σ→0), the Bayesian posterior concentrates on one label.</span>
+<span class="comment"># If agents disagree (σ→max), the posterior is flat — maximum uncertainty.</span>
+<span class="comment"># This connects SAA to proper Bayesian uncertainty decomposition.</span>
+  </div>
+</section>
+
+<!-- ═══ VS DOTA ═══ -->
+<section class="section" id="dota">
+  <div class="section-header">
+    <div class="section-tag">Reference 02</div>
+    <div class="section-title">You vs <em>DOtA</em> (CVPR 2025)</div>
+  </div>
+
+  <div class="prose">
+    DOtA is your most important reference because the structural problem is almost identical: <strong>both systems detect objects without manual labels using multi-agent collaboration</strong>. DOtA uses physically separate LiDAR vehicles; you use semantically separate AI models. The difference in domain makes direct comparison possible — and you win on semantic richness, lose on methodological tightness.
+  </div>
+
+  <div class="versus-grid">
+    <div class="versus-panel them">
+      <div class="versus-label them">Where DOtA beats you</div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Label refinement pipeline.</strong> DOtA's three-stage process (preliminary labels → multi-scale encoding → label-internal contrastive learning) is an algorithmic contribution. Your consensus filter (IoU > 0.4, confidence > 0.35, ≥2 model agreement) is sound engineering, but not novel enough to stand alone as an algorithmic contribution.</div>
+      </div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>True agent independence.</strong> DOtA's LiDAR vehicles are physically separate — they literally cannot share the same view of the scene. Your agents (DINO, Florence-2, OWL-ViT, CLIP, LLaVA) all process the SAME restored image. Error modes are correlated: if the CycleGAN produces a checkerboard artifact, ALL agents see the same artifact. DOtA formally accounts for this via ICE (Individual Contribution Estimation).</div>
+      </div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Contrastive learning signal.</strong> DOtA uses Label-Internal Contrastive Learning (LICL) to explicitly push high-quality and low-quality pseudo-label representations apart. This produces measurable improvements (+5.18 AP@0.3, +6.60 AP@0.5). Your consensus filtering has no equivalent learned refinement — it discards disagreements rather than learning from them.</div>
+      </div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Single clean learning objective.</strong> DOtA can state: "we train a 3D detector from collaborative LiDAR without labels." You are simultaneously claiming restoration, pseudo-labeling, student training, VQA validation, OCR indexing, and semantic retrieval. A CVPR reviewer will ask: "what is the single algorithmic contribution?"</div>
+      </div>
+    </div>
+    <div class="versus-panel you">
+      <div class="versus-label you">Where you beat DOtA</div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Semantic intelligence.</strong> DOtA detects 3D bounding boxes around vehicles for autonomous driving. You detect 37 historically meaningful classes, generate captions, answer natural language questions, parse OCR layouts, and enable semantic retrieval. The cognitive complexity is incomparably higher.</div>
+      </div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Uncertainty as epistemic signal.</strong> DOtA uses multi-view consistency to improve label quality — a technical signal. You use inter-agent disagreement to model epistemic uncertainty — a philosophical advance. DOtA's discriminator D classifies label quality; your coordinator routes uncertainty to human experts. Your framing is more general and more honest about AI limitations.</div>
+      </div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Domain gap solved at the source.</strong> DOtA operates on LiDAR scans from modern autonomous vehicles — no domain gap. You solve a 130-year domain gap (1880s photography → modern detector distribution) using generative restoration. This is arguably a harder and more significant contribution.</div>
+      </div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Knowledge system output.</strong> DOtA produces detections. You produce a structured, searchable semantic archive — captions, scene graphs, retrieval indices, OCR layers — that scholars can actually USE for historical research. The downstream value is orders of magnitude higher.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pull-quote">
+    <p>"The most actionable lesson from DOtA: upgrade your consensus filter to include a contrastive learning step. Instead of discarding low-agreement detections, use them as negative examples in a contrastive objective during YOLOv11 fine-tuning. This turns a filtering heuristic into an algorithmic contribution."</p>
+    <cite>Derived from DOtA LICL analysis vs current IoU threshold consensus</cite>
+  </div>
+</section>
+
+<!-- ═══ VS COELHO ═══ -->
+<section class="section" id="coelho">
+  <div class="section-header">
+    <div class="section-tag">Reference 03</div>
+    <div class="section-title">You vs <em>Coelho et al.</em> (Springer 2023)</div>
+  </div>
+
+  <div class="prose">
+    The Coelho et al. paper is the weakest of the three references — it is a system design paper describing a Docker-based multi-agent architecture for radar, image, and acoustic sensor fusion with MQTT messaging. It does not perform ablations, calibration, or formal evaluation. <strong>Your thesis is substantially more rigorous and complete on every dimension.</strong> The main risk here is framing — make sure your thesis clearly articulates why your architecture is better, not just larger.
+  </div>
+
+  <div class="versus-grid">
+    <div class="versus-panel them">
+      <div class="versus-label them">Where Coelho is ahead (very little)</div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Deployment infrastructure.</strong> Docker containers + MQTT messaging creates a genuinely deployable production system. Your pipeline is a research prototype running as sequential Python scripts. A production-grade message bus between agents would strengthen the "system" claim in your title.</div>
+      </div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Sensor modality diversity.</strong> Coelho uses radar, image, AND acoustic — physical sensor fusion gives genuinely independent observations. Your modalities (DINO, Florence-2, CLIP, LLaVA) are all visual — they share the same perceptual input and cannot provide the independence that physical sensor separation achieves.</div>
+      </div>
+    </div>
+    <div class="versus-panel you">
+      <div class="versus-label you">Where you dominate Coelho</div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Scale and depth.</strong> 12,110 images, 37 classes, 6 agent modalities, 5 output layers (detection, caption, VQA, OCR, scene). Coelho describes a design — they do not report dataset scale or detection performance numbers.</div>
+      </div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Uncertainty quantification.</strong> Coelho has no uncertainty or calibration analysis. You have inter-agent disagreement, ECE analysis per agent (VLM ECE = 0.000), HITL routing with precision curves, and break-even analysis. This alone is a complete paper Coelho could not write.</div>
+      </div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Knowledge system vs detection system.</strong> Coelho's goal is detection. Your goal is archival intelligence — the detections are an input to a richer knowledge layer. The semantic retrieval result (P@10 = 1.000 vs 0.090 for keyword) has no equivalent in Coelho.</div>
+      </div>
+      <div class="versus-item">
+        <div class="versus-bullet"></div>
+        <div class="versus-text"><strong>Domain novelty.</strong> Automated enrichment of historical archives is a completely different (and more socially significant) application than autonomous driving sensor fusion. No prior MAS paper has done this for cultural heritage collections.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ GENUINE STRENGTHS ═══ -->
+<section class="section" id="strengths">
+  <div class="section-header">
+    <div class="section-tag">Honest assessment</div>
+    <div class="section-title">What is genuinely <em>original</em> in your work</div>
+  </div>
+
+  <div class="prose">
+    The reviewer feedback identifies several distinct intellectual contributions that none of the three reference works make. These are your real thesis, and they should be front-loaded in the abstract and introduction.
+  </div>
+
+  <div class="sw-grid">
+    <div class="sw-card strength">
+      <div class="sw-type">Genuine contribution</div>
+      <div class="sw-title">Restoration-First Domain Normalisation</div>
+      <div class="sw-body">Most prior work adapts the <strong>model</strong> to the degraded domain (domain-adaptive training, data augmentation). You invert this: normalise the <strong>data</strong> into the model's native distribution via CycleGAN + Real-ESRGAN + SD refinement. This conceptual inversion is original and practically important — it means ANY modern detector works without retraining.</div>
+    </div>
+    <div class="sw-card strength">
+      <div class="sw-type">Genuine contribution</div>
+      <div class="sw-title">Disagreement as Epistemic Signal</div>
+      <div class="sw-body">Treating inter-agent disagreement as a proxy for <strong>irreducible semantic ambiguity</strong> — not just model error — is original. Your finding that 89% of high-disagreement images represent genuine semantic conflict (not implementation bugs) changes how archival uncertainty should be interpreted. Pearson r = −0.799 is strong empirical support.</div>
+    </div>
+    <div class="sw-card strength">
+      <div class="sw-type">Genuine contribution</div>
+      <div class="sw-title">Open-Vocabulary Taxonomy via Captioning + NLP</div>
+      <div class="sw-body">Deriving 37 domain-specific detection classes from 12,110 unconstrained captions using spaCy frequency analysis — with no manual class definition — is a practical contribution. The Zipf α = 11.77 result shows the vocabulary structure follows archival language distributions. This is not in DETR, DOtA, or Coelho.</div>
+    </div>
+    <div class="sw-card strength">
+      <div class="sw-type">Genuine contribution</div>
+      <div class="sw-title">HITL as First-Class Architecture</div>
+      <div class="sw-body">Integrating uncertainty-driven routing into the system architecture — not as post-processing — with a rigorous break-even analysis (2.5× effort reduction, P@10 = 1.000) is a practical systems contribution. The review literature does not provide this for archival contexts.</div>
+    </div>
+    <div class="sw-card strength">
+      <div class="sw-type">Genuine contribution</div>
+      <div class="sw-title">VLM Calibration Discovery</div>
+      <div class="sw-body">The finding that LLaVA-OneVision achieves ECE = 0.000 (perfect calibration) while fusion achieves ECE = 0.319 is a surprising empirical result with practical implications: VLM scores can be used directly as probability estimates without Platt scaling. This is an original observation not reported elsewhere.</div>
+    </div>
+    <div class="sw-card strength">
+      <div class="sw-type">Genuine contribution</div>
+      <div class="sw-title">Archival Semantic Knowledge System</div>
+      <div class="sw-body">The combination of detection + captioning + VQA + OCR + scene graphs + FAISS retrieval into a structured searchable archive is a systems contribution to digital humanities. Semantic retrieval P@10 = 1.000 vs keyword P@10 = 0.090 is a strong practical result that motivates the whole framework.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WEAKNESSES ═══ -->
+<section class="section" id="weaknesses">
+  <div class="section-header">
+    <div class="section-tag">Critical gaps</div>
+    <div class="section-title">What must be <em>fixed</em> for publication</div>
+  </div>
+
+  <div class="sw-grid">
+    <div class="sw-card weakness">
+      <div class="sw-type">Critical weakness</div>
+      <div class="sw-title">Gold Labels: 0/500 filled</div>
+      <div class="sw-body">Your 500-image human gold worksheet has <strong>zero labels</strong>. Every HITL efficiency claim, every calibration result, every P@10 result is measured against proxy labels derived from the models themselves. A reviewer will reject this. <strong>This must be completed before submission.</strong></div>
+    </div>
+    <div class="sw-card weakness">
+      <div class="sw-type">Critical weakness</div>
+      <div class="sw-title">No Formal Uncertainty Theory</div>
+      <div class="sw-body">σ(agent scores) is used as an uncertainty metric but never theoretically justified. Why is standard deviation of weighted scores a valid uncertainty measure? No Bayesian derivation, no decomposition into aleatoric vs epistemic uncertainty, no conformal prediction interval. Carion's work has this — yours doesn't.</div>
+    </div>
+    <div class="sw-card weakness">
+      <div class="sw-type">Critical weakness</div>
+      <div class="sw-title">Agent Independence Not Addressed</div>
+      <div class="sw-body">All your agents process the <strong>same restored image</strong> — correlated errors from CycleGAN artifacts propagate to all agents simultaneously. DOtA uses physically separate sensors to guarantee independence. You need to either measure the inter-agent mutual information (to quantify correlation) or acknowledge it as a formal limitation with a mitigation plan.</div>
+    </div>
+    <div class="sw-card weakness">
+      <div class="sw-type">Critical weakness</div>
+      <div class="sw-title">No External Dataset Comparison</div>
+      <div class="sw-body">Your mAP50 = 0.989 is measured on your own pseudo-labels — self-referential validation. You need at least one external historical dataset (ArtDL, People-Art, OmniArt, or WikiArt) to show that the pipeline generalises beyond Colibri. Even a 50-image subset comparison would strengthen the paper substantially.</div>
+    </div>
+    <div class="sw-card weakness">
+      <div class="sw-type">Structural weakness</div>
+      <div class="sw-title">Too Many Claims, No Central Thesis</div>
+      <div class="sw-body">You claim detection, scene understanding, epistemic validation, uncertainty estimation, semantic indexing, historical reasoning, retrieval intelligence, AND archival realism inference. A reviewer cannot evaluate all of these. <strong>One central claim must dominate:</strong> "cross-agent disagreement is a stronger predictor of archival uncertainty than standalone detector confidence."</div>
+    </div>
+    <div class="sw-card weakness">
+      <div class="sw-type">Methodological weakness</div>
+      <div class="sw-title">Consensus Filter is Heuristic, not Algorithmic</div>
+      <div class="sw-body">IoU > 0.4 + confidence > 0.35 + ≥2 models is solid engineering. But compared to DOtA's Label-Internal Contrastive Learning, it is not a novel algorithmic contribution. The filter discards information rather than learning from it. Upgrading to a learned refinement step (even simple) would close this gap.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PRIORITY ACTIONS ═══ -->
+<section class="section" id="priorities">
+  <div class="section-header">
+    <div class="section-tag">Concrete action plan</div>
+    <div class="section-title">Five things to do <em>in order</em></div>
+  </div>
+
+  <div class="priority-list">
+
+    <div class="priority-item p1">
+      <div class="priority-num">1</div>
+      <div class="priority-body">
+        <div class="priority-tag">Blocking — do this week</div>
+        <div class="priority-title">Complete the 500-image gold worksheet</div>
+        <div class="priority-desc">
+          Open <code>human_baseline_gold_kit/labeling_worksheet.csv</code> and use the gold labeler tool (already built) to fill all 500 rows. Get 2 co-annotators for Cohen's κ ≥ 0.7. Re-run <code>run_multi_agent_validation.py</code> after completion. <strong>Every result in the thesis changes from "proxy-validated" to "measured"</strong> — this single action has the highest ROI of anything on this list. Target: 2 annotators × 4 hours = one weekend.
+        </div>
+      </div>
+      <div class="priority-effort">
+        <div class="effort-label">Effort</div>
+        <div class="effort-val" style="color:var(--coral)">8 hrs</div>
+        <div class="effort-label">Impact</div>
+        <div class="effort-val" style="color:var(--teal)">Critical</div>
+      </div>
+    </div>
+
+    <div class="priority-item p1">
+      <div class="priority-num">2</div>
+      <div class="priority-body">
+        <div class="priority-tag">Blocking — write 2 pages</div>
+        <div class="priority-title">Add formal uncertainty proposition to the thesis</div>
+        <div class="priority-desc">
+          Write one formal proposition (or at minimum a clearly stated hypothesis with empirical support): <strong>"Under the assumption that agent error distributions are approximately independent, σ(s₁...sₙ) is monotonically related to the entropy of the true label distribution."</strong> Then empirically verify: compute mutual information between agent score pairs (e.g. I(DINO_score; LLaVA_score)) to quantify correlation. If agents are highly correlated, say so explicitly and state it as a limitation. This directly addresses the "no calibration theory" weakness and surpasses all three reference works in epistemic rigour.
+        </div>
+      </div>
+      <div class="priority-effort">
+        <div class="effort-label">Effort</div>
+        <div class="effort-val" style="color:var(--gold)">4 hrs</div>
+        <div class="effort-label">Impact</div>
+        <div class="effort-val" style="color:var(--teal)">High</div>
+      </div>
+    </div>
+
+    <div class="priority-item p2">
+      <div class="priority-num">3</div>
+      <div class="priority-body">
+        <div class="priority-tag">Important — 1 experiment</div>
+        <div class="priority-title">Add one external dataset comparison</div>
+        <div class="priority-desc">
+          Run your pipeline on <strong>50–100 images from People-Art</strong> (freely available: people depicted in artworks from WikiArt) or <strong>ArtDL</strong> (iconographic classification of artworks). You do not need perfect performance — you need to show your pipeline generalises beyond Colibri. Even reporting "the open-vocabulary taxonomy correctly identifies 8 of 12 ArtDL classes at P@5 = 0.72" would transform the paper from archive-specific to method-general. This also directly answers DOtA's strength of benchmarking on two separate datasets.
+        </div>
+      </div>
+      <div class="priority-effort">
+        <div class="effort-label">Effort</div>
+        <div class="effort-val" style="color:var(--gold)">12 hrs</div>
+        <div class="effort-label">Impact</div>
+        <div class="effort-val" style="color:var(--teal)">High</div>
+      </div>
+    </div>
+
+    <div class="priority-item p3">
+      <div class="priority-num">4</div>
+      <div class="priority-body">
+        <div class="priority-tag">Strengthening — 1 paragraph + table</div>
+        <div class="priority-title">Rewrite the abstract around ONE central claim</div>
+        <div class="priority-desc">
+          The current abstract claims seven distinct contributions. Restructure around: <strong>"We demonstrate that cross-agent disagreement in a multi-modal archival analysis system is a more reliable predictor of semantic uncertainty than standalone detector confidence, enabling 2.5× reduction in expert review effort at equal quality."</strong> Everything else (restoration, retrieval, OCR) becomes supporting evidence for this claim rather than an independent claim. This also directly answers the professor's instruction to treat the pipeline as one agent — the <em>multi-agent</em> contribution is the disagreement signal and coordinator, not the pipeline itself.
+        </div>
+      </div>
+      <div class="priority-effort">
+        <div class="effort-label">Effort</div>
+        <div class="effort-val" style="color:var(--green)">2 hrs</div>
+        <div class="effort-label">Impact</div>
+        <div class="effort-val" style="color:var(--gold)">Medium</div>
+      </div>
+    </div>
+
+    <div class="priority-item p4">
+      <div class="priority-num">5</div>
+      <div class="priority-body">
+        <div class="priority-tag">Publication upgrade — new section</div>
+        <div class="priority-title">Upgrade consensus filter to learned refinement (DOtA-inspired)</div>
+        <div class="priority-desc">
+          Replace the current IoU-threshold filter with a <strong>simple binary classifier</strong> trained on agreed-vs-disagreed pseudo-label pairs from your 500 gold-labeled images (after step 1). Input features: DINO confidence, Florence-2 confidence, IoU between DINO and Florence-2 boxes, image restoration quality (SRS score). Target: "does this detection survive into the final label set?" Even a logistic regression on 300 training examples closes the gap with DOtA's LICL and gives you a learned component to describe. Call it the <strong>Agreement-Weighted Label Filter (AWLF)</strong>.
+        </div>
+      </div>
+      <div class="priority-effort">
+        <div class="effort-label">Effort</div>
+        <div class="effort-val" style="color:var(--gold)">16 hrs</div>
+        <div class="effort-label">Impact</div>
+        <div class="effort-val" style="color:var(--purple)">Novel</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ PUBLICATION VERDICT ═══ -->
+<section class="section" id="verdict">
+  <div class="section-header">
+    <div class="section-tag">Final assessment</div>
+    <div class="section-title">Publication <em>potential</em></div>
+  </div>
+
+  <div class="score-grid">
+    <div class="score-cell">
+      <div class="score-label">Scientific novelty vs reference works</div>
+      <div class="score-val high">A−</div>
+      <div class="score-sub">Epistemic framing is original</div>
+    </div>
+    <div class="score-cell">
+      <div class="score-label">Engineering sophistication</div>
+      <div class="score-val high">A</div>
+      <div class="score-sub">Exceptional for a Master's thesis</div>
+    </div>
+    <div class="score-cell">
+      <div class="score-label">Experimental rigour (current)</div>
+      <div class="score-val mid">C+</div>
+      <div class="score-sub">Proxy labels, no external benchmark</div>
+    </div>
+    <div class="score-cell">
+      <div class="score-label">Experimental rigour (after 5 steps)</div>
+      <div class="score-val high">B+</div>
+      <div class="score-sub">Gold labels + external = publishable</div>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <div class="verdict-title">Overall verdict</div>
+    <div class="verdict-text">
+      Your thesis is <strong>stronger conceptually than all three reference works</strong> in epistemic framing, domain novelty, and practical output value. It is weaker than Carion in mathematical rigour and weaker than DOtA in methodological tightness. The gap is not fundamental — it is a matter of two concrete additions: <strong>complete gold labels</strong> and <strong>one formal proposition</strong> on uncertainty. After those two changes, the thesis becomes defensible at a conference level. After all five priority actions, it has three distinct paper directions: (1) uncertainty-aware archival MAS — a workshop/ECIR paper; (2) restoration-first open-vocabulary detection — an ECCV workshop paper; (3) semantic archival intelligence with VLM coordination — a Digital Humanities conference paper. The work is real. The framing needs sharpening. The evidence needs one more layer of measurement.
+    </div>
+  </div>
+
+  <div class="sw-grid" style="margin-top:0">
+    <div class="sw-card opportunity">
+      <div class="sw-type">Publication path 1</div>
+      <div class="sw-title">Uncertainty-Aware Multi-Agent Validation for Historical Archives</div>
+      <div class="sw-body">Target: <strong>ECIR 2027 / JCDL 2026</strong>. Focus: disagreement as epistemic signal, HITL triage, calibration. Requires: gold labels (step 1) + formal proposition (step 2). This is the clearest path to publication with the least additional work.</div>
+    </div>
+    <div class="sw-card opportunity">
+      <div class="sw-type">Publication path 2</div>
+      <div class="sw-title">Restoration-First Open-Vocabulary Detection in Historical Domains</div>
+      <div class="sw-body">Target: <strong>ECCV 2026 Workshop on CV for Cultural Heritage</strong>. Focus: domain normalisation inversion, open-vocab taxonomy from captions, zero-annotation detector. Requires: external dataset (step 3) + learned filter (step 5). Directly comparable to DOtA in problem framing.</div>
+    </div>
+    <div class="sw-card opportunity">
+      <div class="sw-type">Publication path 3</div>
+      <div class="sw-title">Semantic Archival Intelligence with Multi-Agent VLM Coordination</div>
+      <div class="sw-body">Target: <strong>Digital Humanities 2027 / CHR 2026</strong>. Focus: retrieval P@10, VQA screening, OCR grounding, temporal trend analysis. Requires: trend analysis completion + RAG agent deployment. This path has the most novel audience and the least competition.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-note">
+    Visual Historian-MAS · Comparative Analysis<br>
+    Against: Carion 2020 (DETR/HAL), DOtA 2025 (CVPR/arXiv 2503.08421), Coelho et al. 2023 (Springer)<br>
+    Based on reviewer feedback document + thesis v3 + codebase analysis
+  </div>
+  <div class="footer-mark">Generated May 2026</div>
+</footer>
+
+<script>
+// Scroll-based nav highlighting
+const sections = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('.nav-link');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.style.color = '');
+      const active = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+      if (active) active.style.color = 'var(--gold)';
+    }
+  });
+}, { threshold: 0.3 });
+sections.forEach(s => obs.observe(s));
+
+// Animate on scroll
+const animObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.animation = 'fadeUp 0.7s forwards';
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.sw-card, .priority-item, .versus-panel, .ref-card, .score-cell').forEach(el => {
+  el.style.opacity = '0';
+  animObs.observe(el);
+});
+</script>
+</body>
+</html>

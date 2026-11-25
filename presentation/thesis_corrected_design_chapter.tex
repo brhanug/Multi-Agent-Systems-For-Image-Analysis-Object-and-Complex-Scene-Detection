@@ -1,0 +1,703 @@
+% Chapter 6: the corrected design.
+
+\chapter{The Corrected Design: Three Measured Agents and a Risk Promise}
+\label{ch:corrected_design}
+
+The preceding chapters analysed the design as it was deployed and found that its four agent signals came from two measurements, so that the whole archive fell into eight states (Appendix~\ref{app:derivations}). This chapter presents the design that replaces it and that this thesis evaluates as its system. Each agent now reports what it measures, in its own form; a small learned mapping turns each agent's report into probabilities; the three are combined; and the system's own confidence, under a statistical risk promise, decides which pictures need a person.
+
+The system has two tasks, defined by the class lists fixed for this thesis. For scenes, it decides which of the five scene classes (teaching, family, playing, landscape, drawing) a picture shows, or that it shows no scene. For objects, it decides which of the eight object classes (person, child, animal, building, weapon, vehicle, tree, text) a picture contains, and the object finder also says where. Whether a picture shows a scene at all is the first level of the scene decision. It is the level with the most labels, including the labels of the tests on random archive pictures, so the method is explained on it first. The chapter follows one picture through every step, states the three algorithms, explains the risk promise, and then reports the results for both tasks.
+
+\paragraph{How the chapter is organised.} Sections~\ref{sec:what_changed} to~\ref{sec:corrected_protocol} describe the design and how it is evaluated. Sections~\ref{sec:scene_classes} and~\ref{sec:objects_llava_vs_fusion} report the two tasks: the five scene classes and the eight object classes. Sections~\ref{sec:corrected_results} to~\ref{sec:review_hours} report the first level of the scene decision, whether a picture shows a scene, and its risk promise, all inside the labelled pool, and Section~\ref{sec:against_baselines} sets the system against its baselines. Chapter~\ref{ch:corrected_tests} takes the design to the archive itself.
+
+\section{What Changed from the Deployed Design}
+\label{sec:what_changed}
+
+Table~\ref{tab:what_changed} sets the deployed design, which Chapters~\ref{ch:methodology} to~\ref{ch:triage_risk_control} analyse, beside the corrected design evaluated in this chapter, and Figure~\ref{fig:corrected_architecture} shows the corrected dataflow. The Agreement score no longer exists in the corrected design: it was not a measurement but a function of two of the other signals, $1 - |A^{\text{object}} - A^{\text{vlm}}|$, on every one of the 12,110 pictures.
+
+\begin{table}[!htbp]
+\centering
+\caption{The deployed design and the corrected design, part by part.}
+\label{tab:what_changed}
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{5.6cm}>{\raggedright\arraybackslash}p{5.6cm}}
+\toprule
+Part & Deployed design & Corrected design \\
+\midrule
+Object signal & One number in four steps, the describer's object count divided by three & Eight scores, the best box per object class from the retrained object finder \\
+Scene signal & As run, the describer's stored scene confidence ($0.5$ or $1$; Section~\ref{sec:canonical_saa}); the scene matcher as designed was a softmax over five sentences, which cannot say ``no scene'' & A sigmoid per scene sentence, plus one ``no scene'' score from seven further sentences \\
+Describer signal & $1$ if the object signal is above $0$, otherwise $0$ & Thirteen graded yes-strengths, one per scene class and one per object class \\
+Agreement score & $1 - |A^{\text{object}} - A^{\text{vlm}}|$, derived from two other signals & Removed \\
+Text reader & Listed among the Tier~1 agents & Not used for the decision; kept as a Tier~2 output with its measured limits \\
+Common scale & None: the signals were combined as they stood & Each agent's report mapped to probabilities by a fit on the training pictures: over the six scene answers, for each object class, and of a scene at all \\
+What is decided & Whether a picture shows a scene; the scene type was the top of a forced choice that could not say ``no scene'', and objects were a count & Which of the five scene classes, or no scene; which of the eight object classes (with boxes from the object finder); whether a scene is shown at all as the first level \\
+Possible states & Eight for the whole archive & A different value for nearly every picture \\
+Routing to a person & By disagreement between the signals & By the system's confidence \\
+Risk control & Conformal risk control & Unchanged \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[!htbp]
+\centering
+\resizebox{0.9\linewidth}{!}{%
+\begin{tikzpicture}[
+  font=\small, >={Stealth[length=2.2mm]},
+  box/.style={draw=black!60, rounded corners=3pt, align=center, inner sep=4pt, fill=white, minimum height=10mm},
+  agent/.style={box, fill=gray!8, minimum width=38mm},
+  mapb/.style={box, fill=blue!6, minimum width=124mm},
+  outb/.style={box, fill=blue!3, minimum width=38mm},
+  arr/.style={->, black!65, thick}]
+\node[box, minimum width=34mm] (scan) {Scan, restored once};
+\node[agent, below=11mm of scan] (sig) {\textbf{Scene matcher}\\{\footnotesize SigLIP: 5 scene scores and}\\{\footnotesize 1 ``no scene'' score}};
+\node[agent, left=5mm of sig] (det) {\textbf{Object finder}\\{\footnotesize YOLOv11m, retrained:}\\{\footnotesize 8 class scores and boxes}};
+\node[agent, right=5mm of sig] (vlm) {\textbf{Describer}\\{\footnotesize LLaVA-OneVision: 13}\\{\footnotesize yes/no strengths}};
+\foreach \a in {det,sig,vlm} \draw[arr] (scan.south) -- ++(0,-4mm) -| (\a.north);
+\node[mapb, below=9mm of sig] (map) {\textbf{Each agent's report mapped to probabilities} and combined\\{\footnotesize mappings fitted on the training books; the agents never see each other's output}};
+\foreach \a in {det,sig,vlm} \draw[arr] (\a.south) -- (\a.south |- map.north);
+\node[outb, below=9mm of map.south -| det] (ob) {\textbf{Object classes}\\{\footnotesize which of the eight}};
+\node[outb, below=9mm of map] (sc) {\textbf{Scene class}\\{\footnotesize one of five, or no scene}};
+\node[outb, below=9mm of map.south -| vlm] (sa) {\textbf{Scene at all}\\{\footnotesize yes or no (first level)}};
+\foreach \o in {ob,sc,sa} \draw[arr] (map.south -| \o.north) -- (\o.north);
+\node[box, fill=orange!10, minimum width=124mm, below=9mm of sc] (crc) {\textbf{Conformal risk control}, calibrated on labelled pictures of the collection\\{\footnotesize objects: a short list that misses at most a set share of objects $\cdot$ scenes: approve only confident answers}};
+\foreach \o in {ob,sc,sa} \draw[arr] (\o.south) -- (\o.south |- crc.north);
+\node[box, fill=green!10, minimum width=46mm, below=9mm of crc.south, xshift=-30mm] (ok) {Approved automatically};
+\node[box, fill=red!7, minimum width=46mm, below=9mm of crc.south, xshift=30mm] (per) {A person checks\\{\footnotesize or confirms the short list}};
+\draw[arr] (crc.south -| ok.north) -- (ok.north);
+\draw[arr] (crc.south -| per.north) -- (per.north);
+\end{tikzpicture}
+}
+\caption[The corrected design]{The corrected design, drawn like Figure~\ref{fig:full_pipeline_flow}. Three agents report what they measure, without seeing each other's output; their reports are mapped to probabilities and combined into three answers, and conformal risk control decides which answers are approved and which a person checks. There is no Agreement term, and the text reader takes no part in the decision. As in Figure~\ref{fig:full_pipeline_flow}, Tier~2 runs beside the decision on the agents' stored outputs, and pictures the design is unsure of go to a person (Tier~3 was not run).}
+\label{fig:corrected_architecture}
+\end{figure}
+
+\section{Three Agents, Each Reporting What It Measures}
+\label{sec:corrected_agents}
+
+Every scan is restored once (Real-ESRGAN, twice the size) and then examined by three agents that never see each other's output (Table~\ref{tab:corrected_agents}).
+
+\begin{table}[!htbp]
+\centering
+\caption{The Tier~1 agents of the corrected design and what each reports for one picture.}
+\label{tab:corrected_agents}
+\small
+\begin{tabular}{p{3.1cm}p{7.4cm}p{3.6cm}}
+\toprule
+Agent & How it works & Output \\
+\midrule
+Object finder (YOLOv11m, retrained) & Proposes boxes with a class and a score; for each of the eight object classes the score of its best box is kept, and $0$ if there is none & 8 scores \\
+Scene matcher (SigLIP) & Embeds the picture and each of five scene sentences and seven ``not a scene'' sentences (printed text, sheet music, ornament, blank page, title page, table of numbers, map); each sentence is scored on its own by a sigmoid of the similarity, and the highest ``not a scene'' score is kept as one number & 5 scene scores and 1 ``no scene'' score \\
+Describer (LLaVA-OneVision 7B) & Asked one yes/no question per scene class and per object class (``Does this picture show a family scene or a family portrait? Answer yes or no.'', ``Does this picture show a building? Answer yes or no.''); the answer is read from the model's probabilities for its first word, as $P(\text{yes})/(P(\text{yes})+P(\text{no}))$ & 5 scene and 8 object yes-strengths \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three things differ from the deployed design. The scene matcher is read with a sigmoid per sentence instead of a softmax over the five scene sentences, so it can say that no scene sentence fits; read as a forced choice it ranked scene presence below chance on the 300 hand-labelled pictures (AUROC $0.309$, against $0.805$ with the sigmoid and $0.830$ with the ``no scene'' score). The describer reports a graded strength per class instead of a rounded count. Its yes/no questions are the way a vision-language model is read, not the task: each question gives a score between $0$ and $1$ for one class, and the decision between classes uses all of the scores together (Section~\ref{sec:corrected_decision}). The first level of the scene decision uses the describer's eight object strengths, as in every result on scene presence; the scene classes add its five scene strengths. And the derived Agreement term, which was a function of two of the other signals on every picture, is removed, as is the text reader, which cannot read these prints reliably (Section~\ref{sec:agent5_ocr}).
+
+\begin{figure}[!htbp]
+\centering
+\safeincludegraphics[width=0.42\textwidth]{running_example.jpg}
+\caption[The running example]{The running example of this chapter (book PPN1756648816, page 272): an old woman at her spindle talking to a boy, with a small hen under the bench. It is a test picture: no mapping or cut-off was fitted on it. Human labels: scene class family; objects person and child (the hen was not boxed).}
+\label{fig:running_example}
+\end{figure}
+
+For the running example (Figure~\ref{fig:running_example}), a test picture of an old woman at her spindle talking to a boy, with a small hen under the bench, the object finder reports person $0.972$, animal $0.013$ and $0$ for the other six classes, missing both the boy and the hen; the scene matcher reports family $0.327$, drawing $0.157$ and teaching $0.046$, and $0$ for the other three answers; the describer reports person $0.989$, child $0.995$ and animal $0.311$, and $0.11$ or less for the other five object classes, and for the scene classes drawing $0.985$, family $0.485$ and teaching $0.427$. The agents agree on the person and differ on the child, which the describer reports strongly and correctly and the object finder not at all; how much each report counts is learned, not set by hand (Section~\ref{sec:corrected_translation}).
+
+\section{From Each Agent's Report to a Probability}
+\label{sec:corrected_translation}
+
+The three reports are not comparable as they stand: eight box scores, six sentence scores and eight yes-strengths lie on different scales and mean different things. Each is therefore mapped to the same quantity. For the first level of the scene decision that quantity is the probability that the picture shows a scene, described here; for the scene classes it is a probability for each of the six answers, from the multinomial form of the same regression, fitted on all three reports at once (Section~\ref{sec:scene_classes}); for the object classes it is a probability for each class (Section~\ref{sec:objects_llava_vs_fusion}). The mapping is a logistic regression fitted for each agent on the training pictures only (Algorithm~\ref{alg:translation}). For agent $k$ with report $z_k$, bias $b_k$ and weights $w_k$,
+\begin{equation}
+p_k = \frac{1}{1 + e^{-(b_k + w_k \cdot z_k)}} .
+\end{equation}
+The weights say how much each class or sentence counts as evidence of a scene; nobody sets them by hand. The bias is the agent's answer when it reports nothing: without it, no evidence would always mean a probability of one half, whereas $84.5\%$ of the training pictures show a scene.
+
+\begin{algorithm}[!htbp]
+\caption{Learning the mappings}
+\label{alg:translation}
+\begin{algorithmic}[1]
+\Require training pictures $i$ (749, from training books only) with the human label $y_i \in \{0,1\}$
+\For{each agent $k \in \{\text{object}, \text{scene}, \text{describer}\}$}
+  \State collect the agent's report $z_{k,i}$ for every training picture
+  \State fit a logistic regression of $y_i$ on $z_{k,i}$, giving the bias $b_k$ and weights $w_k$
+\EndFor
+\State \Return $(b_k, w_k)$ for the three agents
+\end{algorithmic}
+\end{algorithm}
+
+On the fixed split the largest learned weights are, for the object finder, person $+3.52$ and animal $+2.40$ (text $-0.18$); for the scene matcher, the ``drawing'' sentence $+2.43$ and the ``no scene'' score $-2.83$; for the describer, person $+3.10$ and animal $+2.12$ (text $-0.35$). For the example the object finder's sum is $0.41 + 3.52 \times 0.972 + 2.40 \times 0.013 = 3.86$, a probability of $0.98$. The scene matcher's sum is its bias, $2.01$, plus $0.93 \times 0.327$ for family, $2.43 \times 0.157$ for drawing and $0.49 \times 0.046$ for teaching, together $2.72$, a probability of $0.94$; its bias alone would already give $0.88$, because most pictures are scenes. The describer's sum is $4.55$, a probability of $0.99$. A page of sheet music, by contrast, typically has a ``no scene'' score of about $0.89$, which gives the scene matcher $2.01 - 2.83 \times 0.89 = -0.51$ and a probability of $0.38$.
+
+\section{Combining, Deciding and Routing}
+\label{sec:corrected_decision}
+
+The system gives three answers for each picture (Algorithm~\ref{alg:decide}). \emph{Scene class:} the $27$ numbers the three agents report are mapped together to a probability for each of the six answers (five classes and no scene) by one multinomial regression, so that how much each agent counts is learned for each class; the answer is the most probable class, and its uncertainty is one minus that probability. The fixed weights $0.6/0.2/0.2$ of the first level were the plan for this task too, and were replaced because a planned comparison showed the learned combination to be clearly better (Section~\ref{sec:scene_classes}). \emph{Object classes:} for each of the eight classes the three mapped probabilities are averaged, and the classes above a threshold form a list for a person to confirm (Section~\ref{sec:objects_llava_vs_fusion}). \emph{Scene at all}, the first level: the three probabilities of a scene are combined with fixed weights, $p = 0.6\,p_{\text{object}} + 0.2\,p_{\text{scene}} + 0.2\,p_{\text{describer}}$, and the picture is called a scene if $p \ge 0.5$; at this level learned weights give the same result (Section~\ref{sec:corrected_results}). The uncertainty of that call is its closeness to the decision line, $u = 1 - |p - 0.5|$, and a picture is approved without a person when $u$ is below a cut-off $\hat\lambda$ (Algorithm~\ref{alg:decide}).
+
+For the example, $p = 0.6 \times 0.98 + 0.2 \times 0.94 + 0.2 \times 0.99 = 0.97$ at the first level: a scene, and far enough from $0.5$ to be approved. Its scene class, from the mapping fitted on the $582$ class-labelled training pictures of the same split, is ``family'' with probability $0.54$, ahead of ``drawing'' at $0.32$; family is the human label. With the fixed weights $0.6/0.2/0.2$ the answer would have been ``drawing'' ($0.59$), because the describer's strong ``drawing'' and the object finder's weight pull it there. The uncertainty of that answer, $0.46$, is above the cut-off $0.26$ that the $199$ class-labelled calibration pictures give at $\alpha = 0.05$, so the class goes to a person. Its object probabilities, with mappings and threshold fitted on books that do not contain the picture, are $0.93$ for person, $0.37$ for child and $0.23$ for animal, and $0.08$ or less for the other five; at $\alpha = 0.10$ the list threshold is $0.088$, so the list a person confirms is person, child and animal (Section~\ref{sec:objects_llava_vs_fusion}). The hand annotation has person and child only: the animal on the list is the small hen, which the annotator did not box.
+
+\begin{algorithm}[!htbp]
+\caption{Deciding one picture}
+\label{alg:decide}
+\begin{algorithmic}[1]
+\Require picture $x$; the agents' mappings; cut-off $\hat\lambda_{\text{class}}$; list threshold $t$; cut-off $\hat\lambda$
+\State restore $x$ once
+\State $z_{\text{object}} \gets$ best box score per object class \Comment{8 numbers}
+\State $z_{\text{scene}} \gets$ five scene scores and the highest ``not a scene'' score \Comment{6 numbers}
+\State $z_{\text{describer}} \gets P(\text{yes})/(P(\text{yes})+P(\text{no}))$ per scene and object class \Comment{13 numbers}
+\Statex \textit{Scene class}
+\State $P \gets$ one multinomial mapping of $(z_{\text{object}}, z_{\text{scene}}, z_{\text{describer}})$, a probability over the six answers
+\State answer $\gets$ the most probable of the six; $u \gets 1 - \max P$
+\If{$u < \hat\lambda_{\text{class}}$} approve the answer \Else\ send to a person \EndIf
+\Statex \textit{Object classes}
+\State for each class $c$: $p_c \gets$ mean of the three agents' mapped probabilities for $c$
+\State list $\gets \{c : p_c \ge t\}$; a person confirms the list, with boxes from the object finder
+\Statex \textit{Scene at all (first level)}
+\For{each agent $k$} \State $p_k \gets 1/(1 + e^{-(b_k + w_k \cdot z_k)})$ \EndFor
+\State $p \gets 0.6\,p_{\text{object}} + 0.2\,p_{\text{scene}} + 0.2\,p_{\text{describer}}$; scene if $p \ge 0.5$
+\State $u \gets 1 - |p - 0.5|$
+\If{$u < \hat\lambda$} approve automatically \Else\ send to a person \EndIf
+\end{algorithmic}
+\end{algorithm}
+
+Routing uses confidence and not disagreement between the agents. This is a result of the thesis, not a design preference: disagreement ranks the system's errors no better than confidence at any level tested, and worse at most (Chapter~\ref{ch:uncertainty_calibration} and Section~\ref{sec:c4_preregistered}), because most errors are pictures on which all agents are wrong together ($149$ of $199$; Section~\ref{sec:blind_spot_features}).
+
+\section{The Risk Promise}
+\label{sec:risk_promise_explained}
+
+The cut-off $\hat\lambda$ decides how much the system approves on its own. Set too high, wrong answers pass unseen; set too low, a person checks nearly everything. Conformal risk control \cite{crc2024} chooses it from data so that a stated promise holds.
+
+\paragraph{What is promised.} The user names a risk level $\alpha$, for example $0.05$. The quantity controlled is the share of all pictures that are \emph{both} approved automatically \emph{and} wrong. The promise is that, on new pictures, this share is at most $\alpha$ on average.
+
+\paragraph{What is not promised.} The controlled share is not the error rate among the approved pictures: when $70\%$ are approved at a realised risk of $0.05$, about $7\%$ of the approved are wrong, and the thesis reports both where both matter. The average is over calibration sets, so a single batch can exceed $\alpha$ (Section~\ref{sec:matched_realised_risk} shows how often). And the promise assumes that new pictures are exchangeable with the calibration pictures. Because calibration and test pictures are split by book, the unit that must be exchangeable is the book: new books must resemble the calibration books, while the pictures within one book may depend on each other. Section~\ref{sec:archive_check} shows what happens when the calibration pictures do not resemble the archive.
+
+\paragraph{How the cut-off is chosen.} A set of calibration pictures is held back, on which the system has made no fit. For every picture $i$ in it the uncertainty $u_i$ and the error $e_i \in \{0,1\}$ (whether the system's call differs from the human label) are known. For a candidate cut-off $\lambda$, the share of calibration pictures that would be approved and wrong is
+\begin{equation}
+\hat R(\lambda) = \frac{1}{n}\sum_{i=1}^{n} e_i \cdot \mathbb{I}[u_i < \lambda] .
+\end{equation}
+Raising $\lambda$ approves more pictures and can only raise $\hat R$. The method takes the largest cut-off whose risk, with a small allowance for the calibration set being finite, stays within the promise (Algorithm~\ref{alg:crc}):
+\begin{equation}
+\hat\lambda = \max\Big\{\lambda : \tfrac{n}{n+1}\,\hat R(\lambda) + \tfrac{1}{n+1} \le \alpha \Big\} .
+\end{equation}
+The term $\tfrac{1}{n+1}$ is the allowance: it counts the next, unseen picture as if it were wrong. With few calibration pictures the allowance is large and the cut-off cautious; with many it almost vanishes. If no cut-off keeps the promise, nothing is approved and every picture goes to a person. This case matters for the deployed design: a third of its pictures have an uncertainty of exactly zero and would pass any positive cut-off, so at the strictest risk levels it can approve nothing at all.
+
+\begin{algorithm}[!htbp]
+\caption{Choosing the cut-off (conformal risk control \cite{crc2024})}
+\label{alg:crc}
+\begin{algorithmic}[1]
+\Require calibration pictures $i=1..n$ with uncertainty $u_i$ and error $e_i$; risk level $\alpha$
+\For{each candidate cut-off $\lambda$ from $0.001$ to $1$}
+  \State $\hat R(\lambda) \gets \frac{1}{n}\sum_i e_i \cdot \mathbb{I}[u_i < \lambda]$
+\EndFor
+\State \Return $\hat\lambda \gets \max\{\lambda : \tfrac{n}{n+1}\hat R(\lambda) + \tfrac{1}{n+1} \le \alpha\}$
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{A worked example.} On the fixed split there are $n = 252$ calibration pictures, so the allowance is $1/253 \approx 0.004$. For $\alpha = 0.05$ the condition becomes $\hat R(\lambda) \le (0.05 - 1/253)\cdot 253/252 \approx 0.046$: at most $11$ of the $252$ calibration pictures may be approved and wrong. The largest cut-off that keeps to this is $\hat\lambda = 0.829$, which means a picture is approved when its combined probability is more than $0.171$ away from $0.5$. On the $249$ test pictures of that split this approves $70.7\%$ with a realised risk of $0.036$. Figure~\ref{fig:crc_cutoff_curve} draws this choice.
+
+\begin{figure}[!htbp]
+\centering
+\safeincludegraphics[width=0.82\textwidth]{crc_cutoff_curve.png}
+\caption[How the cut-off is chosen]{How the cut-off is chosen, on the $252$ calibration pictures of the fixed split. Top: the share of calibration pictures that a cut-off $\lambda$ would approve while their call is wrong; it can only rise as $\lambda$ rises. The dashed line is the allowed level at $\alpha = 0.05$, $0.046$ once the allowance for a finite calibration set is taken off, so that at most $11$ of the $252$ pictures may be approved and wrong. The cut-off is the largest $\lambda$ below that line, $\hat\lambda = 0.829$. Bottom: the share of calibration pictures approved at each cut-off, $70.6\%$ at $\hat\lambda$. An illustration added after the results; it reproduces the worked example.}
+\label{fig:crc_cutoff_curve}
+\end{figure}
+
+\paragraph{What the promise needs, and what it does not say.} The promise needs no assumption about the models or the form of the scores. It needs one thing: that new pictures are like the calibration pictures, in the sense that their order could be exchanged. The splits in this thesis are drawn by book, so that no book contributes to both sides; the promise then assumes that new books resemble the calibration books. Section~\ref{sec:archive_check} tests that assumption on pictures drawn at random from the archive, where it fails for a cut-off calibrated on the labelled pool. When calibration and new data differ, the guarantee degrades by an amount that grows with the difference \cite{barber2023beyond}. The promise is about the average over calibration sets, not about each batch: Section~\ref{sec:matched_realised_risk} shows that the average is met ($0.0498$ at $\alpha = 0.05$) and that a single split exceeds the level in $41.5\%$ of cases. It also says nothing about the pictures sent to a person, nor about each object class separately; a threshold per class is needed for the latter. A promise that holds with high probability for the calibration set in hand, instead of on average, is given by Learn then Test \cite{angelopoulos2021ltt}; it would trade some approval for that guarantee and is not used here.
+
+\section{Evaluation Protocol}
+\label{sec:corrected_protocol}
+
+The corrected design is evaluated on the 1,250 labelled pictures from 550 books. A single split by book (749 training, 252 calibration and 249 test pictures) fixes the worked examples above. Because one split of this size is noisy, every headline figure of this chapter comes from 200 redraws of that split: the books are partitioned 60/20/20 anew, the mappings are refitted on the training books, the cut-off is calibrated on the calibration books, and everything is measured on the test books. Differences between designs are taken per redraw (paired), and reported with the 2.5th and 97.5th percentiles over redraws and the share of redraws in which the difference is positive. This range says how much the result of a single split of this size varies; it is not a confidence interval for the mean. Because the redraws share most of their pictures, the usual standard error of a mean over 200 redraws would be far too small; the corrected resampled $t$-test \cite{nadeau2003inference} allows for the overlap, and its $95\%$ intervals for the mean are typically about $0.59$ times as wide as the reported range. A difference is called established only when the whole reported range lies on one side of zero. This rule is stricter than the corrected test: of the $114$ paired differences computed for this chapter, all $23$ that it calls established are also significant by that test, and $19$ more would be, among them the ranking gain over the deployed design (below). The stricter rule is kept, and even then the statement is about this pool.
+
+\paragraph{Planned and added analyses.} From September 2026 on, most analyses were fixed in a written plan, committed to the project repository before they were run; the analyses of Chapters~\ref{ch:spatial_collapse} to~\ref{ch:triage_risk_control} were not. Table~\ref{tab:planned_analyses} lists which results were planned and which were added after a result was known; the text says so at each added analysis.
+
+\paragraph{Reproducibility.} Every figure comes from a script with a fixed seed and is checked against its result file by a further script before it enters the text. The whole pipeline, from the raw model outputs to the figures, was run twice from scratch. The scene matcher, the deployed signals and every analysis that rests only on them reproduce exactly. The vision-language model's scores and the retrained object finders do not: GPU arithmetic is not deterministic, so they move slightly between runs. In the second rerun this moved the headline approval at $\alpha = 0.05$ from $76.9\%$ to $76.4\%$, and it reordered the three label sets of Section~\ref{sec:label_filter}, which differ by less than the noise between two training runs. Every figure in this thesis is from the latest run. The code and the scripts that check every reported figure against its result file are public at \url{https://github.com/brhanug/Multi-Agent-Systems-For-Image-Analysis-Object-and-Complex-Scene-Detection}, branch \texttt{thesis-submission}; the result files are available from the author on request, and the archive's scans belong to the Colibri collection and are not redistributed.
+
+\section{The Five Scene Classes}
+\label{sec:scene_classes}
+
+The class lists of this thesis were fixed early: five scene classes (teaching, family, playing, landscape and drawing) and eight object classes. This section and the next evaluate the corrected design on those classes. The plan for both was fixed in writing before either was run.
+
+\paragraph{The task.} Each picture receives one of six answers: one of the five scene classes, or ``no scene''. The pictures are those of the labelled pool whose class is known: the $801$ expert-reviewed pictures, each with at most one scene class, and the $191$ pictures labelled ``no scene'' in the 2026 rounds. The $258$ pool pictures labelled ``scene'' in those rounds carry no class and are left out. Under one definition of a scene (Section~\ref{sec:archive_check}), an expert picture that the author labelled ``no scene'' under the scene rule becomes ``no scene''; this is the primary variant. That gives $992$ pictures from $441$ books: no scene $486$, drawing $341$, landscape $76$, family $51$, playing $32$ and teaching $6$. ``Drawing'' is then a picture with figurative content that fits none of the four other classes. Teaching, with six pictures, is reported but not interpreted.
+
+The expert's labels of the $801$ pictures came without written definitions. The author's own scene-class labels, those of the archive test in particular, follow the codebook of Table~\ref{tab:scene_codebook}. That the classes rest partly on unwritten definitions is one reason people agree on them only moderately (Section~\ref{sec:scene_agreement}), and Section~\ref{sec:drawing_clusters} shows how much ``drawing'' holds.
+
+\begin{table}[!htbp]
+\centering
+\caption[The scene classes as defined for labelling]{The scene classes as the author defines them for labelling. If two classes fit, the main subject decides; if they fit equally, teaching, playing or family come before landscape, and all four before drawing.}
+\label{tab:scene_codebook}
+\small
+\begin{tabular}{l>{\raggedright\arraybackslash}p{11cm}}
+\toprule
+Answer & Definition \\
+\midrule
+Teaching & A lesson or instruction: a teacher and pupils, a school, someone being taught or read to \\
+Family & Family life: parents with children, people together at home \\
+Playing & Play, games or sport \\
+Landscape & Outdoor scenery is the main subject; people are small or absent \\
+Drawing & Any other scene with people, animals or a room \\
+No scene & Sheet music, text, a cover, blank or marbled paper, a border, an ornament, an initial without figures, a diagram, map or table, an emblem, coat of arms or stamp (even with a figure), a single object, a plant study \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{The method.} The agents are those of the corrected design. The describer is asked one yes/no question per scene class as well as per object class, so it reports $13$ yes-strengths. The plan, fixed before the run, mapped each agent's report to a probability over the six answers by a multinomial logistic regression fitted on the training books, the six-answer form of the mapping of Section~\ref{sec:corrected_translation}, and combined the three with the weights $0.6/0.2/0.2$ of the first level. A second plan, also fixed before it was run, compared these weights with learned ones (below). Learning was clearly better, and the system therefore combines the agents with \emph{one joint mapping}: a single multinomial regression on all $27$ numbers the three agents report, fitted on the training books. This choice was made after that comparison, on the same redraws, so a further check, fixed in writing before it was run, repeats the choice inside each redraw on the training books alone (below); the planned figures are reported beside the system's throughout. The answer is the most probable class, and the uncertainty is one minus the largest probability. Conformal risk control approves single answers, with the loss ``approved and wrong class'', and also builds prediction sets: the smallest set of classes $\{k : p_k \ge 1 - \lambda\}$, always including the top class, whose miss rate keeps the conformal bound. The protocol is that of Section~\ref{sec:corrected_protocol}: 200 book-disjoint redraws, 60/20/20.
+
+\begin{table}[!htbp]
+\centering
+\caption[The six scene answers: systems compared]{The six scene answers (five classes and no scene) on 992 pictures of the labelled pool, under one definition of a scene; means over 200 book-disjoint redraws. Macro-F1 and balanced accuracy weight the six answers equally; approval under conformal risk control at $\alpha=0.05$, with the share of approved answers that are wrong. The system learns its combination (one joint mapping), chosen after the planned comparison with the fixed weights; the scene matcher zero-shot takes the largest of its six scores without any training.}
+\label{tab:scene_classes}
+\small
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{lcccc}
+\toprule
+System & Macro-F1 & Accuracy & \twoline{Balanced}{accuracy} & \twoline{Approved at}{$\alpha=0.05$ (wrong)} \\
+\midrule
+\textbf{Combined, one joint mapping (the system)} & \textbf{0.523} & \textbf{82.1\%} & 0.544 & \textbf{69.1\%} (7.0\%) \\
+Combined, fixed $0.6/0.2/0.2$ (planned) & 0.390 & 78.0\% & 0.401 & 61.6\% (7.8\%) \\
+Combined, equal weights & 0.406 & 79.3\% & 0.413 & 64.6\% (7.4\%) \\
+Object finder alone & 0.357 & 76.1\% & 0.381 & 55.0\% (8.7\%) \\
+Scene matcher alone & 0.327 & 67.5\% & 0.329 & 44.5\% (10.7\%) \\
+Describer alone & 0.480 & 80.0\% & 0.507 & 64.9\% (7.6\%) \\
+Scene matcher zero-shot & 0.516 & 75.7\% & \textbf{0.571} & 50.7\% (9.0\%) \\
+Majority answer & 0.109 & 48.9\% & 0.174 & 0.0\% \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\paragraph{Fixed weights pull the answers towards the large classes.} With the planned fixed weights the combined design answers $78.0\%$ of the pictures correctly, but most of that is ``no scene'' and ``drawing'' (Table~\ref{tab:scene_classes}). Weighting the six answers equally, it reaches a balanced accuracy of $0.401$, lower than the describer alone ($0.507$; difference $-0.106$, $[-0.223, -0.005]$ over the redraws) and lower than the scene matcher with no training at all ($0.571$). The trained mappings follow the class sizes, and the weight of $0.6$ on the object finder, which has no notion of scene classes, pulls the rare classes into ``drawing'': of the family pictures $84\%$ are called drawing, of the playing pictures $75\%$, of the teaching pictures $74\%$, and of the landscapes $55\%$ ($23\%$ more are called no scene). The specific classes are found in $13\%$ (family), $11\%$ (playing) and $25\%$ (landscape) of cases, and teaching never (Table~\ref{tab:scene_classes_per_class}).
+
+\paragraph{Fixed or learned combination weights (planned before it was run).} The weights $0.6/0.2/0.2$ were taken over from the deployed design, where the object signal carried the decision; they were never chosen for the scene classes. Two learned combinations were therefore compared with them on the same 200 redraws, both fitted on the training books only. \emph{Learned weights}: each agent's mapping predicts training books it was not fitted on (five folds by book), and a regression on these predictions learns how to combine the three agents. \emph{One joint mapping}: a single multinomial regression on all $27$ numbers the agents report. Learning the combination helps clearly. The balanced accuracy rises from $0.401$ with the fixed weights to $0.506$ with learned weights (difference $+0.105$, $[0.018, 0.193]$) and to $0.544$ with one joint mapping ($+0.143$, $[0.046, 0.276]$); macro-F1 rises from $0.390$ to $0.489$ and $0.523$, and the share approved at $\alpha=0.05$ from $61.6\%$ to $67.8\%$ and $69.1\%$. The learned weights give the describer about half of the weight ($0.49$), the object finder $0.27$ and the scene matcher $0.24$: for the scene classes the fixed weights had the agents the wrong way round. For the eight object classes, learning the combination does not help: the joint mapping ranks at $0.903$ like the mean, and learned weights do slightly worse ($0.886$).
+
+\paragraph{Is the gain an artefact of choosing it? (planned before it was run)} Because the joint mapping was chosen on the redraws it is reported on, the choice was repeated inside each redraw using the training books only: five folds by book, each of the four combinations (fixed, equal, learned weights, joint mapping) scored by balanced accuracy on the held-out fold, and the best refitted and scored on the test books. The joint mapping is chosen in $196$ of the $200$ redraws and learned weights in the other $4$; the chosen combination reaches a balanced accuracy of $0.543$ on the test books, ahead of the fixed weights in every redraw ($+0.142$, $[0.046, 0.276]$). The choice does not explain the gain. The gain does depend on how freely the mapping may fit: it keeps the regression's default regularisation ($C = 1$), and with ten times stronger regularisation ($C = 0.1$) its balanced accuracy falls to $0.399$, because the rare classes are pulled into the large ones again; with ten times weaker ($C = 10$) it reaches $0.563$. The fixed weights and the describer alone move the same way ($0.308$ and $0.360$ at $C = 0.1$, $0.435$ and $0.536$ at $C = 10$; an extra check added after this one), so the order (joint mapping, then the describer alone, then the fixed weights) holds at every setting: the regularisation sets the level, not the comparison. $C$ was fixed before these checks and is not changed after them. The system therefore uses the joint mapping for the scene classes and the mean for the objects; the rest of this section reports the joint mapping, with the planned fixed weights for comparison.
+
+\begin{table}[!htbp]
+\centering
+\caption[Recall and precision per scene answer]{Each scene answer: recall and precision over 200 book-disjoint redraws, for the planned combination with fixed weights, the system (learned combination), the describer alone, and the system with class-balanced fitting (an analysis added after the planned run). Pictures: the number in the 992. A dash: the class is never answered correctly.}
+\label{tab:scene_classes_per_class}
+\small
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{lrcccccccc}
+\toprule
+ & & \multicolumn{2}{c}{Fixed (planned)} & \multicolumn{2}{c}{The system} & \multicolumn{2}{c}{Describer alone} & \multicolumn{2}{c}{System, balanced} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(lr){9-10}
+Answer & Pictures & Recall & Precision & Recall & Precision & Recall & Precision & Recall & Precision \\
+\midrule
+teaching & 6 & 0.0\% & -- & 0.0\% & -- & 0.0\% & -- & 8.2\% & 3.4\% \\
+family & 51 & 13.4\% & 55.1\% & 44.1\% & 52.8\% & 47.8\% & 52.2\% & 55.4\% & 39.0\% \\
+playing & 32 & 11.1\% & 27.6\% & 27.1\% & 46.4\% & 7.6\% & 19.3\% & 55.2\% & 29.4\% \\
+landscape & 76 & 24.6\% & 73.9\% & 61.8\% & 72.8\% & 60.9\% & 69.4\% & 85.8\% & 51.5\% \\
+drawing & 341 & 89.9\% & 66.4\% & 88.7\% & 74.3\% & 83.9\% & 72.7\% & 67.4\% & 81.5\% \\
+no scene & 486 & 90.6\% & 90.6\% & 90.0\% & 94.7\% & 90.4\% & 91.8\% & 88.3\% & 98.0\% \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\paragraph{The learned combination.} The system answers $82.1\%$ of the pictures correctly and finds the specific classes far more often than the fixed weights: landscape in $62\%$, family in $44\%$ and playing in $27\%$ of cases, at precisions of $73\%$, $53\%$ and $46\%$; teaching is still never found (Table~\ref{tab:scene_classes_per_class}). The pull towards ``drawing'' is weaker but remains: $49\%$ of the family pictures, $51\%$ of the playing pictures and $30\%$ of the landscapes are called drawing. Against the describer alone, an extra comparison added after the planned run, the system is ahead by $0.037$ in balanced accuracy, in $84\%$ of the redraws, but the range includes zero ($[-0.042, 0.120]$). It also stays below the scene matcher with no training in balanced accuracy ($0.571$), because a zero-shot choice is not pulled towards the large classes, although that choice is right less often overall ($75.7\%$).
+
+\paragraph{What the risk promise approves.} At $\alpha=0.05$ the system approves $69.1\%$ of the pictures with a single answer, at a realised risk of $0.049$; $7.0\%$ of the approved answers are wrong (with the fixed weights $61.6\%$ and $7.8\%$). Of these approvals, $62.6\%$ are ``no scene'' answers (of which $1.6\%$ are wrong) and $33.0\%$ are ``drawing'' (of which $16.2\%$ are wrong). Landscape makes up $3.2\%$ of the approvals and family $1.1\%$, but $15.6\%$ of the approved landscapes and $29.9\%$ of the approved family answers are wrong; playing and teaching are almost never approved. With the fixed weights the picture was the same in kind: $71.8\%$ of the approvals ``no scene'' ($3.3\%$ wrong) and $27.7\%$ ``drawing'' ($20.2\%$ wrong). Under the promise the design therefore labels ``no scene'' automatically and reliably, labels ``drawing'' with about one answer in six wrong, and leaves the specific scene classes to a person: the few it approves are too often wrong to be trusted.
+
+\paragraph{Prediction sets.} A person can also be given a short list instead of one answer. At $\alpha=0.10$ the system's sets contain the right answer for $90.4\%$ of the pictures, as promised, with $1.28$ classes on average, and $73.9\%$ of them contain one class (with the fixed weights $90.5\%$, $1.50$ and $59.7\%$). The promise is an average over all pictures, however, and the class sizes decide where it is kept. The sets contain the right answer for $95\%$ of the drawing and $96\%$ of the no-scene pictures, but for $81\%$ of the landscapes, $66\%$ of the family pictures and $42\%$ of the playing pictures (with the fixed weights $68\%$, $54\%$ and $32\%$). A promise for each class separately is tested below.
+
+\paragraph{Balanced fitting (an analysis added after the planned run).} The obvious remedy for the pull towards the large classes is to weight the classes equally when fitting the mapping. This was not part of the plan and is reported separately. It raises the system's balanced accuracy to $0.625$ (the fixed-weight combination fitted this way reaches $0.541$), level with the describer alone fitted the same way ($0.631$; difference $-0.006$, $[-0.227, 0.109]$), and the specific classes are found far more often: landscape in $86\%$, family in $55\%$ and playing in $55\%$ of cases (Table~\ref{tab:scene_classes_per_class}). It does not make them safe to approve. The system then approves $60.2\%$ at $\alpha=0.05$, $67.5\%$ of the approvals are ``no scene'', and the approved specific classes are often wrong ($25.3\%$ of the approved landscapes, $45.8\%$ of the family and $64.2\%$ of the playing answers). The sets at $\alpha=0.10$ now contain the right answer for $94\%$ of the landscapes, $82\%$ of the family and $80\%$ of the playing pictures, at $1.51$ classes on average. For a cataloguer, a balanced short list is the most useful form of the scene-class result.
+
+\paragraph{The labels.} With the expert's classes as given, where sheet music, covers and borders count as ``drawing'', the planned combination reaches a macro-F1 of $0.233$ instead of $0.390$ and finds $5.3\%$ of the no-scene pictures. One definition of a scene is therefore a precondition for the class task as well. The classes themselves are also not easy for people: the expert and the author agree on them at $\kappa = 0.337$, and the author agrees with themselves at $\kappa = 0.36$ (Section~\ref{sec:scene_agreement}), most disagreements being about ``drawing''. A system cannot be measured more precisely than its labels allow, and for the four specific classes these labels rest on $165$ pictures from one expert.
+
+\paragraph{A promise per class (planned before it was run).} Class-conditional (Mondrian) conformal prediction \cite{vovk2012conditional} gives each class its own threshold, set on the calibration pictures of that class, so that the short list contains the right answer for at least $90\%$ of the pictures of \emph{every} class with enough calibration pictures. Over the same 200 redraws at $\alpha=0.10$, the system's lists contain the right class for $94\%$ of the family, $96\%$ of the playing and $93\%$ of the landscape pictures, and for $92\%$ and $91\%$ of the drawing and no-scene pictures. The price is length: $3.5$ classes of six on average, against $1.28$ with one threshold ($3.7$ with the fixed weights, as planned). Teaching, with too few pictures for a threshold of its own, is always listed. With balanced fitting the picture is the same ($3.6$ classes). Methods that pool similar classes \cite{ding2023classconditional} aim at shorter lists for rare classes; with $6$ to $76$ pictures per specific class the pool is too small to test them.
+
+\paragraph{What follows.} On the five scene classes, the agents can rank and shortlist but not decide. Their combination has to be learned: with the inherited fixed weights it is worse than the describer alone, and learned it reaches a balanced accuracy of $0.544$ ($0.625$ with balanced fitting), about as good as the describer alone or slightly better. A short list built with balanced fitting contains the right class for four pictures in five or more, in each class except teaching. Under a risk promise ``no scene'' is approved reliably and ``drawing'' with one answer in six wrong; the specific scene classes need a person. A promise per class covers every class at $91\%$ or more, but with lists of $3.5$ of six classes.
+
+\section{The Eight Object Classes}
+\label{sec:objects_llava_vs_fusion}
+
+The eight object classes are person, child, animal, building, weapon, vehicle, tree and text. The data are the $300$ pictures with hand-drawn boxes, the only pictures with object labels. A class counts as present if a person drew a box of that class. The pictures contain $1.38$ classes on average, and $56$ contain none. The rare classes have few examples (vehicle $9$, building $17$, weapon $25$), so for them the figures below show the mechanism rather than a deployment figure. Each system's per-class score is mapped to a probability by a logistic fit per class, and the combination is the mean of the three. Over $200$ draws the books are split $40/30/30$ into fitting, calibration and test books.
+
+\paragraph{Where the objects are.} Only the object finder says where an object is. Against the human boxes, the retrained object finder reaches a mean AP50 of $0.210$, against $0.123$ for the original one (Section~\ref{sec:student_rebuild}). By class it reaches person $0.362$, animal $0.412$, building $0.254$, vehicle $0.246$, tree $0.141$, child $0.129$, weapon $0.083$ and text $0.056$. Boxes for the rare classes are not usable without a person.
+
+\paragraph{Which objects are in the picture.} Whether a class is present at all is recognised much better (Table~\ref{tab:objects_per_class}). Over the eight classes the combined design ranks pictures with the class above pictures without it at a mean AUROC of $0.903$, with a mean average precision of $0.704$. The describer alone reaches the same ($0.903$ and $0.706$). The describer's question form and wording (one yes/no question per class) were chosen in a pilot on $100$ of these $300$ pictures; on the $200$ the pilot did not use, its raw scores rank the classes as well as on the pilot's $100$ (mean AUROC $0.908$ against $0.905$), so the choice did not favour the pictures it was made on. The retrained object finder reaches $0.803$ and $0.550$, and the scene matcher $0.846$ and $0.560$. The deployed detector reached $0.624$ (Section~\ref{sec:against_baselines}). As for the scene classes, the combination ties the describer and does not improve on it. It is best on four classes, the describer on four.
+
+\begin{table}[!htbp]
+\centering
+\caption[Recognising each object class]{Recognising each object class on the 300 hand-annotated pictures: ranking of pictures with the class above pictures without it (AUROC) for each system and their combination, and average precision (AP) of the combination and the describer; means over 200 book-disjoint draws (fit 40\%, test 30\% of the books). Pictures: how many contain the class.}
+\label{tab:objects_per_class}
+\small
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{lrcccccc}
+\toprule
+ & & \multicolumn{4}{c}{AUROC} & \multicolumn{2}{c}{AP} \\
+\cmidrule(lr){3-6}\cmidrule(lr){7-8}
+Class & Pictures & Object finder & Scene matcher & Describer & Combined & Describer & Combined \\
+\midrule
+person & 127 & 0.920 & 0.920 & 0.938 & \textbf{0.953} & 0.893 & 0.942 \\
+child & 42 & 0.685 & 0.795 & \textbf{0.864} & 0.830 & 0.586 & 0.503 \\
+animal & 87 & 0.865 & 0.886 & \textbf{0.930} & 0.924 & 0.908 & 0.904 \\
+building & 17 & 0.826 & 0.902 & 0.955 & \textbf{0.960} & 0.698 & 0.658 \\
+weapon & 25 & 0.648 & 0.762 & 0.812 & \textbf{0.827} & 0.491 & 0.538 \\
+vehicle & 9 & 0.863 & 0.919 & \textbf{0.987} & 0.984 & 0.909 & 0.845 \\
+tree & 49 & 0.814 & 0.812 & 0.858 & \textbf{0.878} & 0.594 & 0.663 \\
+text & 58 & 0.807 & 0.774 & \textbf{0.880} & 0.866 & 0.572 & 0.580 \\
+\midrule
+Mean & & 0.803 & 0.846 & 0.903 & 0.903 & 0.706 & 0.704 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\paragraph{A promise on all decisions confirms no objects.} The promise used for scenes bounds the share of \emph{all} decisions that are approved and wrong. Run for each class on its own (one cut-off per class, $\alpha = 0.05$, the 300 pictures split by book into calibration and test halves over 200 draws), it stays close to its level in every class but not within it in all: averaged over the draws, the realised risk is $0.031$--$0.055$, and six of the eight class averages lie above $0.05$, the largest (child) by $0.005$. Conformal risk control promises its level for test decisions exchangeable with the calibration decisions; here the two halves are split by book, and the decisions within one book resemble each other more than those of different books, so a small excess is not a surprise. Calibrating with the book instead of the single decision as the unit moves the excess between classes ($0.030$--$0.060$) without removing it. For the point of this paragraph the excess does not matter, because what the promise approves is almost only ``absent'' calls. Of the objects that are in the pictures, at most $0.4\%$ are confirmed without a person. For the rare classes, most of the objects that are there are approved as absent without anyone looking: $99.5\%$ of the vehicles, $84.7\%$ of the buildings and $58.7\%$ of the weapons (Table~\ref{tab:objects_risk_per_class}). For a class in $3\%$ of the pictures, approving ``absent'' everywhere keeps the share of wrong approvals at $3\%$, inside the promise, while missing every object. For objects, a promise on all decisions is the wrong promise.
+
+\begin{table}[!htbp]
+\centering
+\caption[Risk control per object class]{Risk control per object class at $\alpha = 0.05$, one cut-off per class, with the fused score of the retrained object finder, the scene matcher and the describer; means over 200 book-disjoint draws on the 300 hand-annotated pictures. Realised risk: share of the class's decisions approved and wrong, averaged over the draws (values above $0.05$ are discussed in the text). Of the class's objects: the share confirmed as present without a person, and the share approved as absent, so missed without anyone looking.}
+\label{tab:objects_risk_per_class}
+\small
+\begin{tabular}{lccccc}
+\toprule
+ & & & & \multicolumn{2}{c}{Of the class's objects} \\
+\cmidrule(lr){5-6}
+Class & Approved & Realised risk & Wrong among approved & Confirmed & Missed unseen \\
+\midrule
+person & 10.6\% & 0.052 & 49.1\% & 0.4\% & 11.6\% \\
+child & 36.6\% & 0.055 & 14.4\% & 0.0\% & 38.4\% \\
+animal & 23.8\% & 0.053 & 21.0\% & 0.0\% & 18.0\% \\
+building & 79.9\% & 0.049 & 6.1\% & 0.0\% & 84.7\% \\
+weapon & 67.6\% & 0.053 & 7.3\% & 0.0\% & 58.7\% \\
+vehicle & 99.5\% & 0.031 & 3.1\% & 0.0\% & 99.5\% \\
+tree & 39.0\% & 0.051 & 12.6\% & 0.0\% & 31.1\% \\
+text & 31.7\% & 0.052 & 15.7\% & 0.0\% & 26.2\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{A promise on missed objects.} An archive cataloguing objects needs to know how many objects it misses. Conformal risk control supports this directly, with a different loss \cite{crc2024}. Each picture receives the set of classes whose probability reaches a threshold $t$, and $t$ is chosen on the calibration books so that the expected share of a picture's present classes left out of its set is at most $\alpha$. A person then confirms the listed classes instead of searching the picture for all eight. Table~\ref{tab:objects_missed_promise} shows the result for the combined design. The promise is kept at every level. At $\alpha=0.10$ a picture's list leaves out $9.2\%$ of its objects on average, the measure the promise bounds. Pictures without objects count as nothing missed, so the share of all objects present that are left out is higher, $10.8\%$, and the average over the pictures that contain objects is $11.3\%$; a bound on the objects themselves needs a lower $\alpha$ (at $\alpha=0.05$, $5.0\%$ of all objects are left out). The lists hold $2.8$ classes on average, and add $1.56$ wrong classes per picture; $45.5\%$ of the listed classes are present, and $20.9\%$ of the lists are exactly right. Recall per class stays high for the common classes (person $97\%$, animal $92\%$, text $92\%$) and lowest for weapon ($68\%$) and child ($79\%$). The describer alone gives slightly shorter lists at the same promise ($2.6$ classes, $1.37$ wrong per picture at $\alpha=0.10$).
+
+\begin{table}[!htbp]
+\centering
+\caption[A promise on missed objects]{A promise on missed objects: each picture receives the set of object classes whose combined probability reaches a threshold chosen by conformal risk control so that the expected share of its present classes left out is at most $\alpha$; means over 200 book-disjoint draws on the 300 hand-annotated pictures (fit 40\%, calibrate 30\%, test 30\% of the books). Missed per picture is the measure the promise bounds, with pictures without objects counting as nothing missed; of all objects missed pools the objects of all test pictures.}
+\label{tab:objects_missed_promise}
+\small
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{lcccccc}
+\toprule
+$\alpha$ & \twoline{Missed}{per picture} & \twoline{Of all}{objects missed} & \twoline{Classes}{listed} & \twoline{Wrong classes}{per picture} & \twoline{Listed classes}{present} & \twoline{Lists}{exactly right} \\
+\midrule
+0.05 & 4.2\% & 5.0\% & 4.42 & 3.10 & 30.8\% & 4.3\% \\
+0.10 & 9.2\% & 10.8\% & 2.80 & 1.56 & 45.5\% & 20.9\% \\
+0.20 & 19.9\% & 25.3\% & 1.52 & 0.48 & 68.9\% & 45.8\% \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\paragraph{What follows.} For the eight object classes, the agents rank well: every class is recognised far above chance by the describer and by the combination. What can be promised is a short list with a known share of missed objects, at the cost of wrong classes that a person strikes out. Automatic confirmation of single objects is not possible at a useful level. Boxes for the rare classes need a person. The combination of agents does not improve on the describer alone, and learning how to combine them does not change this (Section~\ref{sec:scene_classes}).
+
+\section{Scene Presence on 200 Redraws}
+\label{sec:corrected_results}
+
+This and the following sections concern the first level of the scene decision: whether a picture shows a scene at all. Table~\ref{tab:corrected_200} compares the deployed design with the two corrected variants.
+
+\begin{table}[!htbp]
+\centering
+\caption[Scene presence: deployed and corrected designs]{The deployed design, the corrected design, and the corrected design with the ``no scene'' score, as means over 200 book-disjoint redraws: ranking of scene presence (AUROC), error rate of the scene call, and share approved automatically at three risk levels, with the realised risk in brackets. The deployed design is routed by the spread of its signals, the disagreement it was built on (the triage score it deployed, which mixes in mean confidence, approves $63.0\%$ at $\alpha=0.05$ and $0.10$); the corrected designs by confidence.}
+\label{tab:corrected_200}
+\small
+\begin{tabular}{lccccc}
+\toprule
+Design & AUROC & Error & $\alpha=0.05$ & $\alpha=0.10$ & $\alpha=0.15$ \\
+\midrule
+Deployed & 0.829 & 25.4\% & 61.1\% (0.017) & 61.5\% (0.019) & 70.0\% (0.076) \\
+Corrected & 0.850 & 15.5\% & 75.3\% (0.050) & 86.8\% (0.100) & 95.9\% (0.137) \\
+Corrected + ``no scene'' & 0.866 & 15.6\% & 76.4\% (0.050) & 89.1\% (0.101) & 96.8\% (0.140) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Against the deployed design routed by disagreement, the corrected design with the ``no scene'' score approves $15.3$ points more at $\alpha = 0.05$ ($[3.9, 29.4]$), $27.7$ more at $0.10$ ($[15.5, 39.9]$) and $26.7$ more at $0.15$ ($[3.5, 44.3]$), and more in at least $99\%$ of redraws at each level. Against the triage score the deployed design actually used (below), the gain is $13.5$ points at $\alpha=0.05$ ($[2.2, 28.0]$, in $99.5\%$ of redraws) and $26.1$ at $0.10$ ($[15.1, 37.3]$). This is the established gain. In the rest of this chapter the deployed design is routed by disagreement, the hypothesis it was built on. Its ranking is better by $0.0377$, in $88\%$ of redraws ($[-0.023, 0.098]$), a likely but not established gain by the rule of this thesis; the corrected resampled $t$-test finds it significant (interval $[0.001, 0.074]$). Its lower error rate is not a gain in judgement: at the line $p = 0.5$ the corrected design calls almost every picture a scene, so its error rate is that of always answering ``scene'' (Section~\ref{sec:decision_line}). Every picture it approves automatically is a confident scene call; every picture it judges to show no scene goes to a person, as in the deployed design. Section~\ref{sec:matched_realised_risk} repeats the approval comparison at the same realised risk.
+
+\paragraph{The combination weights.} Over the same redraws, equal weights and weights learned on the training books give the same ranking as the fixed $0.6/0.2/0.2$ ($0.863$--$0.866$) and the same approval within a point; the learned shares average $0.42$, $0.24$ and $0.34$. One joint mapping on all $22$ numbers the agents report, the form the scene classes use, does the same (ranking $0.864$, $75.2\%$ approved at $\alpha=0.05$ against $76.4\%$; no difference established, a check fixed before it was run). The weights do not matter at this level, and the fixed ones are kept for it, because the archive tests were fixed with them. They do matter for the scene classes, where learned weights are clearly better (Section~\ref{sec:scene_classes}).
+
+\paragraph{The deployed triage score and its $0.6/0.4$.} The deployed design routed by $U_{\text{triage}} = 0.6 \cdot \text{spread} + 0.4 \cdot (1 - \text{mean confidence})$ over its four signals; the split was set by hand. Swept from $0$ to $1$ on the same redraws (a check fixed before it was run), the weight on the spread hardly matters: every weight from $0$ to $0.6$ orders the eight states of the deployed signals the same way and approves $63.0\%$ at $\alpha=0.05$, and weights of $0.7$ and above approve $61.1\%$, the spread alone. Errors are ranked at $0.877$ with confidence alone and $0.876$ with the deployed mix. Choosing the weight on the training books picks $0$, $0.5$ or $0.6$ and changes nothing. With eight states, no weighting of these two terms can do better; the corrected design therefore drops the spread and routes on its own confidence alone. Learning every variable of the deployed design at once (a check fixed before it was run) settles the question: with the $SAA$ weights and threshold learned by a logistic regression on its signals, and the routing score learned either as the weight above or as a model that predicts the deployed design's errors, the relearned design ranks scenes at $0.826$ (deployed: $0.829$) and approves $63.8\%$ at $\alpha=0.05$ (deployed: $63.0\%$) and $75.3\%$ at $0.10$ (deployed: $63.0\%$). Learning lets it use the larger risk budget at $0.10$, but not rank better. The corrected design still approves $12.6$ points more at $\alpha=0.05$ ($[1.4, 26.8]$, established) and $13.8$ more at $0.10$ ($[-4.4, 33.5]$, not established). Its gain comes from what the agents measure, not from how the old signals are weighted.
+
+\paragraph{Ablation.} Removing one piece at a time, over the same redraws, changes little: without the ``no scene'' score the ranking is $0.850$ and approval at $\alpha=0.05$ is $75.3\%$; without the object finder $0.858$ and $75.8\%$; without the scene matcher $0.852$ and $75.3\%$; without the describer $0.867$ and $75.6\%$. No interval of a paired difference excludes zero. Any single agent alone is weaker ($0.835$--$0.852$, approval $72.1$--$74.3\%$), but not by an established margin: the combination approves $2.1$ points more than the describer alone ($[-6.5, 12.5]$ over the redraws). No piece is decisive, and the describer adds nothing to the scene decision when the other two are present; it is kept because it is the strongest system for single object classes (Section~\ref{sec:objects_llava_vs_fusion}) and feeds the contradiction checker of Tier~2.
+
+\paragraph{Outside the pool, and under another labeller.} On the 90 hand-annotated pictures from books outside the fitting pool, nothing refitted, the corrected design does not rank better than the deployed one ($0.894$ against $0.929$; difference $-0.032$, $[-0.115, 0.038]$), while it still approves more ($67.8\%$ against $56.7\%$ at $\alpha=0.05$). On the 197 pictures that carry labels from two sources, which agree on 162 ($\kappa = 0.41$), the order of the two designs follows the labeller: with the pool's labels the corrected design ranks better ($0.865$ against $0.840$), with the second source's labels the deployed one does ($0.818$ against $0.790$); no interval excludes zero. The results of this section therefore hold for the definition of a scene used in the labelled pool, and the thesis does not claim that the ranking gain carries over to other labellers. Section~\ref{sec:archive_check} fixes one definition and tests the promise on the archive itself.
+
+\section{The Decision Line}
+\label{sec:decision_line}
+
+The corrected design calls a picture a scene when its combined probability reaches $0.5$. That line is a poor choice for this archive. Most labelled pictures are scenes ($84.5\%$ of the training pictures), and the average of three probabilities is pulled towards the middle, so the combined probability almost never falls below $0.5$: on the test books of 200 redraws, the design calls $0.9\%$ of pictures ``no scene'' and finds only $2.0\%$ of the no-scene pictures. Its error rate of $15.6\%$ is therefore the error rate of always answering ``scene'' ($15.4\%$), and its balanced accuracy is $0.51$. This is the majority-class pathology the thesis met three times before (Sections~\ref{sec:awlf}, \ref{sec:weight_sensitivity} and~\ref{sec:signal_rebuild}), here a fourth time. The probability itself is only moderately calibrated: its expected calibration error is $0.063$ over the 200 redraws (ten equal bins), recalibrating it by Platt scaling on the calibration books changes that only to $0.059$, and its Brier score is $0.100$ against $0.132$ for the base rate. Pooled over the test books, the combined probability never falls below $0.38$; in the band from $0.4$ to $0.5$, where the design says ``no scene'', $64.5\%$ of the pictures do show a scene.
+
+\begin{table}[!htbp]
+\centering
+\caption[The scene / no-scene decision line]{The scene / no-scene decision over 200 book-disjoint redraws of the 1,250 labelled pictures: the corrected design with its line at $0.5$ and with the line that maximises balanced accuracy on the training books of each redraw, and the deployed design. Approval under conformal risk control at $\alpha=0.05$, with uncertainty measured as closeness to each design's own line.}
+\label{tab:decision_line}
+\small
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{lccc}
+\toprule
+ & Corrected, line $0.5$ & Corrected, fitted line & Deployed \\
+\midrule
+Decision line (mean) & 0.500 & 0.786 & 0.500 \\
+Error rate & 15.6\% & 23.4\% & 25.4\% \\
+Balanced accuracy & 0.507 & 0.815 & 0.798 \\
+No-scene pictures found & 2.0\% & 88.5\% & 87.4\% \\
+Approved at $\alpha=0.05$ (realised risk) & 76.4\% (0.050) & 41.9\% (0.052) & 61.1\% (0.017) \\
+Share of approvals that are no-scene calls & 0.0\% & 23.1\% & 0.0\% \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+With a fitted line (Table~\ref{tab:decision_line}), the corrected design makes balanced decisions, and they are not clearly better than the deployed design's: balanced accuracy $0.815$ against $0.798$, with ranges over the redraws of $[0.730, 0.877]$ and $[0.729, 0.864]$, and $88.5\%$ against $87.4\%$ of no-scene pictures found. Its automatic approvals then include no-scene calls, $23.1\%$ of them pooled over the redraws, and it approves fewer pictures ($41.9\%$ at $\alpha=0.05$).
+
+\paragraph{Can ``no scene'' calls be approved automatically?} One promise over all pictures does not say how often an approved ``no scene'' call is wrong, because the scene calls, the large majority, can carry the whole budget. Conformal risk control was therefore also run separately for each answer, with a promise at the same $\alpha$ among the pictures given that answer, over the same 200 redraws and with the fitted line. The answer is no. With the fitted line $61.2\%$ of the ``no scene'' calls show a scene, against $2.7\%$ wrong among the scene calls, and within the ``no scene'' calls the uncertainty separates right from wrong only weakly (AUROC $0.623$, against $0.725$ within the scene calls). The separate promise is kept, but only by approving $9.9\%$ of the ``no scene'' calls at $\alpha=0.05$, and $51.1\%$ of those approved calls are still wrong; under the single promise it is $48.4\%$. Approving per answer does raise the share approved with the fitted line, from $41.9\%$ to $67.9\%$ at a realised risk of $0.035$, but only because it now approves $99.6\%$ of the scene calls, so in practice it is again a design that approves confident scene calls and leaves every ``no scene'' call to a person.
+
+Three conclusions follow, and they qualify the results of Section~\ref{sec:corrected_results}. First, the corrected design does not make better scene / no-scene decisions than the deployed one; its lower error rate at $0.5$ is an artefact of the line, and that claim is withdrawn. Second, its approval gain is real but specific: with the pool's labels, both designs approve only confident ``scene'' calls at $\alpha = 0.05$, and the corrected design confirms more of them, $76.4\%$ of all pictures against $61.1\%$, at the same promise. A picture without a scene is never labelled automatically by either design; it always reaches a person. Third, with the pool's labels, which mix two definitions of a scene, an archive that needs automatic ``no scene'' labels cannot get them from these agents at a useful error rate, with either line and with the promise set per answer: about half of the approved ``no scene'' calls are wrong. Better ranking ($0.866$ against $0.829$, likely) does not change this, because it comes from the scene calls. Under one definition of a scene the picture changes: ``no scene'' becomes the answer approved most often and most reliably, inside the pool (Section~\ref{sec:scene_classes}) and on random archive pictures (Section~\ref{sec:archive_check}). The obstacle was the labels, not the cut-off.
+
+\section{The Risk Promise at Matched Realised Risk}
+\label{sec:matched_realised_risk}
+
+The comparison of the two pipelines in Section~\ref{sec:corrected_results} is made at the same risk \emph{target}~$\alpha$. That is the comparison a user of conformal risk control sees, but it is not the only fair one. The deployed design delivers far less error than it promises: at $\alpha=0.05$ its realised risk, averaged over 200 book-disjoint redraws of the 1,250 labelled pictures, is $0.017$, while the corrected design realises $0.050$. The deployed design cannot spend its risk budget because its uncertainty score takes only eight values (Appendix~\ref{app:derivations}), so its threshold jumps from one value to the next. Comparing at the same target therefore rewards the corrected design partly for using a budget the old one leaves unused.
+
+The comparison was repeated at the same \emph{realised} risk, on the same 200 redraws, in two ways. First, each pipeline was calibrated at eight targets ($\alpha$ from $0.01$ to $0.15$), and its mean approval was read off at matched realised risk along its own curve (Figure~\ref{fig:matched_risk_curve}). Second, on every redraw, each pipeline's threshold was set on the test books themselves to the largest approval whose realised risk stays at or below a given level. This removes calibration from the comparison and shows how well each uncertainty score ranks the pictures; the paired difference is taken per redraw. Table~\ref{tab:matched_realised_risk} gives both.
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.86\textwidth]{matched_risk_curve.png}
+\caption[Auto-approval against realised risk]{Share of pictures auto-approved against the error actually delivered (wrong and auto-approved, as a share of all pictures), each point the mean over 200 book-disjoint redraws at one risk target. The deployed design stops near 2\% realised risk for every target up to $0.10$; with confidence instead of disagreement as its triage score it lies below both other curves wherever they overlap.}
+\label{fig:matched_risk_curve}
+\end{figure}
+
+\begin{table}[!htbp]
+\centering
+\caption[Auto-approval at matched realised risk]{Auto-approval at matched realised risk. Middle columns: each pipeline's calibrated curve read at that realised risk. Last column: corrected minus deployed design with the threshold set on the test books, mean with the 2.5th and 97.5th percentiles over 200 paired redraws, and the share of redraws in which the corrected design approves more.}
+\label{tab:matched_realised_risk}
+\begin{tabular}{lccc}
+\toprule
+Realised risk & Deployed design & Corrected & \twoline{Corrected $-$ deployed,}{best threshold (points)} \\
+\midrule
+0.01 & 40.8\% & 48.2\% & $+13.6$ $[-9.3, 39.7]$, 89\% \\
+0.02 & 61.6\% & 63.7\% & $+12.0$ $[-0.4, 28.1]$, 97\% \\
+0.03 & 63.1\% & 69.8\% & $+10.7$ $[0.0, 24.0]$, 97\% \\
+0.05 & 66.2\% & 76.5\% & $+16.2$ $[+4.8, 29.3]$, 100\% \\
+0.10 & -- & 88.9\% & $+28.0$ $[+15.0, 39.3]$, 99.5\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The gain survives the stricter comparison. At a realised risk of $0.05$ or above the corrected design approves more on all but at most one redraw: $+16.2$ points at $0.05$ (every redraw) and $+28.0$ at $0.10$ (199 of 200), a level the deployed design cannot reach at all. Below $0.05$ the gain is likely but not established: $+11$ to $+14$ points, positive in 89--97\% of redraws, with intervals that reach or include zero. The claim this supports is therefore narrower than ``more approval at the same risk'': the corrected design approves more at the same realised risk from about 5\% upward, and at very low risk the two designs are close.
+
+The guarantee itself is met on average and without margin. At $\alpha = 0.05$ the corrected design's mean realised risk is $0.0498$, and a single redraw exceeds the target in $41.5\%$ of cases. This is what conformal risk control promises---a bound on the expectation over calibration sets, not on every batch---and the thesis states it that way. An archive that needs the promise to hold batch by batch can buy that with a stricter level: calibrated at $\alpha = 0.025$, at most one redraw in ten ($9.5\%$) exceeds $0.05$, and the design still approves $67.2\%$ of pictures, against $76.4\%$ at $\alpha = 0.05$. The splits are drawn by book, so the promise also assumes that new books resemble the calibration books.
+
+\paragraph{A promise per calibration set (planned before it was run).} Conformal risk control promises the average over calibration sets, and a single set exceeds the level in $41.5\%$ of cases. Learn then Test \cite{angelopoulos2021ltt} instead promises that the risk stays within the level with a stated probability for the calibration set in hand. It was run with that probability set to $90\%$: for each cut-off, from the most cautious upward, the binomial test of the hypothesis ``the risk at this cut-off is above $\alpha$'' must reject at level $\delta = 0.10$, and the last cut-off before the first that fails is used. Testing the cut-offs in a fixed order and stopping at the first failure needs no correction for the number of cut-offs; the binomial test treats the calibration pictures as independent, which the split by book only approximates. On the same 200 redraws at $\alpha=0.05$ the mean realised risk falls from $0.050$ to $0.034$, the share of redraws above the level from $41.5\%$ to $17.5\%$, and the share approved from $76.4\%$ to $71.4\%$. At $\alpha = 0.10$ it is $0.079$, $21.0\%$ and $84.0\%$. The share above the level remains above $10\%$ because the realised risk is measured on about 250 test pictures and varies with them, even when the true risk is within the level. Calibrated on the $399$ random archive pictures of the first test (Section~\ref{sec:archive_check}) and tested on the $294$ confirmation pictures, Learn then Test gives $0.051$ at $70.8\%$ approved, against $0.054$ at $78.6\%$ for conformal risk control. A per-batch promise costs about five to eight points of approval.
+
+\section{Review Effort for the Archive}
+\label{sec:review_hours}
+
+The approval rates translate into human time. Review time per picture was taken from the author's own labelling times on this archive: a scene check (``does this picture show a scene?'', or one scene type) took a median of 3.3 seconds (interquartile range 2.6--5.2; 480 answers), and a full annotation with boxes took a median of 35.3 seconds (20.1--63.8; 243 pictures). Reviewing all 12,110 pictures would take 11.0 hours of scene checks or 118.8 hours of full annotation. Table~\ref{tab:review_hours} sets the two designs side by side.
+
+\begin{table}[!htbp]
+\centering
+\caption[Review effort on the whole archive]{Pictures left for human review on the whole archive (12,110 pictures), the full-annotation hours this takes at the median time per picture, and the wrong labels expected among auto-approved pictures (realised risk times 12,110), at the mean approval over 200 redraws.}
+\label{tab:review_hours}
+\small
+\begin{tabular}{lcccc}
+\toprule
+& \multicolumn{2}{c}{Deployed design} & \multicolumn{2}{c}{Corrected design} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Target & To review (hours) & Wrong labels & To review (hours) & Wrong labels \\
+\midrule
+0.05 & 4,710 (46.2 h) & 201 & 2,853 (28.0 h) & 603 \\
+0.10 & 4,667 (45.8 h) & 231 & 1,319 (12.9 h) & 1,222 \\
+0.15 & 3,627 (35.6 h) & 916 & 392 (3.8 h) & 1,689 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+At a target of $0.05$ the corrected design saves 18.2 hours of full annotation on the archive, and 32.9 hours at $0.10$. The saving has a price that belongs next to it: because the corrected design uses its whole risk budget, it lets about three times as many wrong labels through at the same target (603 against 201 at $0.05$). An archive that wants the deployed design's error level should run the corrected design at $\alpha = 0.02$, where it realises $0.020$ and still approves 63.1\% of pictures, against 61.1\% for the deployed design at $\alpha=0.05$. The review times are one rater's and measure the decision, not the setup around it, so they are a lower bound on the effort in practice.
+
+\section{The System Against Its Baselines}
+\label{sec:against_baselines}
+
+Every result above is compared with something; this section collects the comparisons in one place and adds the baselines that were missing (Table~\ref{tab:against_baselines}). Four kinds of baseline answer four questions. The \emph{old system as deployed} answers whether the work improved on what it replaces; for the scene classes its answer is ``no scene'' when its $SAA$ is below $0.5$ and otherwise the top of the scene matcher's forced choice over the five scene sentences. A \emph{linear probe}, a logistic regression on one foundation model's image embedding (here SigLIP's, $1{,}152$ numbers) fitted on the same training pictures, is the standard single-model baseline for classifying with a frozen foundation model \cite{clip2021}; its regularisation was chosen by cross-validation inside the training books, which favours the baseline. \emph{Zero-shot} use, with no training at all, shows what the models give for free. The \emph{describer alone}, the strongest single agent with the same learned mapping and cut-off as the system, answers whether combining the agents adds anything; its figures are those of Sections~\ref{sec:scene_classes} to~\ref{sec:corrected_results}. Every baseline runs on the pictures, labels and 200 redraws of the system's own results, and the plan was fixed in writing before it was run.
+
+\begin{table}[!htbp]
+\centering
+\caption[The system against its baselines]{The system against its baselines, on the same pictures and 200 book-disjoint redraws. Old system: the deployed design (for objects its detector before retraining; for scene presence its triage score as deployed). Linear probe: a logistic regression on SigLIP's image embedding. Describer alone: the vision-language model's reports with the same learned mapping and cut-off as the system. Zero-shot: the scene matcher's largest score / the describer's strongest yes, without training. A dash: the baseline gives no such answer.}
+\label{tab:against_baselines}
+\small
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{>{\raggedright\arraybackslash}p{4.2cm}ccccc}
+\toprule
+Measure & \twoline{The}{system} & \twoline{Old}{system} & \twoline{Linear}{probe} & \twoline{Describer}{alone} & \twoline{Zero-shot}{SigLIP / LLaVA} \\
+\midrule
+\multicolumn{6}{l}{\emph{Scene classes}} \\
+Balanced accuracy & 0.544 & 0.576 & 0.504 & 0.507 & 0.571 / 0.252 \\
+Accuracy & 82.1\% & 77.4\% & 82.2\% & 80.0\% & 75.7\% / 44.2\% \\
+Approved at $\alpha=0.05$ (wrong) & 69.1\% (7.0\%) & -- & 68.0\% (7.2\%) & 64.9\% (7.6\%) & 50.7\% (9.0\%) / -- \\
+\multicolumn{6}{l}{\emph{Objects}} \\
+Mean AUROC & \textbf{0.903} & 0.624 & 0.838 & \textbf{0.903} & -- \\
+Classes listed, at most 10\% missed & 2.80 & -- & 4.03 & \textbf{2.60} & -- \\
+\multicolumn{6}{l}{\emph{Scene presence}} \\
+AUROC & \textbf{0.866} & 0.829 & 0.859 & 0.835 & -- \\
+Approved at $\alpha=0.05$ & \textbf{76.4\%} & 63.0\% & 74.0\% & 74.3\% & -- \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\paragraph{Objects: a clear improvement.} The system ranks the eight object classes at a mean AUROC of $0.903$, against $0.624$ for the old system's detector ($+0.279$, $[0.217, 0.326]$) and $0.838$ for the linear probe ($+0.064$, $[0.027, 0.116]$); both differences are established. At the same promise on missed objects the probe needs $4.0$ classes per picture where the system needs $2.8$.
+
+\paragraph{Scene presence: better than the old system, level with one model.} The system approves $13.5$ points more than the old system's triage score at $\alpha=0.05$, an established gain (Section~\ref{sec:corrected_results}). A linear probe on one model's embedding does about as well: it ranks at $0.859$ and approves $74.0\%$, and the system's leads of $0.008$ and $2.4$ points are not established.
+
+\paragraph{Scene classes: no established improvement.} The old system's answer reaches a higher balanced accuracy than the system ($0.576$ against $0.544$), but that rests on the six teaching pictures, of which it names three correctly and the system none. Without teaching, which this thesis does not interpret, the system leads by $0.036$ ($0.623$ against $0.587$), in $69\%$ of the redraws; it is more accurate overall by $4.7$ points ($82.1\%$ against $77.4\%$, in $92.5\%$ of the redraws, $[-1.5, 10.8]$); and with class-balanced fitting it leads by $0.117$ without teaching, in $92.5\%$ of the redraws. None of these is established. The linear probe is as accurate as the system ($82.2\%$) and slightly lower in balanced accuracy ($0.504$; difference $+0.040$, not established); its cross-validation chose the weakest regularisation offered in every redraw, so a still weaker one might close even that gap; the describer used zero-shot is far weaker ($0.252$). What the system adds for the scene classes is therefore not a more accurate class but a probability for each class, which the risk promise and the short lists of Section~\ref{sec:scene_classes} rest on; the deployed design gave its forced choice without any promise.
+
+\paragraph{What follows.} Against what it replaces, the corrected design is clearly better for objects and for the automatic approval of scene presence, and not shown to be better at naming the scene class. Against the standard single-model baseline it is clearly better for objects and level for both scene tasks, which agrees with the finding that one model is about as good as the combination (Sections~\ref{sec:scene_classes} and~\ref{sec:objects_llava_vs_fusion}).
+
+\chapter{The Corrected Design on the Archive, and Further Tests}
+\label{ch:corrected_tests}
+
+Chapter~\ref{ch:corrected_design} measured the corrected design inside the labelled pool. This chapter asks whether its risk promise holds on pictures drawn at random from the archive (Section~\ref{sec:archive_check}) and what it answers across the whole archive (Section~\ref{sec:archive_answers}). It then reports how the object finder was retrained (Section~\ref{sec:student_rebuild}), returns to the first research question with a test fixed before it was run (Sections~\ref{sec:c4_preregistered} and~\ref{sec:scene_agreement}), and tests the restoration step (Section~\ref{sec:restoration_ablation}). Five further analyses are in Appendix~\ref{app:corrected_more}.
+
+\section{Does the Promise Hold on the Archive?}
+\label{sec:archive_check}
+
+The results so far are measured inside the labelled pool of 1,250 pictures. The promise of Section~\ref{sec:risk_promise_explained} carries over to new pictures only if they are like the calibration pictures, and the pool was not drawn at random from the archive: it was assembled from the expert-reviewed pictures and from the 2026 relabelling rounds. This section tests the promise on pictures that were drawn at random, and finds that it does not carry over. It then traces the failure to two causes and shows one way of removing both.
+
+\paragraph{Two rules for ``scene'' in one pool.} The pool's labels come from two sources that define a scene differently. The expert labels count 796 of their 801 pictures as scenes, sheet music, book covers, borders and initials included, because these were filed under ``drawing''. The 2026 relabelling rounds label the same kinds of picture ``no scene''; 191 of the pool's 196 ``no scene'' labels come from them. The main target of this chapter therefore mixed two definitions. To give it one, the thesis fixes the rule used in the 2026 rounds:
+\begin{itemize}
+    \item \textbf{scene}: people, animals, a landscape or a room is shown;
+    \item \textbf{no scene}: sheet music, text, a cover, blank or marbled paper, a border, an ornament, an initial without figures, a diagram, map or table, an emblem, coat of arms or stamp (even with a figure), a single object, a plant study.
+\end{itemize}
+A pre-sort with the scene matcher and a vision-language model (Claude, Anthropic) picked the expert ``scene'' pictures that may break this rule: 324 pictures, mixed with 40 that the pre-sort kept as scenes, which served as hidden controls. The author labelled all 364 under the rule, blind to the pre-sort: $289$ of the $324$ candidates as no scene ($31$ scene, $4$ unsure) and $1$ of the $40$ controls. The pre-sort therefore missed few pictures that break the rule, but the $437$ expert pictures it did not pick were not relabelled; if one in forty of them breaks the rule, about $11$ keep a ``scene'' label they would lose under it. The relabelled pictures are therefore a targeted sample chosen by the pre-sort, not a complete corrected label set. The vision-language model's own labels for the same pictures agree with the author's on 51 of 60 in a first check ($\kappa = 0.63$) and on $277$ of $300$ in the second; they were used only to pick the candidates, and no figure below rests on them. Under one rule the pool holds $486$ ``no scene'' pictures instead of $196$, that is $39\%$ instead of $16\%$.
+
+\paragraph{The test, fixed in advance.} Before any picture was labelled, the test was fixed in writing and committed to the project repository with the list of pictures: $400$ pictures drawn at random from the $10{,}860$ archive pictures outside the pool, the design and its parameters unchanged, the promise at $\alpha = 0.05$, both decision lines, and the pool's labels either as used so far or under one rule. The author labelled the $400$ pictures, shuffled together with the $304$ pool pictures still to be relabelled, without seeing which set a picture came from. One picture was marked unsure and is left out; of the others $247$ show a scene and $152$ do not ($38\%$, close to the $39\%$ of the pool under one rule). Twenty-seven pictures had been labelled earlier on another page; $22$ of them received the same label again, which bounds how consistently a single person applies the rule.
+
+\begin{table}[!htbp]
+\centering
+\caption[The risk promise on random archive pictures]{The design fitted and calibrated on the pool, tested on 400 pictures drawn at random from the archive outside the pool (the test fixed in advance). Means over the 200 book-disjoint redraws of the pool; the realised risk is the share of test pictures approved automatically and wrong, with a $95\%$ bootstrap interval over the test pictures. The promise is $0.05$.}
+\label{tab:archive_check}
+\small
+\begin{tabular}{llccc}
+\toprule
+Pool labels & Line & Realised risk & Approved & Ranking (AUROC) \\
+\midrule
+As used so far & $0.5$ & $\mathbf{0.162}$ $[0.129, 0.199]$ & $78.1\%$ & $0.954$ \\
+As used so far & fitted & $0.031$ $[0.021, 0.043]$ & $48.4\%$ & $0.954$ \\
+One rule & $0.5$ & $\mathbf{0.085}$ $[0.060, 0.112]$ & $94.2\%$ & $0.955$ \\
+One rule & fitted & $\mathbf{0.092}$ $[0.067, 0.119]$ & $93.7\%$ & $0.955$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{The promise does not carry over from the pool.} With the labels used so far and the line at $0.5$, the setting of the results above, $16.2\%$ of the archive pictures are approved automatically and wrong, more than three times the promised $5\%$, in every redraw (Table~\ref{tab:archive_check}). The ranking itself is good ($0.954$); what fails is the cut-off. Two causes are visible. First, the label definitions: the design learned from labels that call sheet music and borders scenes, so on archive pictures labelled under one rule its scene calls are wrong on $37.8\%$ of pictures. Learning under one rule lowers that to $11.0\%$, and the realised risk to $8.5\%$. Second, the pool is not a random draw from the archive, so a cut-off calibrated on it is too optimistic for the archive even when both follow one rule: under one rule the design approves $94.2\%$ of the archive pictures, where $8.9\%$ of its approvals are wrong. Only one setting keeps the promise, the fitted line with the labels used so far, at $3.1\%$ and by approving less than half of the pictures ($48.4\%$); it repairs neither cause, and its margin is not one the design can rely on. Restricting the test to books that took no part in fitting or calibration changes none of this ($0.155$ and $0.080$ at the line $0.5$).
+
+\paragraph{The same on the earlier audit pictures.} The pictures labelled for the two audits outside the pool, $247$ that the deployed design had approved automatically and $260$ from the catalogue's default ``no scene'' block, show the same: at the line $0.5$ the realised risk is $0.174$ with $83.9\%$ approved, at the fitted line $0.044$ with $50.2\%$. Of the deployed design's own automatic approvals, $52$ of $247$ ($21.1\%$, $95\%$ interval $[16.4\%, 26.6\%]$) show no scene under the rule, and $142$ of the $260$ default ``no scene'' pictures do show one. Neither sample is a random draw from the archive, which is why the test above was added.
+
+\paragraph{Calibrating on the archive (an analysis added after the test).} The promise needs calibration pictures that are like the pictures it is applied to. The direct remedy is therefore to calibrate on a random sample of the archive itself. This was not part of the test fixed in advance and was chosen after its result was known, so it is reported separately. The design is fitted on the whole pool, the cut-off is calibrated on half of the $399$ random archive pictures, split by book, and the result is measured on the other half, over $500$ such splits. The realised risk is then $0.048$ in both variants, as the theory of the promise implies once calibration and test pictures are exchangeable; what the split measures is how much the design can approve. With the labels used so far it approves $57.3\%$; learning under one rule it approves $80.6\%$ ($[67.3\%, 93.4\%]$ over splits), more than inside the pool. A single split of this size exceeds the level in about $40\%$ of cases, as inside the pool (Section~\ref{sec:matched_realised_risk}).
+
+\paragraph{A confirmation on new pictures, fixed in advance.} Because the remedy was found after the test, it was tested again on pictures nobody had used, with the plan fixed in writing before they were labelled. $300$ further pictures were drawn at random from the archive outside the pool and the first $400$; the author labelled them under the same rule ($157$ scene, $137$ no scene, $3$ unsure, $3$ left unlabelled). The design was fitted on the whole pool under one rule and calibrated on the $399$ random pictures of the test above, and the $294$ new pictures were scored once. The planned measure is the realised risk averaged over $500$ resamples of the calibration pictures by book, since the promise is about that average; the promise counts as kept if it is at most $0.05$. It is $0.059$, with $79.7\%$ approved: \textbf{by the planned measure the promise is narrowly not kept}. With the calibration set as drawn the realised risk is $0.054$ ($95\%$ interval $[0.031, 0.082]$ over the test pictures) and $78.6\%$ are approved; the plan reads an interval that includes $0.05$ as consistent with the promise, since the risk on $294$ pictures varies by about $\pm 0.013$ from one sample to the next. The ranking stays high ($0.939$), and the scene calls are wrong on $12.6\%$ of the new pictures, against $11.0\%$ on the calibration pictures. Calibrated at $\alpha = 0.025$, the averaged realised risk is $0.046$ with $64.4\%$ approved: below $5\%$, but almost twice the $2.5\%$ promised, so this promise is not kept either.
+
+\paragraph{Why both levels are missed.} Calibration and test pictures were both drawn at random from the same archive, so the promise should hold up to chance. The two samples differ more than chance makes likely. ``No scene'' makes up $38.1\%$ of the first sample and $46.6\%$ of the second, a difference of $8.5$ points that two random samples of these sizes show in about $2.5\%$ of cases. The scene calls are wrong on $11.0\%$ against $12.6\%$, and the ranking is $0.955$ against $0.939$. One likely reason is that the labels moved between the two labelling sessions. The first $400$ pictures were labelled mixed with $304$ pictures that were mostly candidates for ``no scene'', the second $300$ alone and later, and of the $27$ pictures the author labelled both on an earlier page and in the first session, $22$ received the same label. A second rater, or a blind repeat across both samples, would separate a change in the labels from chance.
+
+\paragraph{Which answers are approved on the archive (a breakdown added after the test).} Inside the pool every approval is a confident ``scene'' call. On the random archive pictures, where far more pictures show no scene, the design calibrated on archive pictures also approves ``no scene'' calls. In the confirmation check, with the calibration set as drawn and $\alpha=0.05$, it approves $151$ of its $182$ ``scene'' calls and $80$ of its $112$ ``no scene'' calls. Only one of the $80$ approved ``no scene'' calls is wrong ($1.2\%$), against $9.9\%$ of the approved ``scene'' calls. Under one definition of a scene, then, ``no scene'' is the more reliable automatic answer, and the remaining risk comes from pictures without a scene that the design calls a scene: $58\%$ of the pictures without a scene are labelled ``no scene'' automatically, and $87\%$ of those with a scene are labelled ``scene''.
+
+\paragraph{Can unlabelled archive pictures replace the labels? (planned before it was run)} Weighted conformal methods correct for a known difference between the calibration pictures and the pictures a promise is applied to \cite{tibshirani2019covariate}, and the whole archive is available without labels. A classifier was therefore trained to tell the pool's pictures from $10{,}160$ unlabelled archive pictures by the agents' reports, and its odds were used to reweight the pool's calibration pictures for each archive picture. It hardly tells them apart (AUROC $0.575$): the weights stay close to one, the effective calibration set keeps $238$ of about $252$ pictures, and on the $693$ labelled archive pictures the realised risk is $0.089$ with weights and $0.089$ without, at $\alpha = 0.05$. In what the agents see, the pool and the archive are much alike; the gap lies in the labels the cut-off is calibrated against. No reweighting of unlabelled pictures can close it, and the calibration pictures have to be labelled under the definition the archive means to apply.
+
+\paragraph{One model as the system (planned before it was run).} Because the describer alone is about as good as the combination on the class tasks, the archive tests were repeated with the describer as the only agent. Calibrated on the pool under one rule, it lets $7.4\%$ of the $399$ random archive pictures of the first test through approved and wrong, against $8.5\%$ for the combination. Calibrated on those $399$ and tested on the $294$ confirmation pictures, its realised risk is $0.062$ at $83.4\%$ approved by the planned measure, against $0.059$ at $79.7\%$ for the combination. A design with the vision-language model alone behaves almost as the combination does: slightly more approved, slightly more risk.
+
+\paragraph{The scene classes on the archive (planned; run on part of the pictures).} A test fixed in advance (Section~\ref{sec:planned_analyses}) asked for the scene class of each of the $404$ random archive pictures labelled ``scene'' in the two tests above, shuffled together with $40$ hidden pool pictures. Labelling stopped at $179$ of the $444$. Because the order was shuffled, the $155$ scene pictures given a class (and $2$ marked unsure) are a random part of the $404$; but all $289$ pictures labelled ``no scene'' in the two tests enter, with $6$ more marked ``no scene'' on the class page, so ``no scene'' makes up $65.6\%$ of the $450$ pictures instead of about $42\%$. Figures that depend on that share, the approval and the risk, are therefore indicative only; recall per class and balanced accuracy do not depend on it.
+
+Two results follow. First, the archive's scenes are not the pool's: among the $155$, playing makes up $43.2\%$ and drawing $21.3\%$, against $6.3\%$ and $67.4\%$ of the pool's $506$ scene pictures. On the $14$ hidden pool pictures that the author gave a class, the author and the expert agree on $7$ ($\kappa = 0.37$), so part of the shift lies in the labels. Second, the class answers learned on the pool do not carry over: on all $450$ labelled archive pictures the system's balanced accuracy is $0.351$, against $0.544$ in the pool; it finds $76\%$ of the drawings but $10\%$ of the playing scenes, $29\%$ of the family scenes and none of the $9$ teaching scenes, and the describer alone reaches $0.375$. The risk-controlled answers behave as in the pool: calibrated on the first sample and tested on the confirmation sample, $44.7\%$ are approved at a realised risk of $0.024$, and prediction sets at $\alpha = 0.10$ hold the true class for $89.8\%$ of the test pictures with $2.5$ classes on average, both helped by the many ``no scene'' pictures. On the archive the scene classes therefore stay a shortlist for a person; a class mapping for the archive would have to be learned on its own pictures, labelled under its own definitions.
+
+\paragraph{What follows for the thesis.} The figures of Section~\ref{sec:corrected_results} hold for the labelled pool and are not a statement about the archive. On the archive, a cut-off calibrated on the pool does not keep the promise. Learning under one definition of a scene and calibrating on a random sample of the archive brings the realised risk from $0.162$ to about the promised level, at about four pictures in five approved automatically: on new pictures, in a test fixed in advance, it lands just above the level ($0.054$--$0.059$ at $\alpha = 0.05$), within the noise of a test of this size. A stricter level gives a margin, not a guarantee: at $\alpha = 0.025$ the risk here was $0.046$, with about two pictures in three approved. For an archive that adopts the design, the practical rule is that the calibration pictures must be a random sample of its own collection, labelled under the definition it means to apply; here $200$ to $400$ such pictures gave a usable cut-off, and more would narrow the spread of the share approved. The labels behind both steps come from one person, and a second rater on the random pictures is the most direct way to strengthen them. Weighted calibration on unlabelled archive pictures, which needs no new labels, was tested and does not help here, because the difference lies in the labels rather than in what the agents see.
+
+\section{The System's Answers Across the Archive}
+\label{sec:archive_answers}
+
+The class tasks were measured on labelled pictures. To show what the system answers for the archive itself, it was applied, as described in this chapter, to all $12{,}110$ pictures, with every mapping fitted on the labelled pool; the plan was fixed in writing before it was run. No accuracy is claimed here, because the archive pictures carry no class labels (the test of Section~\ref{sec:archive_check} for the scene classes waits for them), and no approvals are reported, because a cut-off calibrated on the pool does not hold on the archive. The figures below are for the $10{,}860$ pictures outside the pool.
+
+\paragraph{Scene classes.} The system calls $52.3\%$ of the archive pictures ``drawing'', $33.0\%$ ``no scene'', $5.7\%$ family, $5.5\%$ landscape and $3.5\%$ playing, and never teaching. Its most probable answer has a mean probability of $0.78$, and for $10.9\%$ of the pictures no answer reaches $0.5$. In the $992$ pictures of the scene-class set, under the same rule, ``no scene'' makes up $49.0\%$ and ``drawing'' $34.4\%$; whether the archive really holds fewer pictures without a scene, or the system misses some, is what the archive test will tell.
+
+\paragraph{Objects.} A class counts as present when its averaged probability reaches $0.5$. The system then finds a person in $56.1\%$ of the archive pictures and an animal in $24.2\%$, and the other six classes in $0.6$--$4.8\%$ each; it names $0.97$ classes per picture, against $1.38$ in the $300$ annotated pictures, where a child appears in $14\%$, a tree in $16\%$ and text in $19\%$. At this line the rare classes are named far less often than they occur, which is why the object answer is a short list at a lower threshold (Section~\ref{sec:objects_llava_vs_fusion}) rather than a yes or no per class.
+
+\paragraph{The two scene levels must use one definition.} With its mappings fitted on the pool labels used for the main results, the first level calls $99.9\%$ of the archive pictures scenes, and agrees with the scene-class answer on whether a picture shows a scene for only $67.1\%$ of them: the class answer, fitted under one rule, calls a third of the archive ``no scene'', while the first level, fitted on labels that count ornaments as drawings, calls them scenes. Fitted under one rule as well (an analysis added after the planned run), the first level calls $68.3\%$ of the archive scenes and agrees with the class answer on $96.8\%$ of the pictures. A system that gives both answers therefore has to learn both under the same definition, which is also what the archive test requires (Section~\ref{sec:archive_check}). The per-picture answers are kept as a table, the starting point a cataloguer would work from.
+
+\section{A Better Teacher for the Object Finder}
+\label{sec:student_rebuild}
+
+Chapter~\ref{ch:spatial_collapse} showed that the deployed object finder scores $0.768$ against its teacher's pseudo-labels and $0.146$ against human boxes. A check of where it fails locates the cause in the teacher: of 128 hand-drawn objects the student misses on pictures the teacher had labelled, 126 were never in the teacher's labels and 2 were labelled but not learned. The teacher never labelled child, building, weapon, vehicle or text at all, and $88.4\%$ of its boxes are persons.
+
+A new teacher was therefore chosen on the 300 hand-annotated pictures before any retraining: Grounding DINO, an open-vocabulary detector prompted with the eight class names, reaches a mean AP50 of $0.283$ there against $0.123$ for the deployed student (the $0.146$ of Chapter~\ref{ch:spatial_collapse} is the same detections scored by the detector library's validator; every detector here is scored by one evaluator, the thesis's own). A new student of the same architecture (YOLOv11m, from the same starting weights) was trained on its boxes for 11,028 archive pictures, none of them among the 300 or in the calibration and test partitions of the scene pools, keeping the boxes whose class LLaVA confirmed (Table~\ref{tab:student_rebuild}).
+
+\begin{table}[!htbp]
+\centering
+\caption[Box accuracy against human boxes]{Box accuracy against human boxes (mean AP50 over the eight classes, the thesis's evaluator: all-point AP at IoU $\ge 0.5$, boxes matched in order of confidence) on the 300 hand-annotated pictures and on the 164 of them that were never in the deployed detector's training set, the cleaner comparison for the deployed student.}
+\label{tab:student_rebuild}
+\begin{tabular}{lcc}
+\toprule
+Model & 300 pictures & 164 unseen pictures \\
+\midrule
+Deployed student & 0.123 & 0.106 \\
+New teacher (Grounding DINO) & 0.283 & 0.274 \\
+New student & 0.210 & 0.196 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The new student improves most on the classes the old teacher never labelled: building from $0.05$ to $0.25$, vehicle from $0$ to $0.25$, child from $0.05$ to $0.13$. It remains below its teacher, and far from a reliable detector: its boxes for the rare classes need a person, and for which object classes a picture contains the describer is the stronger agent (Section~\ref{sec:objects_llava_vs_fusion}). Section~\ref{sec:label_filter} tests whether filtering the teacher's boxes by agreement with a second model contributes to this gain, and finds that it does not.
+
+\section{A Pre-Registered Test of Disagreement}
+\label{sec:c4_preregistered}
+
+Whether disagreement between the agents warns of errors was tested once more on the per-class scores, with the test fixed in writing before it was run (19 September 2026): the signals, the pictures, the calibration and the rule for reading the result. For every picture and each of the eight object classes, the three systems' scores were Platt-calibrated, and per-class disagreement is the spread of the three calibrated probabilities, averaged over classes. It is compared with plain confidence at ranking the pictures on which the fused scene call ($0.6/0.2/0.2$, at $0.5$) differs from the human label (Table~\ref{tab:c4_preregistered}). The registered signal is thus built from the object classes and asked about errors of the scene call, a different task; a follow-up below measures each task on its own.
+
+\begin{table}[!htbp]
+\centering
+\caption[Disagreement against confidence: the pre-registered test]{Ranking the system's errors (AUROC; $0.5$ is chance). The 300 hand-annotated pictures (72 errors), calibration cross-fitted; and its 164 pictures that were never in the object finder's training set (61 errors). The difference is per-class disagreement minus plain confidence, with a DeLong~\cite{delong1988} 95\% interval. The disagreement signals are computed on the object classes, the errors are those of the scene call; task-aligned results follow in the text.}
+\label{tab:c4_preregistered}
+\begin{tabular}{lcc}
+\toprule
+Signal & 300 pictures & 164 unseen pictures \\
+\midrule
+Per-class disagreement & 0.378 & 0.466 \\
+Per-class entropy & 0.287 & 0.402 \\
+Global disagreement & 0.484 & 0.458 \\
+Plain confidence & 0.825 & 0.728 \\
+\midrule
+Difference & $-0.448$ $[-0.541, -0.354]$ & $-0.262$ $[-0.386, -0.137]$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+By the registered rule the answer to the first research question stays negative. The below-chance values in the table, however, belong to the mismatch of tasks, not to disagreement as such: a spread over object classes need not be large where the scene call is wrong. A follow-up added after the registered test (on 23 November, prompted by an outside reading of the thesis) therefore measures each task on its own, on the same pictures, scores and cross-fitted calibration. For the object labels, with one decision per picture and class ($2{,}400$ decisions, $240$ errors), the spread of the three calibrated probabilities ranks errors at $0.781$ against $0.835$ for confidence (difference $-0.054$, $95\%$ interval over pictures $[-0.074, -0.034]$), and is ahead in one class of eight (animal). For scene presence, the spread of the three scores that make up the scene call ranks its errors at $0.815$ against $0.825$ for confidence (difference $-0.010$, $[-0.046, 0.025]$), and at $0.669$ once the three scores are calibrated. Measured within its task, disagreement therefore does carry information about errors, well above chance, but in neither task more than confidence. The reason is that most errors are shared: on $149$ of the $199$ errors the corrected pipeline makes on the $1{,}250$ pictures of the labelled pool, all three agents are wrong (Section~\ref{sec:blind_spot_features}). Disagreement cannot mark an error every agent makes; the errors it can mark, confidence ranks at least as well. In a further test built so that the predicting model and the uncertainty share no input, disagreement beats confidence in none of three informative rounds; in one of them it adds $0.089$ $[0.009, 0.167]$ on top of confidence, an isolated and uncorrected result. The claim of this thesis is therefore that disagreement does not replace confidence as a warning signal on this archive, and may at most add a little to it. This agrees with the long-standing finding that a model's own confidence is a strong baseline for recognising its errors \cite{hendrycks2017baseline}, and it marks the limit of results that use disagreement to estimate error \cite{jiang2022disagreement,baek2022agreement}: those estimate how many errors a population of similar models makes, not which picture is wrong, and here most errors lie where the agents agree.
+
+\section{Scene Agreement: Systems and People}
+\label{sec:scene_agreement}
+
+Agreement was measured for the five scene types as it was for the object classes, between the two systems that score every scene type on every picture: SigLIP (a sigmoid over the five scene prompts) and LLaVA (one yes/no question per scene type, read as the probability of ``yes''), over all 12,110 pictures.
+
+\begin{table}[!htbp]
+\centering
+\caption[Scene types: systems and people]{Scene types. AUROC of each system against the rater on the 300 hand-labelled pictures (with the number of positives), and Cohen's $\kappa$ on the 124 pictures two people rated: between the two people, and between the two systems (cut-offs cross-fitted over five folds).}
+\label{tab:scene_agreement}
+\begin{tabular}{lccccc}
+\toprule
+Scene & Positives & SigLIP & LLaVA & $\kappa$, two people & $\kappa$, two systems \\
+\midrule
+teaching & 8 & 0.948 & 0.820 & $-0.013$ & 0.302 \\
+family & 27 & 0.918 & 0.912 & 0.426 & 0.649 \\
+playing & 51 & 0.865 & 0.830 & 0.252 & 0.671 \\
+landscape & 32 & 0.872 & 0.952 & 0.805 & 0.621 \\
+drawing & 122 & 0.324 & 0.448 & 0.265 & 0.034 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Four scene types are recognised well by both systems. For teaching, family and playing the two systems agree with each other more than two people do; this does not make them right, and the same pattern appears for objects, where the systems agree with each other more than with the rater. Landscape is the only scene type on which people agree strongly ($\kappa = 0.805$). ``Drawing'' is below chance for both systems, because almost every picture in the archive is a drawing and the rater used the category in a narrower sense, roughly ``a drawing that shows no other scene''. Teaching rests on eight positive pictures, so its figures are fragile.
+
+The rater also rated 143 of the pictures a second time, without seeing the first label. The two ratings name the same scene type for 47.6\% of the pictures ($\kappa = 0.36$); 36 pictures rated ``drawing'' the first time were rated ``none'' the second time. This is one person's consistency, not agreement between two people, and its low value supports the conclusion from Table~\ref{tab:scene_agreement}: the scene categories, and ``drawing'' in particular, are interpretations rather than facts, and the results per scene class (Section~\ref{sec:scene_classes}) are bounded by this agreement.
+
+\section{Does Restoration Help?}
+\label{sec:restoration_ablation}
+
+Every scan was restored with Real-ESRGAN before any agent saw it (Section~\ref{sec:corrected_agents}). Whether this helps was tested for the scene matcher, in a comparison planned before it was run. SigLIP scored the original and the restored scans of the $992$ pictures of the scene-class task and the $693$ labelled archive pictures, with the same prompts and the same code; recomputed scores on the restored scans match the stored ones to within $0.003$. Over the 200 redraws of the scene-class task, restoration changes nothing that can be established, and if anything the original scans do slightly better. The scene matcher alone reaches a balanced accuracy of $0.329$ on the restored and $0.342$ on the original scans (difference $-0.014$, $[-0.054, 0.017]$), and $0.567$ against $0.589$ without training (Table~\ref{tab:scene_classes} gives $0.571$ from the stored scores; here both conditions were scored afresh with the same code). Scene presence is ranked at $0.956$ on both, and on the archive pictures at $0.920$ restored against $0.921$ original. Only the scene matcher was re-scored; the describer and the object finder were not, so the result says that restoration is not needed for the zero-shot scene agent, not that it is useless for every agent. It does mean that restoration is not a source of the results in this chapter.
+

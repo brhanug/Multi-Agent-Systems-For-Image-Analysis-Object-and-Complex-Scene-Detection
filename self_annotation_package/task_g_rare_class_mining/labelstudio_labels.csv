@@ -1,0 +1,4 @@
+image_id,classes,seconds,answered_at,source,key,sheet,nothing
+PPN1757041184/00000097_0,person|animal,45.0,2026-10-01 12:59:37.333868,cluster,028,cluster_028_1,
+PPN1759171956/00000055_1,animal|text,12.3,2026-10-01 12:59:51.480683,cluster,028,cluster_028_1,no scene
+PPN1760376493/00000008_3,animal,8.2,2026-10-01 13:00:01.205372,cluster,028,cluster_028_1,no scene

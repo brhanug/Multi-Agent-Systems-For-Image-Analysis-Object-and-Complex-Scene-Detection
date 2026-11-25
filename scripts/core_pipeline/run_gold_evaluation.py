@@ -3,7 +3,7 @@
 run_gold_evaluation.py
 -----------------------
 E2 + E4: Measured ablation and scene complexity stratification against
-gold (or synthetic) labels from labeling_worksheet.csv.
+gold labels embedded in the agent/MAS score CSVs.
 
 Produces:
   results/multi_agent/gold_evaluation_summary.json
@@ -32,7 +32,6 @@ warnings.filterwarnings("ignore")
 
 # ---------------------------------------------------------------------------
 BASE = Path(__file__).resolve().parents[2]
-WORKSHEET     = BASE / "human_baseline_gold_kit" / "labeling_worksheet.csv"
 AGENT_SCORES  = BASE / "results" / "multi_agent" / "agent_comparison_scores.csv"
 MA_SCORES     = BASE / "results" / "multi_agent" / "multi_agent_validation_scores.csv"
 COMPLEXITY    = BASE / "results" / "multi_agent" / "scene_complexity_index.csv"

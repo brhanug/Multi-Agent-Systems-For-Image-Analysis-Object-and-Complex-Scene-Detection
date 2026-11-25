@@ -1,0 +1,131 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=1.6cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{HildesheimRed}{RGB}{165,30,55}
+\definecolor{PrismGray}{RGB}{90,95,105}
+\definecolor{RuleGray}{RGB}{200,203,210}
+
+\titleformat{\section}{\large\bfseries\color{HildesheimRed}}{}{0pt}{}
+\titlespacing*{\section}{0pt}{10pt}{4pt}
+
+\pagestyle{fancy}\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyhead[L]{\footnotesize\color{PrismGray} Computer Vision for Historic Archives --- Defense Handout}
+\fancyhead[R]{\footnotesize\color{PrismGray} Brhanu Atsbaha}
+\fancyfoot[C]{\footnotesize\color{PrismGray}\thepage\ of 2}
+
+\setlist[itemize]{leftmargin=1.1em, itemsep=1.5pt, topsep=2pt}
+\newcommand{\num}[1]{\textbf{#1}}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries Multi-Agent Systems for Image Analysis}\\[1mm]
+{\normalsize Cross-Modal Agent Disagreement as a Bounded Signal for Epistemic Uncertainty}\\[2mm]
+{\footnotesize\color{PrismGray} Brhanu Atsbaha \quad$\cdot$\quad University of Hildesheim \quad$\cdot$\quad Advisors: Prof.\ Dr.\ Thomas Mandl, Shereen Elsayed}
+\end{center}
+\vspace{-2mm}
+\rule{\textwidth}{0.8pt}
+
+\section{The argument, in seven steps}
+\begin{enumerate}[leftmargin=1.4em, itemsep=2pt, topsep=3pt]
+  \item A COCO-trained detector applied to raw historical scans finds essentially nothing: $\text{mAP}_{50}=\num{0.0047}$.
+  \item Training a student on the teacher's own pseudo-labels appears to fix this --- $\text{mAP}_{50}=\num{0.989}$.
+  \item Graded against a \emph{human} instead of its teacher, the same model collapses to $\num{0.1462}$. The improvement was an illusion of self-agreement.
+  \item Disagreement between four heterogeneous models predicts real errors well on ambiguous, scene-positive content: $\text{ROC-AUC}=\num{0.9724}$ ($C_1$, $n=801$).
+  \item It ties the best single-model baseline on discrimination ($0.9724$ vs $0.9726$) but wins on \emph{calibration}: $\text{ECE}<\num{0.001}$ vs $0.19$.
+  \item It fails where all four models share the same systematic error --- on confirmed true negatives, $\text{ROC-AUC}=\num{0.1259}$, well below chance.
+  \item \textbf{The contribution is therefore not ``AI replaces archivists''} but a routing mechanism that measures where automated analysis should and should not be trusted.
+\end{enumerate}
+
+\section{Headline results}
+\begin{center}\footnotesize
+\begin{tabular}{p{5.6cm} l l p{5.4cm}}
+\toprule
+\textbf{Result} & \textbf{Value} & \textbf{Cohort} & \textbf{Scope / caveat} \\
+\midrule
+SAA error detection & $0.9724$ & $C_1$, $n{=}801$ & Positive-heavy expert cohort; in-sample \\
+Calibration after Platt scaling & $\text{ECE}<0.001$ & $C_1$ & vs $0.19$ for the best single-model baseline \\
+Out-of-sample generalization & $0.860$ & test $n{=}249$ & Publication-disjoint, corrected labels \\
+\quad on positive images & $0.9687$ & $n{=}211$ & Works \\
+\quad on confirmed true negatives & $0.1259$ & $n{=}319$ & \textbf{Fails} --- the documented boundary \\
+Conformal Risk Control & $\mathcal{R}=0.0201$ & test $n{=}249$ & Bound holds at every $\alpha$ tested \\
+\quad auto-approval / error recall & $60.6\%$ / $91.1\%$ & & $2.31\times$ lift ($3.09\times$ at $\alpha{=}0.15$, but recall drops to $57\%$) \\
+SCI-tercile heuristic triage & $\le 1.15\times$ & & \textbf{Negative result}, retained and reported \\
+Pseudo-label collapse & $0.989\!\to\!0.1462$ & $C_2$, $n{=}300$ & Same model, two ground truths \\
+Retrieval Precision@10 & $1.000$ vs $0.180$ & $C_0$ & 10-query pilot; proxy relevance labels \\
+Inter-annotator agreement & $\kappa=0.337$ & $n{=}124$ & ``Fair''; no true negatives in that overlap \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{The data-integrity correction (asked about most)}
+An earlier version of this thesis reported the triage guarantee as \emph{failing} out-of-sample. Investigating why found the cause was the evaluation pool, not the method: \num{1{,}199} of its \num{2{,}000} images carried unverified, catalog-default ``no scene'' labels that had never been through human review.
+
+Three independent raters have re-checked \num{734} of them and found \num{57.5\%} mislabeled --- real scenes marked absent. Rebuilt on a corrected \num{1{,}250}-image pool (\num{196} confirmed negatives), the guarantee \emph{holds}. The lift estimate was itself revised down twice as the negative sample grew from $7$ to $38$ confirmed images ($3.62$--$7.10\times \rightarrow 2.31$--$3.09\times$) --- reported openly, because a negative-control statistic should not be trusted before its sample is large.
+
+\section{What this thesis does \emph{not} claim}
+\begin{itemize}
+  \item \textbf{Not a window into what a model ``knows.''} $U_{\text{SAA}}$ is a proxy built from disagreement, not a measurement of epistemic state.
+  \item \textbf{Not the only option.} A single model, asked correctly, reaches $0.9726$. The contribution is calibration, not exclusivity.
+  \item \textbf{Not deployment-general.} A conformal guarantee is valid only relative to the distribution it was calibrated on.
+  \item \textbf{Not proven to transfer.} See below --- it demonstrably does not, without recalibration.
+  \item \textbf{Shapley explains, it does not prove causation.}
+\end{itemize}
+
+\section{Two honest negative results}
+\textbf{0. Nine formulations, none better than plain confidence.} The uncertainty score does not outperform a single model's confidence, and this is not for want of trying a better estimator: nine formulations were evaluated against a non-circular label --- four signal sets, three weighting schemes, three operators including the mutual-information (BALD) decomposition. The best reaches \num{0.7650} against \num{0.8167} for confidence. Removing the weakest member makes the spread \emph{worse}, and so does competence weighting, which rules out pruning and reweighting. The limit is the ensemble, not the formula: all four members are web-pretrained VLMs and fail together on the confirmed negatives.
+
+\textbf{1. The shared blind spot.} On confirmed true negatives all four models confidently agree on the same mistake, so disagreement cannot see it ($\text{ROC-AUC}=0.1259$, $n=319$, \num{50} errors, $95\%$ CI $[0.062,0.196]$). A third annotation pass replicated this on \num{123} negatives disjoint from the original estimate ($0.1852$), so it no longer rests on a small sample. This is the method's boundary condition, and it is the reason the thesis frames its contribution as routing rather than replacement.
+
+\medskip
+\textbf{2. Transfer to a new archive fails --- and the reason is instructive.} Ground truth was collected for \num{23} of \num{24} images downloaded live from the Europeana API. All are human-confirmed scene-positive; the unchanged pipeline misses \num{65.2\%} of them. The error-\emph{detection} question could not be scored at all, because the ensemble collapsed. The intuitive symptoms mislead here --- the VLM is two-valued on Europeana \emph{and} on Colibri, and fusion is object-dominated ($r\approx0.98$--$0.99$) on both by construction. What separates them is variance: measured by the effective rank of the agent covariance spectrum, Europeana carries \num{1.37} independent signals (CI \num{1.06}--\num{1.61}) against \num{2.50} on Colibri. \textbf{A disagreement-based method requires the ensemble to stay heterogeneous on the target domain} --- and that is checkable from agent scores alone, before any labelling.
+
+\section{Tier 2 curation agents --- all three gold-labelled, all three limited}
+Per the Architectural Decoupling Rule these run \emph{after} validation and never feed the trust signal, so none of this affects the results above.
+\begin{center}\footnotesize
+\begin{tabular}{l l l p{7.4cm}}
+\toprule
+\textbf{Agent} & \textbf{Precision} & \textbf{$n$} & \textbf{Finding} \\
+\midrule
+2 --- contradiction & $23.3\%$ & 90 & Usually catches a YOLO miss, not a VLM hallucination \\
+4 --- cross-archive & $55.7\%$ & 79 & Rises to $100\%$ at similarity $\ge 0.92$ --- a usable threshold \\
+5 --- grounded OCR & $52.5\%$ & 40 & Its ``real OCR'' bucket is near a coin flip; median WER $100\%$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Reproducibility}
+\begin{itemize}
+  \item One command regenerates every cited number from cached model outputs --- no GPU, no paid API calls, about a minute: \texttt{bash scratch/run\_full\_master\_experiments.sh}
+  \item Last full verification: \num{159} of \num{161} result artifacts reproduced \emph{byte-identically}; the two exceptions differ only in the final floating-point digit and are cited nowhere.
+  \item \num{17} of \num{17} cited headline numbers matched the freshly regenerated artifacts exactly.
+  \item Key scripts carry a \texttt{-{}-verify} flag that recomputes and fails loudly if an artifact has drifted.
+  \item Full instructions, plus a claim\,$\rightarrow$\,script\,$\rightarrow$\,artifact table: \texttt{REPRODUCE.md}
+\end{itemize}
+
+\section{Known limitations, stated plainly}
+\begin{itemize}
+  \item \num{465} of the \num{1{,}199}-image default-labelled block remain unreviewed; completing them would tighten the negative-control estimate further.
+  \item The Europeana pilot is $n{=}24$ and contains no negative controls.
+  \item Retrieval relevance labels are a proxy that shares agent scores with the retrieval signal --- supplementary evidence, not an unbiased benchmark.
+  \item Validated empirically on one archive. Architecturally general in principle; not demonstrated across domains.
+\end{itemize}
+
+\vfill
+\rule{\textwidth}{0.4pt}
+{\footnotesize\color{PrismGray} Every figure on this sheet is reproducible from the committed pipeline. Numbers withdrawn or revised during the project's own integrity audits are documented in the thesis rather than removed --- including the two revisions of the efficiency-lift estimate and the withdrawal of three earlier Tier 2 benchmarks.}
+
+\end{document}

@@ -1,0 +1,127 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=1.3cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{HildesheimRed}{RGB}{165,30,55}
+\definecolor{PrismGray}{RGB}{90,95,105}
+\definecolor{RuleGray}{RGB}{200,203,210}
+
+\titleformat{\section}{\large\bfseries\color{HildesheimRed}}{}{0pt}{}
+\titlespacing*{\section}{0pt}{10pt}{4pt}
+
+\usepackage{lastpage}
+\pagestyle{fancy}\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyhead[L]{\footnotesize\color{PrismGray} Multi Agent Systems for Image Analysis --- Defence Handout}
+\fancyhead[R]{\footnotesize\color{PrismGray} Brhanu Atsbaha}
+\fancyfoot[C]{\footnotesize\color{PrismGray}\thepage\ of \pageref{LastPage}}
+
+\setlist[itemize]{leftmargin=1.1em, itemsep=1.5pt, topsep=2pt}
+\newcommand{\num}[1]{\textbf{#1}}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries Multi-Agent Systems for Image Analysis}\\[1mm]
+{\normalsize Object and Complex Scene Detection in a Historical Archive}\\[2mm]
+{\footnotesize\color{PrismGray} Brhanu Atsbaha \quad$\cdot$\quad University of Hildesheim \quad$\cdot$\quad Advisors: Prof.\ Dr.\ Thomas Mandl, Shereen Elsayed}
+\end{center}
+\vspace{-2mm}
+\rule{\textwidth}{0.8pt}
+
+\section{The argument, in eight steps}
+\begin{enumerate}[leftmargin=1.4em, itemsep=2pt, topsep=3pt]
+  \item A COCO-trained detector applied as-is is weak on these scans: AUROC $0.79$ / $0.74$ / $0.75$ for person / animal / vehicle.
+  \item A student trained on its teacher's pseudo-labels scores $\text{mAP}_{50}=\num{0.768}$ against those labels and \num{0.146} against human boxes. 126 of 128 objects it misses were never in the teacher's labels; a better teacher raises it to \num{0.210}.
+  \item The system was built on the hypothesis that \emph{disagreement} between its agents signals doubt. As deployed, its four agent signals came from two measurements: the whole archive fell into eight states.
+  \item In a test fixed in writing before it was run, disagreement ranks the system's errors at \num{0.378}, plain confidence at \num{0.825} (300 hand-labelled pictures). The errors lie where the agents \emph{agree}.
+  \item Agreement also fails as a filter for training labels: students trained on all, confirmed or randomly thinned pseudo-labels score \num{0.214} / \num{0.232} / \num{0.201}, and an earlier run with the same seeds ordered them the other way.
+  \item A corrected design --- every agent reports what it measures, confidence decides what a person checks --- approves \num{76.4\%} of pictures automatically at a promised risk of $5\%$, against \num{63.0\%} for the old triage score (\num{61.1\%} routing by disagreement alone), on 199 of 200 book-disjoint redraws of the labelled pool. On 400 pictures drawn at random from the archive that promise fails when the cut-off is calibrated on the pool ($16.2\%$ approved and wrong); with one definition of a scene and a cut-off calibrated on archive pictures it comes to just above the promised level: $5.4$--$5.9\%$ at $80\%$ approved on 300 new pictures; set to $2.5\%$, the promise gives $4.6\%$, so it is missed too. Inside the pool every approval is a confident ``scene'' call, and the scene / no-scene decision itself is no better than before.
+  \item On the fixed classes: the agents rank the \textbf{8 object classes} well (mean AUROC \num{0.903}) and a promise on missed objects gives each picture a list of $2.8$ classes missing $9.2\%$ of a picture's objects on average, as promised ($10.8\%$ of all objects). For the \textbf{5 scene classes} they shortlist but do not decide: the combination must be learned ($0.401 \to 0.544$ balanced accuracy), which finds family, playing and landscape in $27$--$62\%$ of cases; under a $5\%$ promise only ``no scene'' and ``drawing'' are approved reliably enough.
+  \item \textbf{The contribution is therefore not a better detector} but a tested account of when an automatic answer can be trusted, with a risk promise attached.
+\end{enumerate}
+
+\section{What changed from the deployed design}
+\begin{center}\footnotesize
+\begin{tabular}{p{3.0cm} p{6.4cm} p{6.4cm}}
+\toprule
+\textbf{Part} & \textbf{Deployed} & \textbf{Corrected} \\
+\midrule
+Object signal & Describer's object count divided by three & 8 detection scores from the retrained object finder \\
+Scene signal & Softmax over 5 scenes; cannot say ``no scene'' & Sigmoid per scene + one ``no scene'' score \\
+Agreement score & $1-|A^{\text{object}}-A^{\text{vlm}}|$, derived & \textbf{Removed} \\
+Common scale & None & Each agent mapped to probabilities: 6 scene answers, 8 object classes, scene at all \\
+Routing to a person & By disagreement & By confidence \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Headline results}
+\begin{center}\footnotesize
+\begin{tabular}{p{6.0cm} l p{7.0cm}}
+\toprule
+\textbf{Result} & \textbf{Value} & \textbf{Scope / caveat} \\
+\midrule
+Error ranking: disagreement / confidence & $0.378$ / $0.825$ & Pre-registered; difference $-0.448$ $[-0.541,-0.354]$ \\
+Auto-approval at $\alpha=0.05$, old triage / corrected & $63.0\%$ / $76.4\%$ & 200 redraws inside the 1,250-picture pool; better on 199 of 200 \\
+\quad at $\alpha=0.10$ & $63.0\%$ / $89.1\%$ & Same; routing by disagreement alone: $61.1\%$, $61.5\%$ \\
+\quad at the same \emph{realised} error of 5\% / 10\% & $+16.2$ / $+28$ points & Every redraw at 5\%, 199 of 200 at 10\%; at 1--3\% only $+11$ to $+14$, likely \\
+Realised risk at $\alpha=0.05$, in the pool & $0.0498$ & Met on average, no margin; one split exceeds it 41.5\% of the time \\
+\textbf{On 400 random archive pictures} & $0.162$ & \textbf{Calibrated on the pool the promise fails}; test fixed before labelling \\
+\quad one rule for ``scene'', calibrated on archive pictures & $0.048$, $81\%$ approved & An analysis added after the test \\
+\quad the same on 300 new pictures (fixed in advance) & $0.059$, $80\%$ approved & Narrow miss; at $\alpha{=}0.025$: $0.046$, $64\%$, also a miss; the two samples differ (38\% vs 47\% no scene) \\
+Balanced accuracy, old / corrected (fitted line) & $0.798$ / $0.815$ & Not clearly better decisions; at its 0.5 line the corrected design calls almost everything a scene \\
+Scene ranking, old / corrected & $0.829$ / $0.866$ & Likely: 88\% of redraws; corrected $t$-test significant \\
+Out of pool (90 pictures, new books) & $0.929$ / $0.894$ & No ranking gain on new books; approval gain remains \\
+Annotation saved on 12,110 pictures & $18.2$\,h at $\alpha{=}0.05$ & At the price of $\approx603$ vs $201$ wrong labels let through; pool calibration \\
+Pseudo-label collapse & $0.768\!\to\!0.146$ & Same model, two ground truths \\
+Retrained object finder (AP50) & $0.123\!\to\!0.210$ & Better teacher; agreement filter adds nothing \\
+\textbf{8 object classes}, AUROC, LLaVA / combined & $0.903$ / $0.903$ & 300 pictures; the combination does not improve on LLaVA \\
+\quad against old detector / linear probe & $0.624$ / $0.838$ & Both established; scene tasks level with the probe \\
+\quad list with at most 10\% of objects missed & $9.2\%$ per picture ($10.8\%$ of all objects), $2.8$ classes & $1.56$ wrong classes per picture to strike out \\
+\textbf{5 scene classes}, balanced accuracy, learned / fixed / LLaVA & $0.544$ / $0.401$ / $0.507$ & 992 pictures; family, playing, landscape found in $27$--$62\%$ \\
+\quad approved at $\alpha=0.05$ & $69.1\%$ & ``No scene'' (63\%, 1.6\% wrong), ``drawing'' (33\%, 16\% wrong); specific classes go to a person \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{What this thesis does \emph{not} claim}
+\begin{itemize}
+  \item \textbf{Not that disagreement measures uncertainty.} On this archive it does not; confidence does better.
+  \item \textbf{Not a guarantee for every batch.} The risk promise holds on average, for books like the calibration books.
+  \item \textbf{Not that the accuracy gains transfer.} With labels from a second source the old design ranks better; the two label sources agree only at $\kappa=0.41$.
+  \item \textbf{Not automatic objects or scene classes.} A promise on all decisions confirms at most $0.4\%$ of objects, and only ``no scene'' and ``drawing'' are approved among the scene classes; boxes reach a mean AP50 of $0.210$.
+  \item \textbf{Not that several agents clearly beat one.} Learned, the combination is barely ahead of LLaVA alone.
+\end{itemize}
+
+\section{People, labels and the blind spot}
+\textbf{People agree only moderately.} Two raters agree on scene type at $\kappa=0.337$ (124 pictures); the same rater, rating 143 pictures a second time, reaches only $\kappa=0.36$ against the first rating. Most disagreement is about ``drawing'': counting it as ``no scene'' lifts these to $0.50$ and $0.58$. Scene categories are interpretations, not facts.
+
+\textbf{The shared blind spot.} Mistakes are six times more frequent on the sparsest pictures ($30.0\%$ against $5.1\%$ by ink quartile), and on 149 of the 199 mistakes all three agents are wrong as well. Confidence already captures this; six picture properties add only $+0.006$, overall and among auto-approved pictures, with intervals spanning zero.
+
+\section{Reproducibility}
+\begin{itemize}
+  \item Every experiment script carries a \texttt{-{}-verify} flag that recomputes its result and fails if it has drifted. The whole pipeline was rerun twice from scratch.
+  \item Three checks hold the thesis text to the result files: \num{39}, \num{444} and \num{50} figures, all matching. The class tasks were planned in writing before they were run.
+\end{itemize}
+
+\section{Known limitations}
+\begin{itemize}
+  \item The evaluation rests on few labelled pictures: 249 test pictures, of which 38 show no scene; the class ``teaching'' has only 6 labelled pictures.
+  \item The archive tests and the re-audits rest on one person's labels; the four specific scene classes rest on 165 expert pictures.
+  \item Tier 3 (paid frontier models) is designed but was not run.
+  \item The Europeana transfer pilot ($n=24$) misses $65.2\%$ of confirmed scenes: the method does not transfer unchanged.
+\end{itemize}
+
+\end{document}

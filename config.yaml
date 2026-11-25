@@ -30,7 +30,7 @@ self_training:
   iterations: 3
   confidence_threshold: 0.7
   consensus_threshold: 0.5
-  teacher_weights: "runs/detect/teacher_10class_v1/weights/best.pt"
+  teacher_weights: "runs/detect/yolo11_v2_augmented_refresh/weights/best.pt"
 
 pipeline_steps:
   run_cyclegan: true

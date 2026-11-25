@@ -2,17 +2,39 @@
 """
 run_detailed_viva_experiments.py
 ---------------------------------
-Executes the hyper-rigorous, publication-grade experimental suite on the thesis dataset:
+Executes the experimental suite on the thesis dataset:
 1. SAA Weights Optimization (5-Fold Cross-Validation Grid Search)
 2. SCI Weights Optimization (Logistic & Random Forest Importance)
 3. Stratified Human Validation
-4. Inter-Annotator Agreement Kappa (Cohen's Kappa & Ambiguity Correlation)
-5. Retrieval Scale Expansion (50 queries)
-6. Uncertainty Baseline Comparison (MC Dropout, Deep Ensemble, Entropy) with Wilcoxon Significance Testing
+4. [removed] Previously hardcoded a fabricated Cohen's Kappa=0.8031 with no
+   underlying computation. This cohort is single-rater; no Kappa exists.
+   Real ambiguity-correlation figures live in run_spatial_agreement_audit.py.
+5. Retrieval benchmark: reports the real 10-query result from
+   run_semantic_retrieval_eval.py (previously this step fabricated a fake
+   "50-query expansion" via a linear formula over synthetic data -- removed).
+6. Uncertainty Baseline Comparison (Single-Model Inverse-Confidence, Deep Ensemble, Entropy)
+   with Wilcoxon Significance Testing. NOTE: the "Single-Model Inverse-Confidence" baseline
+   was previously labeled "Monte Carlo Dropout" with a "30x stochastic forward passes" story
+   in the thesis/slides -- there is no dropout-enabled inference or repeated sampling anywhere
+   in this codebase; it is a single deterministic pass (1 - existing_pipeline_agent). Relabeled
+   during a full-project reproducibility audit; the 0.9726 AUROC value itself is unchanged
+   (it was always this deterministic computation), only its methodology description was wrong.
 7. Active Learning Baseline comparison (Random, Margin, Entropy, SAA Disagreement)
 8. Coalition Fusion Optimization (Stacking, Stacking-GBDT, weighted fusion)
+
+NOTE: the "9. Restoration Ablation Study" / "10. Frontier VLM Comparison
+Study" / "11. Downstream Historical Claims" blocks below are dead/unused
+code -- hardcoded literals, never documented here, contributing zero
+numbers actually cited in the thesis or slides. See the inline comment
+above them for the full explanation; they are retained as a record of
+what was checked and ruled out during a reproducibility audit, not as a
+data source.
 """
 
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1] / "core_pipeline"))
+from saa_decision import SAA_THRESHOLD, STORED_COLUMN_THRESHOLD  # deliberate 0.55; see saa_decision.py
 import os
 import json
 import math
@@ -34,11 +56,8 @@ SCORES_CSV = BASE / "results" / "multi_agent" / "agent_comparison_scores.csv"
 COMPLEXITY_CSV = BASE / "results" / "multi_agent" / "scene_complexity_index.csv"
 OUTPUT_JSON = BASE / "results" / "multi_agent" / "detailed_viva_experiments_report.json"
 
-def normalize_id(name):
-    p = str(name).replace("images/", "").replace("\\", "/")
-    p = p.split("/")[-1].rsplit(".", 1)[0]
-    parts = p.split("_")
-    return "_".join(parts[-2:]) if len(parts) >= 2 and parts[0].startswith("PPN") else p
+from picture_ids import full_id as normalize_id, read_expert_annotations   # book and page, never the page alone
+
 
 def expected_calibration_error(y_true, y_prob, n_bins=10):
     bin_boundaries = np.linspace(0, 1, n_bins + 1)
@@ -60,7 +79,7 @@ def main():
     print("🚀 Initiating Hyper-Rigorous Thesis Experimental Suite...")
 
     # Load gold labels
-    gold = pd.read_csv(GOLD_CSV)
+    gold = read_expert_annotations(GOLD_CSV)
     gold['cvat_id'] = gold.index
     gold_reviewed = gold[gold['cvat_id'] <= 800].copy()
     gold_reviewed["gold_has_scene"] = (gold_reviewed["n_scene_labels"] > 0).astype(int)
@@ -168,7 +187,7 @@ def main():
         joined_c = joined.merge(comp[["image_id", "sci_obj_density", "sci_spatial_overlap", "sci_scene_entropy", "sci_inter_disagreement"]], on="image_id", how="inner")
         
         # Target: classification error (prediction != gold)
-        joined_c["is_error"] = (joined_c["comparison_fusion_score"] >= 0.5).astype(int) != joined_c["gold_has_scene"]
+        joined_c["is_error"] = (joined_c["comparison_fusion_score"] >= STORED_COLUMN_THRESHOLD).astype(int) != joined_c["gold_has_scene"]
         X_sci = joined_c[["sci_obj_density", "sci_spatial_overlap", "sci_scene_entropy", "sci_inter_disagreement"]].fillna(0)
         y_sci = joined_c["is_error"].astype(int)
 
@@ -228,41 +247,59 @@ def main():
     # ---------------------------------------------------------------------------
     # EXPERIMENT 4: Human Inter-Annotator Agreement
     # ---------------------------------------------------------------------------
-    print("\n🔬 Running Experiment 4: Human Inter-Annotator Agreement...")
-    exp4_results = {
-        "Mean Cohen's Kappa (Inter-Annotator Agreement)": 0.8031,
-        "YOLO Confidence vs Human Ambiguity Correlation (Pearson r)": 0.7437,
-        "Unified Uncertainty (U) vs Human Ambiguity Correlation (Pearson r)": 0.9213,
-        "Uncertainty Prediction Performance Improvement": "23.9% Gain over YOLO alone"
-    }
-    print(json.dumps(exp4_results, indent=2))
-    results_dict["exp4_inter_annotator_agreement"] = exp4_results
+    # REMOVED: this block previously hardcoded a literal
+    # "Mean Cohen's Kappa (Inter-Annotator Agreement)": 0.8031 with no
+    # computation behind it whatsoever -- the exact fabricated figure traced
+    # earlier to prepare_annotator_worksheets.py's simulated dual-annotator
+    # data (see human-annotation-work-dir project memory) and supposedly
+    # removed everywhere, but a second, independent hardcoded copy survived
+    # here. This cohort is single-rater; no real Cohen's Kappa exists.
+    # The genuinely-computed correlation figures that WERE mixed into this
+    # same dict (Pearson r=0.9213 SAA vs human ambiguity, r=0.7437 YOLO
+    # confidence vs human ambiguity, 23.9% gain) are real -- they come from
+    # scipy.stats.pearsonr in run_spatial_agreement_audit.py, not from here.
+    # Report them from that script's own output, not as a hardcoded
+    # duplicate with no data lineage.
+    print("\n🔬 Experiment 4 (Human Inter-Annotator Agreement) removed: see "
+          "run_spatial_agreement_audit.py for the real, computed correlation "
+          "figures. No Cohen's Kappa is reported -- this cohort is single-rater.")
 
     # ---------------------------------------------------------------------------
     # EXPERIMENT 5: Retrieval Benchmark Expansion
     # ---------------------------------------------------------------------------
-    print("\n🔬 Running Experiment 5: Retrieval Benchmark Expansion...")
-    queries = np.linspace(0.9, 0.1, 50)
-    p_10 = 1.0 - (queries * 0.15)
-    r_10 = 0.88 - (queries * 0.20)
-    map_score = 0.91 - (queries * 0.18)
-    ndcg = 0.93 - (queries * 0.12)
-    
-    exp5_results = {
-        "Benchmark Scale": "50 Archivist-Curated Queries (Expanded from 10)",
-        "Mean Precision@10": round(float(np.mean(p_10)), 4),
-        "Mean Recall@10": round(float(np.mean(r_10)), 4),
-        "Mean Average Precision (MAP)": round(float(np.mean(map_score)), 4),
-        "Mean nDCG@10": round(float(np.mean(ndcg)), 4)
-    }
-    print(json.dumps(exp5_results, indent=2))
-    results_dict["exp5_retrieval_benchmark_expansion"] = exp5_results
+    # REMOVED: this block previously generated 100% synthetic data via
+    # np.linspace(0.9, 0.1, 50) fed through hardcoded linear formulas
+    # (p_10 = 1.0 - queries*0.15, etc.) -- no images, queries, or relevance
+    # judgments were ever involved. Its mean values (P@10=0.925, MAP=0.820,
+    # nDCG=0.870) were the thesis's cited "50-query retrieval benchmark"
+    # despite there being only 10 real queries, defined and genuinely
+    # evaluated in run_semantic_retrieval_eval.py. Load that script's real
+    # output instead of fabricating a fake "expansion."
+    retrieval_summary_path = BASE / "results" / "multi_agent" / "retrieval_summary.json"
+    if retrieval_summary_path.exists():
+        with open(retrieval_summary_path) as f:
+            real_retrieval = json.load(f)
+        exp5_results = {
+            "Benchmark Scale": f"{real_retrieval.get('n_queries', 10)} real queries "
+                                f"(run_semantic_retrieval_eval.py; MAP/nDCG not computed there -- "
+                                f"reporting Precision@10 only, its actual output metric)",
+            "Mean Semantic Precision@10": real_retrieval.get("mean_semantic_precision"),
+            "Mean Keyword-Baseline Precision@10": real_retrieval.get("mean_keyword_precision"),
+            "Caveat": "Relevance labels are a proxy derived partly from the same agent "
+                      "scores (agreement_agent, vlm_agent) used by the semantic retrieval "
+                      "score -- not independent human relevance judgments. Reported as "
+                      "downstream utility evidence, not an unbiased retrieval benchmark.",
+        }
+        print(json.dumps(exp5_results, indent=2))
+        results_dict["exp5_retrieval_real"] = exp5_results
+    else:
+        print("⚠️  retrieval_summary.json not found -- run run_semantic_retrieval_eval.py first. Skipping.")
 
     # ---------------------------------------------------------------------------
     # EXPERIMENT 6: Uncertainty Baseline Comparison & Significance
     # ---------------------------------------------------------------------------
     print("\n🔬 Running Experiment 6: Uncertainty Baseline Comparison...")
-    joined["is_error"] = (joined["comparison_fusion_score"] >= 0.5).astype(int) != joined["gold_has_scene"]
+    joined["is_error"] = (joined["comparison_fusion_score"] >= STORED_COLUMN_THRESHOLD).astype(int) != joined["gold_has_scene"]
     y_err = joined["is_error"].astype(int).values
 
     # SAA Disagreement (Ours): std of the 4 validation agents
@@ -274,8 +311,10 @@ def main():
     entropy = - (p_sce * np.log2(p_sce + 1e-12) + (1-p_sce) * np.log2(1-p_sce + 1e-12))
     temp_entropy = entropy / 1.5
 
-    # MC Dropout (Single-Model SD): Raw YOLO Confidence Inverse
-    mc_dropout = 1.0 - joined["existing_pipeline_agent"].values
+    # Single-Model Inverse-Confidence Baseline: 1 - raw YOLO confidence.
+    # A single deterministic pass -- NOT Monte Carlo Dropout (no dropout-enabled
+    # inference, no repeated sampling; see module docstring).
+    single_model_inv_confidence = 1.0 - joined["existing_pipeline_agent"].values
 
     # Deep Ensemble Uncertainty: std of all 6 agents
     agent_cols_6 = ["existing_pipeline_agent", "agreement_agent", "scene_agent", "vlm_agent", "restoration_agent", "document_agent"]
@@ -284,7 +323,7 @@ def main():
     uncertainty_methods = {
         "Multi-Agent SAA (Ours)": u_saa,
         "Temperature-Scaled Entropy": temp_entropy,
-        "Monte Carlo Dropout": mc_dropout,
+        "Single-Model Inverse-Confidence Baseline": single_model_inv_confidence,
         "Deep Ensemble Uncertainty": deep_ensemble
     }
 
@@ -387,6 +426,23 @@ def main():
     ]
     print(pd.DataFrame(exp8_results).to_string(index=False))
     results_dict["exp8_coalition_fusion_optimization"] = exp8_results
+
+    # ------------------------------------------------------------------
+    # Experiments 9-11 below (Restoration Ablation, Frontier VLM Comparison,
+    # Downstream Historical Claims) are DEAD / UNUSED CODE, found during a
+    # narration re-check on the real 0.989->0.1462 claim (which is genuine
+    # and unrelated -- see evaluate_spatial_audit.py, a live YOLO val() run,
+    # independently re-verified). All three blocks: (a) are hardcoded
+    # literals with no computation above them, (b) are undocumented in the
+    # module docstring unlike experiments 1-8, and (c) contribute zero
+    # numbers that appear anywhere in the thesis or slides -- confirmed by
+    # direct search (0.0940, 0.7345, 0.7955, "GPT-4o", "3.1x increase",
+    # "1:4.2 to 1:1.8", etc. do not exist in either document). Block 9's
+    # 0.1462 is a coincidental reuse of the real audit value under a
+    # different, unverified label ("With Restoration") -- not the source of
+    # the thesis's actual claim. Left in place rather than deleted, exactly
+    # as dead, so the record of what was checked and ruled out isn't lost.
+    # ------------------------------------------------------------------
 
     # 9. Restoration Ablation Study
     restoration_results = {

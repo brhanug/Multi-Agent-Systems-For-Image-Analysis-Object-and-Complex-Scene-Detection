@@ -2,11 +2,19 @@
 """
 Scene Complexity Index (SCI) — formal definition and measurement.
 
-Defines a multi-dimensional complexity score per image:
-  C(image) = 0.35 * object_density_norm
-           + 0.25 * spatial_overlap_proxy
-           + 0.25 * scene_classification_entropy
-           + 0.15 * inter_agent_disagreement
+Defines a multi-dimensional complexity score per image using data-driven
+weights derived from Random Forest feature importance on the annotated cohort:
+
+  C(image) = 0.48 * object_density_norm     (α: spatial detector saturation)
+           + 0.50 * spatial_overlap_proxy    (β: inter-agent spatial std)
+           + 0.00 * scene_classification_entropy  (γ: scene entropy, data-driven weight=0)
+           + 0.02 * inter_agent_disagreement (δ: global disagreement signal)
+
+Note: gamma=0.00 (scene entropy excluded) is derived from RF feature importance
+  showing object_density (0.4822) and spatial_overlap (0.4989) account for ~98%
+  of predictive power. scene_entropy importance=0.0001 is below noise threshold.
+  This is reported explicitly in the thesis (Section SCI) to distinguish from
+  early theoretical weights (0.35/0.25/0.25/0.15).
 
 Then analyses:
   - Does fusion advantage (Δ = fusion - mono) correlate with SCI?
@@ -23,7 +31,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ALPHA, BETA, GAMMA, DELTA_W = 0.35, 0.25, 0.25, 0.15
+ALPHA, BETA, GAMMA, DELTA_W = 0.48, 0.50, 0.00, 0.02
 N_BINS = 5
 BIN_LABELS = ["very_low","low","medium","high","very_high"]
 
@@ -99,9 +107,19 @@ def main():
     df["sci_inter_disagreement"]   = inter_disagree
     df["delta_fusion_vs_mono"]     = df["comparison_fusion_score"] - df["monolithic_pipeline_agent"]
 
-    # Bin into 5 levels
-    bins = np.linspace(0, 1, N_BINS + 1)
-    df["sci_bin"] = pd.cut(sci, bins=bins, labels=BIN_LABELS, include_lowest=True)
+    # Bin into 5 levels using QUANTILE-based bins so every level is populated.
+    # (Equal-width bins with fixed [0,1] breakpoints leave high/very_high empty
+    #  when the SCI distribution is left-skewed, producing NaN in high_delta.)
+    # When duplicates='drop' reduces the edge count, trim labels to match.
+    try:
+        df["sci_bin"] = pd.qcut(sci, q=N_BINS, labels=BIN_LABELS, duplicates="drop")
+    except ValueError:
+        # Fewer unique quantile edges than labels → compute actual bin count and trim
+        _, edges = pd.qcut(sci, q=N_BINS, retbins=True, duplicates="drop")
+        n_actual_bins = len(edges) - 1
+        df["sci_bin"] = pd.qcut(sci, q=N_BINS, labels=BIN_LABELS[:n_actual_bins], duplicates="drop")
+
+
 
     # Spearman: SCI vs Δ(fusion - mono)
     spear = spearman_r(sci, df["delta_fusion_vs_mono"].to_numpy(dtype=float))
@@ -130,11 +148,17 @@ def main():
               f"mono={r['monolithic_mean']:.3f} | fus={r['fusion_mean']:.3f} | Δ={r['delta_fus_mono']:+.3f}")
 
     # Key finding: does fusion win at high complexity?
-    high_bins = ["high","very_high"]
-    low_bins  = ["very_low","low"]
-    high_delta = float(bin_df[bin_df["sci_bin"].isin(high_bins)]["delta_fus_mono"].mean())
-    low_delta  = float(bin_df[bin_df["sci_bin"].isin(low_bins)]["delta_fus_mono"].mean())
-    fusion_wins_complex = high_delta > low_delta
+    # Guard against empty bins (quantile bins guarantee coverage but just in case)
+    high_bins = ["high", "very_high"]
+    low_bins  = ["very_low", "low"]
+    high_sub  = bin_df[bin_df["sci_bin"].isin(high_bins)]["delta_fus_mono"]
+    low_sub   = bin_df[bin_df["sci_bin"].isin(low_bins)]["delta_fus_mono"]
+    high_delta = float(high_sub.mean()) if len(high_sub) > 0 else float("nan")
+    low_delta  = float(low_sub.mean())  if len(low_sub)  > 0 else float("nan")
+    # fusion wins at high complexity only if both values are finite
+    import math as _math
+    fusion_wins_complex = (not _math.isnan(high_delta) and not _math.isnan(low_delta)
+                           and high_delta > low_delta)
 
     # Save CSV
     sci_path = out_dir / "scene_complexity_index.csv"
@@ -143,7 +167,8 @@ def main():
 
     # Save summary
     summary = {
-        "sci_formula": "0.35*object_density + 0.25*spatial_overlap + 0.25*scene_entropy + 0.15*inter_disagreement",
+        "sci_formula": "0.48*object_density + 0.50*spatial_overlap + 0.00*scene_entropy + 0.02*inter_disagreement",
+        "sci_formula_note": "Weights derived from RF feature importance (object_density=0.4822, spatial_overlap=0.4989, scene_entropy=0.0001, disagreement=0.0188). gamma=0.00 because scene_entropy importance below noise threshold.",
         "sci_components": {"alpha": ALPHA, "beta": BETA, "gamma": GAMMA, "delta": DELTA_W},
         "n_images": int(len(df)),
         "sci_stats": {
@@ -152,16 +177,20 @@ def main():
             "median": round(float(np.median(sci)), 4),
         },
         "spearman_sci_vs_delta_fusion_mono": round(spear, 4),
-        "fusion_advantage_high_sci_bins":  round(high_delta, 4),
-        "fusion_advantage_low_sci_bins":   round(low_delta, 4),
+        "fusion_advantage_high_sci_bins":  None if _math.isnan(high_delta) else round(high_delta, 4),
+        "fusion_advantage_low_sci_bins":   None if _math.isnan(low_delta)  else round(low_delta, 4),
         "fusion_wins_at_high_complexity":  fusion_wins_complex,
         "per_bin": bin_rows,
         "rq7_conclusion": (
-            f"Multi-agent fusion provides {'greater' if fusion_wins_complex else 'similar'} advantage "
-            f"at high scene complexity (Δ={high_delta:+.4f}) vs low complexity (Δ={low_delta:+.4f}). "
+            f"Multi-agent fusion provides "
+            f"{'greater' if fusion_wins_complex else ('similar' if not _math.isnan(high_delta) else 'undetermined')} advantage "
+            f"at high scene complexity (Δ={'N/A' if _math.isnan(high_delta) else f'{high_delta:+.4f}'}) "
+            f"vs low complexity (Δ={'N/A' if _math.isnan(low_delta) else f'{low_delta:+.4f}'}). "
             f"Spearman r(SCI, Δ) = {spear:.4f} "
             f"({'positive correlation confirms' if spear > 0 else 'negative correlation refutes'} "
-            f"the hypothesis that complexity mediates multi-agent advantage)."
+            f"the hypothesis that complexity mediates multi-agent advantage). "
+            f"Bins computed using quantile-based binning (5 equal-frequency bins) "
+            f"to ensure all complexity levels are populated."
         ),
     }
     summary_path = out_dir / "scene_complexity_summary.json"

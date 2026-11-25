@@ -16,7 +16,7 @@ final_dataset/
 *.safetensors
 
 # Generated results
-results/
+results/**
 runs/
 logs/
 *.log
@@ -43,4 +43,79 @@ node_modules/
 # presentation/images/ # REMOVED: blocks Overleaf sync
 thesis_site/public/images/
 node_modules
-node_modules
+
+# --- added 2026-09-02 provenance/cleanup audit: build tools, archives, runtime junk ---
+tectonic
+tectonic.tar.gz
+*.tar.gz
+vllm_server.pid
+*.pid
+.vscode/
+scripts/.gradio/
+.gradio/
+
+# --- 2026-09-02 audit: large data/model dirs that were NOT ignored ---
+# `git add -A` previously tried to enumerate ~125GB and timed out. None of these
+# contained tracked files (thesis_site/ excepted, whose 56 tracked files stay
+# tracked -- ignoring a path does not untrack what is already in the index).
+archive/
+final_dataset_v1_refresh/
+pytorch-CycleGAN-and-pix2pix/
+cvat_upload_temp/
+scratch_local_llm/
+data/
+weights/
+GroundingDINO/
+src/groundingdino/
+
+# Bulk annotation imagery and stray binaries. The load-bearing annotation data
+# (user_annotations_*.csv, labels/, audit_dataset.yaml) stays tracked -- those
+# are what build_corrected_negative_control_pool.py reads.
+human_spatial_audit/images/
+human_spatial_audit/labels.cache
+cloudflared
+
+# Raw per-image outputs of the superseded v1 architecture (Florence-2 /
+# GroundingDINO era, 48,440 JSONs / 279MB). Kept on disk, read only by the
+# v1_*.py scripts; cited nowhere in the thesis. Not repo material.
+results_v1/
+
+# --- EXCEPTIONS: irreplaceable human annotation must be version-controlled ---
+# Everything under results/ is ignored (regenerable: a full pipeline re-run
+# reproduces 159/161 artifacts byte-identically). These files are the exception:
+# HUMAN LABOUR no script can regenerate. Git cannot re-include a file whose
+# parent dir is excluded, hence the directory negations below.
+!results/multi_agent/
+!results/external_archive/
+!results/external_archive/europeana_real_pilot/
+!results/multi_agent/negative_control_reverification_audit.json
+!results/multi_agent/negative_control_reverification_sample.json
+!results/external_archive/europeana_real_pilot/europeana_human_annotations_REAL.csv
+
+# Secrets and vendored third-party trees (audit 2026-09-02)
+ngrok.yml
+Real-ESRGAN/
+checkpoints/
+
+# annotation working copies (regenerable from build_remaining_negative_controls.py)
+self_annotation_package/task_a2_remaining_negative_controls/images/
+cvat_upload_temp/
+
+# archive-scan contact sheets for hand labelling: never commit
+self_annotation_package/task_g_rare_class_mining/sheets/
+self_annotation_package/task_h_second_rater_scenes/sheets/
+self_annotation_package/thumbnail_scan/cache/
+self_annotation_package/scene_consistency/cache/
+self_annotation_package/quick_labels/cache/
+self_annotation_package/task_a2_remaining_negative_controls/contact_sheets/
+self_annotation_package/task_e_auto_approved_audit/contact_sheets/
+self_annotation_package/task_e_auto_approved_audit/images/
+self_annotation_package/task_f_pseudo_label_classes/contact_sheets/*.png
+presentation/defence_assets/
+self_annotation_package/final_check/cache/
+self_annotation_package/confirm_check/cache/
+
+# Build and runtime leftovers
+*.blg
+*.pid
+self_annotation_package/archive_classes/cache/

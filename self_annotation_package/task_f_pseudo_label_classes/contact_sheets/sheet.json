@@ -1,0 +1,442 @@
+[
+  {
+    "n": 1,
+    "image_id": "PPN1807131793/00000004_0",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN1807131793_00000004_0.txt",
+    "box_index_in_file": 1,
+    "class_id": 2,
+    "name_at_training_2026_01_28": "horse",
+    "name_in_yaml_since_2026_02_19": "animal",
+    "disputed": true,
+    "boxes_in_picture": 8,
+    "box_px": [
+      55,
+      1835,
+      595,
+      2544
+    ],
+    "picture_px": [
+      1940,
+      3234
+    ]
+  },
+  {
+    "n": 2,
+    "image_id": "PPN1806751267/00000041_1",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN1806751267_00000041_1.txt",
+    "box_index_in_file": 0,
+    "class_id": 7,
+    "name_at_training_2026_01_28": "clothing",
+    "name_in_yaml_since_2026_02_19": "text",
+    "disputed": true,
+    "boxes_in_picture": 4,
+    "box_px": [
+      834,
+      844,
+      1082,
+      1317
+    ],
+    "picture_px": [
+      1844,
+      1582
+    ]
+  },
+  {
+    "n": 3,
+    "image_id": "PPN1778016790/00000389_0",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN1778016790_00000389_0.txt",
+    "box_index_in_file": 1,
+    "class_id": 2,
+    "name_at_training_2026_01_28": "horse",
+    "name_in_yaml_since_2026_02_19": "animal",
+    "disputed": true,
+    "boxes_in_picture": 3,
+    "box_px": [
+      1203,
+      1262,
+      1416,
+      1928
+    ],
+    "picture_px": [
+      1440,
+      2506
+    ]
+  },
+  {
+    "n": 4,
+    "image_id": "PPN1811271073/00000270_0",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN1811271073_00000270_0.txt",
+    "box_index_in_file": 1,
+    "class_id": 2,
+    "name_at_training_2026_01_28": "horse",
+    "name_in_yaml_since_2026_02_19": "animal",
+    "disputed": true,
+    "boxes_in_picture": 5,
+    "box_px": [
+      723,
+      1571,
+      2399,
+      3041
+    ],
+    "picture_px": [
+      2422,
+      3818
+    ]
+  },
+  {
+    "n": 5,
+    "image_id": "PPN180755645X/00000432_1",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN180755645X_00000432_1.txt",
+    "box_index_in_file": 0,
+    "class_id": 6,
+    "name_at_training_2026_01_28": "tree",
+    "name_in_yaml_since_2026_02_19": "tree",
+    "disputed": false,
+    "boxes_in_picture": 2,
+    "box_px": [
+      199,
+      92,
+      447,
+      821
+    ],
+    "picture_px": [
+      970,
+      1052
+    ]
+  },
+  {
+    "n": 6,
+    "image_id": "PPN1823741223/00000122_0",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN1823741223_00000122_0.txt",
+    "box_index_in_file": 0,
+    "class_id": 4,
+    "name_at_training_2026_01_28": "weapon",
+    "name_in_yaml_since_2026_02_19": "weapon",
+    "disputed": false,
+    "boxes_in_picture": 2,
+    "box_px": [
+      319,
+      263,
+      448,
+      500
+    ],
+    "picture_px": [
+      472,
+      628
+    ]
+  },
+  {
+    "n": 7,
+    "image_id": "PPN1771327200/00000059_1",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN1771327200_00000059_1.txt",
+    "box_index_in_file": 1,
+    "class_id": 9,
+    "name_at_training_2026_01_28": "animal",
+    "name_in_yaml_since_2026_02_19": "furniture",
+    "disputed": true,
+    "boxes_in_picture": 2,
+    "box_px": [
+      437,
+      1950,
+      1564,
+      2909
+    ],
+    "picture_px": [
+      2056,
+      3248
+    ]
+  },
+  {
+    "n": 8,
+    "image_id": "PPN182663052X/00000006_8",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN182663052X_00000006_8.txt",
+    "box_index_in_file": 0,
+    "class_id": 9,
+    "name_at_training_2026_01_28": "animal",
+    "name_in_yaml_since_2026_02_19": "furniture",
+    "disputed": true,
+    "boxes_in_picture": 2,
+    "box_px": [
+      922,
+      91,
+      1338,
+      419
+    ],
+    "picture_px": [
+      1860,
+      458
+    ]
+  },
+  {
+    "n": 9,
+    "image_id": "PPN1816492086/00000285_0",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN1816492086_00000285_0.txt",
+    "box_index_in_file": 0,
+    "class_id": 9,
+    "name_at_training_2026_01_28": "animal",
+    "name_in_yaml_since_2026_02_19": "furniture",
+    "disputed": true,
+    "boxes_in_picture": 1,
+    "box_px": [
+      83,
+      64,
+      869,
+      444
+    ],
+    "picture_px": [
+      880,
+      484
+    ]
+  },
+  {
+    "n": 10,
+    "image_id": "PPN1879845512/00000002_4",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN1879845512_00000002_4.txt",
+    "box_index_in_file": 0,
+    "class_id": 9,
+    "name_at_training_2026_01_28": "animal",
+    "name_in_yaml_since_2026_02_19": "furniture",
+    "disputed": true,
+    "boxes_in_picture": 3,
+    "box_px": [
+      27,
+      208,
+      469,
+      546
+    ],
+    "picture_px": [
+      2036,
+      720
+    ]
+  },
+  {
+    "n": 11,
+    "image_id": "PPN1831903555/00000019_2",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN1831903555_00000019_2.txt",
+    "box_index_in_file": 1,
+    "class_id": 1,
+    "name_at_training_2026_01_28": "child",
+    "name_in_yaml_since_2026_02_19": "child",
+    "disputed": false,
+    "boxes_in_picture": 4,
+    "box_px": [
+      1208,
+      708,
+      1772,
+      1706
+    ],
+    "picture_px": [
+      2562,
+      2304
+    ]
+  },
+  {
+    "n": 12,
+    "image_id": "PPN1778016081/00000052_0",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN1778016081_00000052_0.txt",
+    "box_index_in_file": 0,
+    "class_id": 2,
+    "name_at_training_2026_01_28": "horse",
+    "name_in_yaml_since_2026_02_19": "animal",
+    "disputed": true,
+    "boxes_in_picture": 3,
+    "box_px": [
+      44,
+      1166,
+      891,
+      2085
+    ],
+    "picture_px": [
+      1482,
+      2326
+    ]
+  },
+  {
+    "n": 13,
+    "image_id": "PPN1800264739/00000220_1",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN1800264739_00000220_1.txt",
+    "box_index_in_file": 0,
+    "class_id": 7,
+    "name_at_training_2026_01_28": "clothing",
+    "name_in_yaml_since_2026_02_19": "text",
+    "disputed": true,
+    "boxes_in_picture": 5,
+    "box_px": [
+      1626,
+      1293,
+      2066,
+      2300
+    ],
+    "picture_px": [
+      2178,
+      3558
+    ]
+  },
+  {
+    "n": 14,
+    "image_id": "PPN1855316196/00000151_0",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN1855316196_00000151_0.txt",
+    "box_index_in_file": 0,
+    "class_id": 5,
+    "name_at_training_2026_01_28": "vehicle",
+    "name_in_yaml_since_2026_02_19": "vehicle",
+    "disputed": false,
+    "boxes_in_picture": 3,
+    "box_px": [
+      2474,
+      496,
+      3687,
+      1573
+    ],
+    "picture_px": [
+      4646,
+      5416
+    ]
+  },
+  {
+    "n": 15,
+    "image_id": "PPN1760700134/00000011_5",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN1760700134_00000011_5.txt",
+    "box_index_in_file": 2,
+    "class_id": 2,
+    "name_at_training_2026_01_28": "horse",
+    "name_in_yaml_since_2026_02_19": "animal",
+    "disputed": true,
+    "boxes_in_picture": 10,
+    "box_px": [
+      452,
+      1481,
+      883,
+      1993
+    ],
+    "picture_px": [
+      3598,
+      4096
+    ]
+  },
+  {
+    "n": 16,
+    "image_id": "PPN1771083751/00000567_0",
+    "split": "val",
+    "label_file": "data/yolo11_v1_refresh/labels/val/PPN1771083751_00000567_0.txt",
+    "box_index_in_file": 0,
+    "class_id": 3,
+    "name_at_training_2026_01_28": "building",
+    "name_in_yaml_since_2026_02_19": "building",
+    "disputed": false,
+    "boxes_in_picture": 1,
+    "box_px": [
+      153,
+      368,
+      2032,
+      1414
+    ],
+    "picture_px": [
+      2174,
+      1902
+    ]
+  },
+  {
+    "n": 17,
+    "image_id": "PPN1799738051/00000415_1",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN1799738051_00000415_1.txt",
+    "box_index_in_file": 0,
+    "class_id": 9,
+    "name_at_training_2026_01_28": "animal",
+    "name_in_yaml_since_2026_02_19": "furniture",
+    "disputed": true,
+    "boxes_in_picture": 2,
+    "box_px": [
+      170,
+      902,
+      1395,
+      1731
+    ],
+    "picture_px": [
+      2248,
+      1854
+    ]
+  },
+  {
+    "n": 18,
+    "image_id": "PPN1822240441/00000117_0",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN1822240441_00000117_0.txt",
+    "box_index_in_file": 0,
+    "class_id": 7,
+    "name_at_training_2026_01_28": "clothing",
+    "name_in_yaml_since_2026_02_19": "text",
+    "disputed": true,
+    "boxes_in_picture": 3,
+    "box_px": [
+      1183,
+      1113,
+      1768,
+      2118
+    ],
+    "picture_px": [
+      1874,
+      2610
+    ]
+  },
+  {
+    "n": 19,
+    "image_id": "PPN1844594661/00000180_0",
+    "split": "train",
+    "label_file": "data/yolo11_v1_refresh/labels/train/PPN1844594661_00000180_0.txt",
+    "box_index_in_file": 0,
+    "class_id": 0,
+    "name_at_training_2026_01_28": "person",
+    "name_in_yaml_since_2026_02_19": "person",
+    "disputed": false,
+    "boxes_in_picture": 2,
+    "box_px": [
+      137,
+      1104,
+      551,
+      1672
+    ],
+    "picture_px": [
+      622,
+      1716
+    ]
+  },
+  {
+    "n": 20,
+    "image_id": "PPN1808324315/00000093_0",
+    "split": "val",
+    "label_file": "data/yolo11_v1_refresh/labels/val/PPN1808324315_00000093_0.txt",
+    "box_index_in_file": 1,
+    "class_id": 0,
+    "name_at_training_2026_01_28": "person",
+    "name_in_yaml_since_2026_02_19": "person",
+    "disputed": false,
+    "boxes_in_picture": 6,
+    "box_px": [
+      1439,
+      1135,
+      1800,
+      2492
+    ],
+    "picture_px": [
+      1830,
+      2560
+    ]
+  }
+]

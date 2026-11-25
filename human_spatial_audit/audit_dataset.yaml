@@ -1,0 +1,14 @@
+path: /data/brhanu/thesis_project/human_spatial_audit
+train: images
+val: images
+names:
+  0: person
+  1: child
+  2: horse
+  3: building
+  4: weapon
+  5: vehicle
+  6: tree
+  7: clothing
+  8: text
+  9: animal

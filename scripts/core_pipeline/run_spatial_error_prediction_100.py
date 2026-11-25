@@ -120,7 +120,7 @@ def main():
             if not matched:
                 has_error = 1
                 break
-                
+                      
         # Check for False Positives if no error found yet
         if not has_error:
             for pred_cls, pred_coords in pred_boxes:
@@ -146,43 +146,79 @@ def main():
     # Merge with Agent comparison scores
     merged = error_df.merge(agent_df, on='basename')
     
+    # Also merge with user_df to get the ground truth scene label
+    merged = merged.merge(user_df[['basename', 'scene']], on='basename')
+    merged['has_scene'] = (merged['scene'].notna() & (merged['scene'] != "") & (merged['scene'] != "none")).astype(int)
+    
     # Calculate Unified AI Uncertainty (U)
     agent_cols = ["existing_pipeline_agent", "agreement_agent", "scene_agent", "vlm_agent"]
     sigma_agents = merged[agent_cols].std(axis=1).fillna(0)
     c_bar = merged[agent_cols].mean(axis=1).fillna(0)
     merged['ai_uncertainty'] = (0.6 * sigma_agents) + (0.4 * (1 - c_bar))
+    merged['sigma_agents'] = sigma_agents
     
-    total_errors = merged['yolo_spatial_error'].sum()
-    print(f"\n  Analyzed {len(merged)} matched images.")
-    print(f"  YOLOv11 Spatial Errors: {total_errors} / {len(merged)} ({total_errors/len(merged)*100:.1f}%)")
+    # --- Function to report metrics for a cohort ---
+    def report_metrics(df_sub, name):
+        total_errors = df_sub['yolo_spatial_error'].sum()
+        n_total = len(df_sub)
+        print(f"\n==================================================")
+        print(f"📊 {name} (N = {n_total})")
+        print(f"==================================================")
+        print(f"  YOLOv11 Spatial Errors: {total_errors} / {n_total} ({total_errors/n_total*100:.1f}%)")
+        
+        y_true = df_sub['yolo_spatial_error'].values
+        y_scores = df_sub['ai_uncertainty'].values
+        y_sigma = df_sub['sigma_agents'].values
+        
+        # Check if we have both classes for ROC-AUC
+        if len(np.unique(y_true)) > 1:
+            auc_roc = roc_auc_score(y_true, y_scores)
+            auc_pr = average_precision_score(y_true, y_scores)
+            point_biserial_r, p_val = stats.pointbiserialr(y_true, y_scores)
+            
+            auc_roc_sigma = roc_auc_score(y_true, y_sigma)
+            
+            print(f"  [AI Uncertainty Formula]:")
+            print(f"    AUROC (Area Under ROC)     : {auc_roc:.4f}")
+            print(f"    AUPRC (Area Under PR)      : {auc_pr:.4f}")
+            print(f"    Point Biserial Correlation : {point_biserial_r:.4f} (p = {p_val:.2e})")
+            print(f"  [Pure Agent Disagreement (sigma)]:")
+            print(f"    AUROC (Area Under ROC)     : {auc_roc_sigma:.4f}")
+        else:
+            print("  ⚠️ Only one class present in ground truth errors - skipping AUC/Correlation.")
+            
+        mean_u_error = df_sub[df_sub['yolo_spatial_error'] == 1]['ai_uncertainty'].mean()
+        mean_u_success = df_sub[df_sub['yolo_spatial_error'] == 0]['ai_uncertainty'].mean()
+        print(f"  Mean Uncertainty on Success  : {mean_u_success:.4f}")
+        print(f"  Mean Uncertainty on Error    : {mean_u_error:.4f}")
     
-    # Calculate how well AI uncertainty predicts YOLO spatial errors
-    y_true = merged['yolo_spatial_error'].values
-    y_scores = merged['ai_uncertainty'].values
+    # 1. Overall Cohort
+    report_metrics(merged, "OVERALL COHORT")
     
-    # Calculate AUROC, AUPRC, Brier Score
-    auc_roc = roc_auc_score(y_true, y_scores)
-    auc_pr = average_precision_score(y_true, y_scores)
-    brier = brier_score_loss(y_true, y_scores)
+    # 2. Positive-only Cohort (images containing a scene)
+    report_metrics(merged[merged['has_scene'] == 1], "POSITIVE SCENE COHORT (Images containing a scene)")
     
-    # Calculate mean uncertainty for success vs error
-    mean_u_error = merged[merged['yolo_spatial_error'] == 1]['ai_uncertainty'].mean()
-    mean_u_success = merged[merged['yolo_spatial_error'] == 0]['ai_uncertainty'].mean()
+    # 3. Negative-only Cohort (images containing no scene / empty / text pages)
+    report_metrics(merged[merged['has_scene'] == 0], "NEGATIVE SCENE COHORT (Images with no scene)")
+    print("==================================================")
     
-    print("\n" + "="*50)
-    print("📈 AI UNCERTAINTY VS SPATIAL ERROR PREDICTION")
-    print("="*50)
-    print(f"  AUROC (Area Under ROC)    : {auc_roc:.4f}")
-    print(f"  AUPRC (Area Under PR)     : {auc_pr:.4f}")
-    print(f"  Brier Score of Predictor  : {brier:.4f}")
-    print(f"  Mean Uncertainty on Success: {mean_u_success:.4f}")
-    print(f"  Mean Uncertainty on Error  : {mean_u_error:.4f}")
-    print("="*50)
+    # 4. Train a Meta-Classifier (Logistic Regression) to predict YOLO spatial errors
+    print("\n==================================================")
+    print("🤖 TRAINING SPATIAL ERROR PREDICTOR (METACLASS)")
+    print("==================================================")
+    from sklearn.model_selection import cross_val_score
+    from sklearn.linear_model import LogisticRegression
     
-    # Correlation between continuous uncertainty and whether an error is made
-    point_biserial_r, p_val = stats.pointbiserialr(y_true, y_scores)
-    print(f"  Point Biserial Correlation: {point_biserial_r:.4f} (p = {p_val:.2e})")
-    print("="*50)
+    X = merged[agent_cols].fillna(0.5)
+    y = merged['yolo_spatial_error']
+    
+    lr = LogisticRegression(random_state=42)
+    scores_auc = cross_val_score(lr, X, y, cv=5, scoring='roc_auc')
+    scores_pr = cross_val_score(lr, X, y, cv=5, scoring='average_precision')
+    
+    print(f"  5-Fold CV AUROC : {np.mean(scores_auc):.4f}")
+    print(f"  5-Fold CV AUPRC : {np.mean(scores_pr):.4f}")
+    print("==================================================")
 
 if __name__ == '__main__':
     main()

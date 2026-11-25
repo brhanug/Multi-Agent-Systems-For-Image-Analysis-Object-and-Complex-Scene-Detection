@@ -288,7 +288,7 @@ def fig_hitl_efficiency(hitl_csv: Path, out: Path) -> None:
 
     ax.set_xlabel("Top-k Review Budget (%)", fontsize=11)
     ax.set_ylabel("Precision (Issue Detection Rate)", fontsize=11)
-    ax.set_title("RQ4: HITL Triage Efficiency\nDisagreement-Based vs Random Sampling", fontsize=12, fontweight="bold")
+    ax.set_title("RQ2: HITL Triage Efficiency (in-sample $C_1$, precision@k)\nDisagreement-Based vs Random Sampling", fontsize=12, fontweight="bold")
     ax.legend(fontsize=10, facecolor="#1a1a2e", edgecolor="#0f3460")
     ax.set_ylim(0, 1.1)
     ax.set_xlim(5, 35)

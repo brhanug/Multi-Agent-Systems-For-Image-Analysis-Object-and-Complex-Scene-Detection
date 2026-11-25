@@ -1,0 +1,14 @@
+Subject: Thesis update and a request for a short meeting
+
+Dear Prof. Dr. Mandl,
+
+Following my last email, here is a short update. The thesis is now built around the corrected design and evaluates the five scene classes and the eight object classes. I have also tested the risk promise on pictures drawn at random from the archive, which gave some new findings I would like to discuss with you.
+
+One change from my last email: instead of counting all of "drawing" as "no scene", I now apply one rule to all labels. Sheet music, covers, borders and ornaments count as "no scene", while drawings showing people, animals or rooms stay in the class "drawing".
+
+I also have two short questions, about the subtitle and the defence date.
+
+Could we meet next week, in person or online, whichever suits you better? About 30 minutes would be enough, and I am flexible on the day and time. I plan to submit on 4 December and can send you the full draft around 20 November if you would like to read it first.
+
+Best regards,
+Brhanu Atsbaha

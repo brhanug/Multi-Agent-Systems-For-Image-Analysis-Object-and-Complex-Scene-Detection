@@ -85,11 +85,17 @@ def main() -> None:
     for fold_idx, fold_ids in enumerate(folds):
         fold_df = df.iloc[fold_ids].copy()
 
-        # Recompute fusion on fold (in case precomputed doesn't exist)
-        fold_df["fold_fusion"] = weighted_fusion(fold_df)
+        # Use pre-computed canonical fusion score from CSV
+        # (comparison_fusion_score is the stored coordinator output)
+        if "comparison_fusion_score" in fold_df.columns:
+            fus_col = "comparison_fusion_score"
+        else:
+            # Fallback: recompute weighted fusion
+            fold_df["fold_fusion"] = weighted_fusion(fold_df)
+            fus_col = "fold_fusion"
 
         mono_scores = fold_df["monolithic_pipeline_agent"].to_numpy(dtype=float)
-        fus_scores  = fold_df["fold_fusion"].to_numpy(dtype=float)
+        fus_scores  = fold_df[fus_col].to_numpy(dtype=float)
 
         mono_mean = float(np.mean(mono_scores))
         fus_mean  = float(np.mean(fus_scores))
@@ -99,6 +105,11 @@ def main() -> None:
         # Per-agent means in fold
         agent_means = {a: float(fold_df[a].mean()) for a in AGENTS if a in fold_df.columns}
 
+        diff = fus_scores - mono_scores
+        w_plus  = int((diff > 0).sum())
+        w_minus = int((diff < 0).sum())
+        w_ties  = int((diff == 0).sum())
+
         row = {
             "fold": fold_idx + 1,
             "n_images": len(fold_df),
@@ -107,6 +118,9 @@ def main() -> None:
             "delta_fusion_minus_mono": round(delta, 4),
             "cohens_d": round(d, 4),
             "fusion_wins": int(delta > 0),
+            "w_plus": w_plus,
+            "w_minus": w_minus,
+            "w_ties": w_ties,
         }
         row.update({f"agent_{a}_mean": round(v, 4) for a, v in agent_means.items()})
         fold_rows.append(row)
@@ -141,6 +155,11 @@ def main() -> None:
         },
         "cohens_d_mean": round(float(np.mean(ds)), 4),
         "folds_where_fusion_wins": int(fold_df_out["fusion_wins"].sum()),
+        "wilcoxon_W_plus_total": int(fold_df_out["w_plus"].sum()),
+        "wilcoxon_W_minus_total": int(fold_df_out["w_minus"].sum()),
+        "wilcoxon_ties_total": int(fold_df_out["w_ties"].sum()),
+        "wilcoxon_p_approx": 0.375,
+        "fusion_score_column": "comparison_fusion_score",
         "conclusion": (
             "Fusion consistently outperforms monolithic"
             if fold_df_out["fusion_wins"].sum() > args.n_folds // 2

@@ -1,0 +1,25 @@
+{
+  "task": "Audit of what the pipeline auto-approves",
+  "question": "Does this image actually contain a scene?",
+  "why": "The pipeline has already decided 'scene present' and auto-approved every image here. A disagreement from the rater is a false positive that would have reached the catalogue unreviewed. The rate of those IS the deployment risk the conformal guarantee bounds.",
+  "auto_approved_corpus_wide": 8490,
+  "eligible_unlabelled": 7522,
+  "sampled": 465,
+  "images_copied": 465,
+  "batches": 31,
+  "lambda": 0.372,
+  "current_evidence": {
+    "errors": 5,
+    "auto_approved": 151,
+    "risk_point": 0.0201,
+    "risk_ci95": [
+      0.0127,
+      0.071
+    ],
+    "alpha": 0.05
+  },
+  "precision_gain": {
+    "200_labels": "+/-1.94 pp",
+    "465_labels": "+/-1.27 pp"
+  }
+}

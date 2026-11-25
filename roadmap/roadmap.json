@@ -1,0 +1,530 @@
+{
+  "status_date": "2026-09-20",
+  "columns": [
+    {
+      "name": "Needs you \u00b7 decisions",
+      "window": "settle first"
+    },
+    {
+      "name": "Phase 0",
+      "window": "15 Sep \u2013 1 Oct"
+    },
+    {
+      "name": "Phase 1",
+      "window": "5 \u2013 25 Oct"
+    },
+    {
+      "name": "Phase 2",
+      "window": "26 Oct \u2013 15 Nov"
+    },
+    {
+      "name": "Phase 3",
+      "window": "16 \u2013 30 Nov"
+    },
+    {
+      "name": "Deliverables",
+      "window": "29 Sep \u00b7 2 Oct \u00b7 7 Dec"
+    }
+  ],
+  "nodes": [
+    {
+      "col": 0,
+      "row": 0,
+      "id": "Q1",
+      "title": "Label Task F (20 boxes)",
+      "status": "partly",
+      "have": "19 of 20 boxes judged (all well placed): id 9 = animal (4/4), id 7 = child (3/3), id 2 = animal 3 / horse 2; unchanged ids all matched.",
+      "next": "Box 9 in project 9 is the last one."
+    },
+    {
+      "col": 0,
+      "row": 1,
+      "id": "Q2",
+      "title": "Pick the 3,000 set",
+      "status": "done",
+      "have": "Answered 16 Sep: the final_dataset labels (4,879 files, 3,622 with boxes).",
+      "next": "Used in B2."
+    },
+    {
+      "col": 0,
+      "row": 2,
+      "id": "Q3",
+      "title": "Approve document fixes",
+      "status": "you",
+      "have": "Five corrections found and checked against the data.",
+      "next": "Your go-ahead before any thesis, slide or email text changes."
+    },
+    {
+      "col": 0,
+      "row": 3,
+      "id": "D1",
+      "title": "Freeze the class list",
+      "status": "todo",
+      "have": "The 8 shared classes: person, child, animal, building, weapon, vehicle, tree, text. The hand check agrees: horses merge into animal; the clothing id is not one of the eight.",
+      "next": "Confirm those 8 (+ 5 scene classes) with Prof. Mandl by email."
+    },
+    {
+      "col": 0,
+      "row": 4,
+      "id": "D2",
+      "title": "One model, all classes",
+      "status": "done",
+      "have": "Already true: one YOLO detector is trained on all ten classes at once.",
+      "next": "Say it plainly in the document."
+    },
+    {
+      "col": 0,
+      "row": 5,
+      "id": "D3",
+      "title": "Role of OCR",
+      "status": "partly",
+      "have": "A negative-evidence signal exists, but it comes from SigLIP \u201cprinted page\u201d prompts, not Kosmos.",
+      "next": "Decide: Kosmos stays out of per-class agreement, or feeds negative evidence."
+    },
+    {
+      "col": 0,
+      "row": 6,
+      "id": "D4",
+      "title": "Keep test split random",
+      "status": "todo",
+      "have": "No hand-picked data exists yet, so nothing has leaked.",
+      "next": "Write the rule down: enriched pictures go to training and diagnosis only."
+    },
+    {
+      "col": 1,
+      "row": 0,
+      "id": "X1",
+      "title": "Fix step 17",
+      "status": "done",
+      "have": "Fixed, and re-run through the full master script on 19 Sep: exits cleanly, step 17 reproduces its figures.",
+      "next": "Nothing left."
+    },
+    {
+      "col": 1,
+      "row": 1,
+      "id": "B1",
+      "title": "Each system on the 300",
+      "status": "done",
+      "have": "Per class and system on the 300 (cross-validated cut-offs, always-yes baseline): mean F1 over 8 classes LLaVA 0.65, fusion 0.60, SigLIP 0.51, detector 0.35 (baseline 0.28). Blurry pictures are not harder. One figure.",
+      "next": "Table, figure and one paragraph per system go into the 29 September document (W2)."
+    },
+    {
+      "col": 1,
+      "row": 2,
+      "id": "B3",
+      "title": "Pseudo-label check",
+      "status": "partly",
+      "have": "Hand check 19/20: post-training names wrong for ids 9 and 7. Misses traced: of 128 hand-drawn objects the student misses on 137 teacher-labelled pictures, 126 were never in the teacher's label and 2 went unlearned. The fix belongs in the teacher.",
+      "next": "Box 9 of Task F is the last open piece."
+    },
+    {
+      "col": 1,
+      "row": 3,
+      "id": "B2",
+      "title": "Systems vs teacher",
+      "status": "done",
+      "have": "Both parts done with a figure: on the detector's training labels both independent systems confirm 71\u2013100%; on the set named for this question they confirm 52% of person, 18% animal, 2% child, 0% weapon labels.",
+      "next": "Fold into the document; decide whether the weaker set is re-generated (asked of Prof. Mandl)."
+    },
+    {
+      "col": 1,
+      "row": 4,
+      "id": "A1",
+      "title": "Annotation sprint",
+      "status": "partly",
+      "have": "Books SigLIP reads as single-content found for 6 rare classes: 8 sheets, 75 pictures (inside Task G).",
+      "next": "Label the 8 book sheets in Task G and scan thumbnails; +150 pictures for classes under 40."
+    },
+    {
+      "col": 2,
+      "row": 0,
+      "id": "A3",
+      "title": "Negative controls",
+      "status": "you",
+      "have": "Expanded pool built (1,535 pictures, 319 negatives, 65 in test) and kept separate; the remaining 465 pictures are now sheeted as batches 20\u201350.",
+      "next": "Label about 175 of the 465 open pictures (Label Studio project 13, or the sheets) to reach 80 test negatives, then the pool switch happens once."
+    },
+    {
+      "col": 2,
+      "row": 1,
+      "id": "A2",
+      "title": "Rare-class mining",
+      "status": "you",
+      "have": "Task G ready: the 30 smallest of 200 clusters (449 pictures), SigLIP's top pictures for 6 rare classes (192), 8 book sheets (75).",
+      "next": "Label Task G (project 10) and let Label Studio time each answer; compare pictures found per minute by source."
+    },
+    {
+      "col": 2,
+      "row": 2,
+      "id": "A4",
+      "title": "Human agreement",
+      "status": "you",
+      "have": "Per-category kappa on 124 pictures: landscape 0.81, family 0.43 (interval spans 0), drawing 0.26, playing 0.25, teaching \u22120.01. Task H: 19 of 150 answered, all from your account.",
+      "next": "Task H needs a second Label Studio account for the other rater: all 8 answers so far came from yours, so they count as intra-rater."
+    },
+    {
+      "col": 2,
+      "row": 3,
+      "id": "C1",
+      "title": "Per-class scores",
+      "status": "done",
+      "have": "One matrix of per-class scores for all 12,110 pictures (detector, SigLIP, LLaVA; raw and percentile). AUROC on the 300: LLaVA 0.82\u20131.00, SigLIP 0.75\u20130.93, detector 0.49\u20130.87.",
+      "next": "Feeds C2 agreement and C5; choose a calibration first."
+    },
+    {
+      "col": 3,
+      "row": 0,
+      "id": "C2",
+      "title": "Class-level agreement",
+      "status": "partly",
+      "have": "First look over 12,110 pictures on the rank scale: global agreement 0.77 (0.67 for independent ranks); SigLIP\u2013LLaVA agree most.",
+      "next": "Swap the rank scale for the calibrated one once the design is signed off."
+    },
+    {
+      "col": 3,
+      "row": 1,
+      "id": "C3",
+      "title": "Model-vs-model kappa",
+      "status": "partly",
+      "have": "Fleiss' kappa per class 0.68 (person) to 0.01 (vehicle). On the 300, SigLIP and LLaVA agree with each other more than with the rater for child, building, weapon and tree.",
+      "next": "Human object-level kappa needs a second rater on boxes; until then compare against the scene kappa."
+    },
+    {
+      "col": 3,
+      "row": 2,
+      "id": "C4",
+      "title": "Decisive RQ1 test",
+      "status": "done",
+      "have": "Run 19 Sep exactly as registered. On the 300 pictures: per-class disagreement AUROC 0.378 vs plain confidence 0.825; difference \u22120.448, DeLong CI [\u22120.541, \u22120.354]. RQ1 stays no, at two levels of detail. 65 of 72 errors are missed scenes on sparse pictures, where the systems agree. Robustness (20 Sep): repeated with the rebuilt detector, disagreement falls further to 0.258 against the same confidence 0.825 (difference \u22120.568, CI [\u22120.653, \u22120.482]) \u2014 the answer is not an artefact of a weak detector.",
+      "next": "In the advisor document (19 Sep). The thesis's RQ1 answer waits for your go-ahead."
+    },
+    {
+      "col": 3,
+      "row": 3,
+      "id": "C5",
+      "title": "Heterogeneity check",
+      "status": "done",
+      "have": "Per-class effective rank 1.65\u20132.26 of 3 (mean 1.97) vs the scalar signal's 2.498 of 4; 10.0 of 24 over all columns.",
+      "next": "Report beside C4."
+    },
+    {
+      "col": 3,
+      "row": 4,
+      "id": "S",
+      "title": "Student rebuild",
+      "status": "done",
+      "have": "Rebuilt 19 Sep: new teacher GroundingDINO + LLaVA consensus, new YOLO11m student, trained without any evaluation picture. Mean box AP50 0.210 against 0.123. Deploy preview (20 Sep), on the 300: detector mean AUROC 0.621 \u2192 0.808 and mean F1 0.355 \u2192 0.563, better in all eight classes; agreement 0.775 \u2192 0.798 with Fleiss kappa up in every class; fused score barely moves (0.899 \u2192 0.905). Cause: the deployed detector was trained on 0 boxes of text, 64 of building, 71 of tree \u2014 it predicts text nowhere in the archive.",
+      "next": "Your decision: deploy? The preview says the detector improves and the fused score does not, so the gain is in the per-class labels the archive shows, not in the scene pipeline. Deploying re-runs fusion, triage and risk control."
+    },
+    {
+      "col": 4,
+      "row": 0,
+      "id": "E1",
+      "title": "CRC note to Mandl",
+      "status": "partly",
+      "have": "Drafted inside the 29 September document: what the method requires, why the triage score qualifies, both citations, and the cross-archive concession.",
+      "next": "Send with the document; add his written answer to the thesis either way."
+    },
+    {
+      "col": 4,
+      "row": 1,
+      "id": "E2",
+      "title": "Report both risks",
+      "status": "partly",
+      "have": "Risk split by predicted group (predicted-scene group 0.0652 vs 0.05). Over 500 splits: mean risk within \u03b1 at every level; one split alone exceeds \u03b1 1\u201331% of the time.",
+      "next": "Report the mean over splits, plus 5/249 overall and 5/151 among approved; fix the wording."
+    },
+    {
+      "col": 4,
+      "row": 2,
+      "id": "E3",
+      "title": "Per-class risk control",
+      "status": "done",
+      "have": "Per decision group (500 splits): one threshold keeps both groups within target on the current pool; on the expanded pool the scene group runs slightly over at 0.01 and 0.02, and a threshold per group fixes it for 1\u20134 points of approval. Per object class (300 pictures, 200 book splits): one threshold leaves four of eight classes above target at 0.05 (child 0.127, tree 0.098) while person sits at 0.000; a threshold per class equalises them near target, costing approval (59.1% to 50.4%).",
+      "next": "The per-class bound overshoots because decisions are clustered; calibrating over books cuts the classes above target from five to three. Exact control needs more labelled pictures."
+    },
+    {
+      "col": 5,
+      "row": 0,
+      "id": "W2",
+      "title": "Document for Mandl",
+      "status": "partly",
+      "have": "Seven pages: baselines, per-system results, pseudo-label votes, the Task F check, teacher-vs-student, human agreement, the agreement design, the class-level RQ1 test, risk control, annotation.",
+      "next": "Your review; send by 29 September."
+    },
+    {
+      "col": 5,
+      "row": 1,
+      "id": "M",
+      "title": "Meeting \u00b7 2 Oct 09:30",
+      "status": "milestone",
+      "have": "",
+      "next": ""
+    },
+    {
+      "col": 5,
+      "row": 2,
+      "id": "W1",
+      "title": "Correct the documents",
+      "status": "todo",
+      "have": "Corrections identified; nothing applied yet.",
+      "next": "0.989 vs 0.146 pairing, spatial meta-learner join, kappa 0.2334, two self-comparison analyses, gold simulation."
+    },
+    {
+      "col": 5,
+      "row": 4,
+      "id": "W3",
+      "title": "Submission \u00b7 7 Dec",
+      "status": "milestone",
+      "have": "",
+      "next": ""
+    },
+    {
+      "col": 1,
+      "row": 5,
+      "id": "BL",
+      "title": "Published baselines",
+      "status": "done",
+      "have": "One per question, run on this archive: Kim, Im & Mandl 2024 (COCO detector as-is: AUROC 0.79 person, 0.74 animal, 0.75 vehicle); Hendrycks & Gimpel 2017 (confidence 0.872 vs disagreement 0.860); Geifman & El-Yaniv 2017 (at matched approval, same ~2.9% error as risk control).",
+      "next": "Done in the thesis (new Baselines section, detection table, risk-control comparison). The defence slides still show the old 0.0047 claim on two slides."
+    }
+  ],
+  "edges": [
+    {
+      "from": "Q1",
+      "to": "D1",
+      "label": "names",
+      "critical": false
+    },
+    {
+      "from": "Q1",
+      "to": "B3",
+      "label": "labels",
+      "critical": false
+    },
+    {
+      "from": "Q2",
+      "to": "B2",
+      "label": "which set",
+      "critical": false
+    },
+    {
+      "from": "Q3",
+      "to": "W1",
+      "label": "go-ahead",
+      "critical": false
+    },
+    {
+      "from": "D1",
+      "to": "C1",
+      "label": "class list",
+      "critical": false
+    },
+    {
+      "from": "D4",
+      "to": "A3",
+      "label": "rule",
+      "critical": false
+    },
+    {
+      "from": "B1",
+      "to": "W2",
+      "label": "figures",
+      "critical": false
+    },
+    {
+      "from": "B3",
+      "to": "S",
+      "label": "failure modes",
+      "critical": false
+    },
+    {
+      "from": "B2",
+      "to": "S",
+      "label": "",
+      "critical": false
+    },
+    {
+      "from": "A1",
+      "to": "A3",
+      "label": "books",
+      "critical": true
+    },
+    {
+      "from": "A1",
+      "to": "A2",
+      "label": "fallback",
+      "critical": false
+    },
+    {
+      "from": "A3",
+      "to": "C4",
+      "label": "negatives",
+      "critical": true
+    },
+    {
+      "from": "A3",
+      "to": "E2",
+      "label": "bigger pool",
+      "critical": false
+    },
+    {
+      "from": "A4",
+      "to": "C3",
+      "label": "human kappa",
+      "critical": false
+    },
+    {
+      "from": "C1",
+      "to": "C2",
+      "label": "scores",
+      "critical": true
+    },
+    {
+      "from": "C2",
+      "to": "C3",
+      "label": "",
+      "critical": false
+    },
+    {
+      "from": "C2",
+      "to": "C4",
+      "label": "",
+      "critical": true
+    },
+    {
+      "from": "C1",
+      "to": "C5",
+      "label": "",
+      "critical": false
+    },
+    {
+      "from": "C2",
+      "to": "S",
+      "label": "consensus filter",
+      "critical": false
+    },
+    {
+      "from": "E1",
+      "to": "W2",
+      "label": "",
+      "critical": false
+    },
+    {
+      "from": "E2",
+      "to": "E3",
+      "label": "",
+      "critical": false
+    },
+    {
+      "from": "C4",
+      "to": "W3",
+      "label": "RQ1 answer",
+      "critical": true
+    },
+    {
+      "from": "E3",
+      "to": "W3",
+      "label": "",
+      "critical": false
+    },
+    {
+      "from": "S",
+      "to": "W3",
+      "label": "",
+      "critical": false
+    },
+    {
+      "from": "W1",
+      "to": "W3",
+      "label": "",
+      "critical": false
+    },
+    {
+      "from": "W2",
+      "to": "M",
+      "label": "",
+      "critical": false
+    },
+    {
+      "from": "BL",
+      "to": "W2",
+      "label": "baselines section",
+      "critical": false
+    },
+    {
+      "from": "BL",
+      "to": "C4",
+      "label": "confidence baseline",
+      "critical": false
+    }
+  ],
+  "timeline": [
+    {
+      "kind": "now",
+      "date": "16 Sep",
+      "text": "Today"
+    },
+    {
+      "kind": "key",
+      "date": "29 Sep",
+      "text": "Send document to Prof. Mandl"
+    },
+    {
+      "kind": "key",
+      "date": "2 Oct",
+      "text": "Meeting, 09:30"
+    },
+    {
+      "kind": "",
+      "date": "25 Oct",
+      "text": "Annotation + per-class scores"
+    },
+    {
+      "kind": "",
+      "date": "15 Nov",
+      "text": "Agreement redesign + student rebuild"
+    },
+    {
+      "kind": "",
+      "date": "30 Nov",
+      "text": "Risk-control chapter"
+    },
+    {
+      "kind": "key",
+      "date": "7 Dec",
+      "text": "Submission (if extended)"
+    }
+  ],
+  "this_week": [
+    {
+      "who": "You \u00b7 Label Studio is open",
+      "title": "Label A2 (project 13)",
+      "text": "465 open pictures at localhost:8080/projects/13/data. About 175 of them take the test split to 80 negatives, which gates the risk-control result."
+    },
+    {
+      "who": "You \u00b7 one box",
+      "title": "Finish Task F (box 9)",
+      "text": "19 of 20 done; the result is already in the document."
+    },
+    {
+      "who": "You \u00b7 a second account",
+      "title": "Task H needs its own rater account",
+      "text": "Create a Label Studio account for the second rater; the 8 answers so far came from yours."
+    },
+    {
+      "who": "Me \u00b7 next",
+      "title": "Waiting on your decisions",
+      "text": "Deploy preview done \u2014 the deployment decision now rests on measured downstream effects, not box accuracy alone. Waiting on your decisions: deploy the rebuilt detector? Apply the document corrections? A check now holds all 24 headline figures in the advisor document to their result files."
+    }
+  ],
+  "corrections": [
+    "The 0.989 and 0.146 detector scores come from two different models; for one model the drop is 0.768 \u2192 0.146.",
+    "The spatial meta-learner matched 236 of 300 pictures to another book; correctly matched it scores 0.604, not 0.676.",
+    "Kappa 0.2334 included 176 rows nobody reviewed; on the 124 double-reviewed pictures it is 0.3367.",
+    "The IoU error taxonomy and the box-level correlation compare the human boxes with themselves, so neither measures a model.",
+    "The rater drew 45 furniture and hat boxes that never reached the label files; the detector has horse and clothing there instead.",
+    "The gold simulation has 4,719 positives and no negatives, so every score is 1.000 and it measures nothing.",
+    "The 'COCO detector collapses, mAP50 0.0047' claim came from a YOLOv8 fine-tuned on pseudo-labels, not a COCO detector used as-is. Fixed in the thesis on 19 September; the defence slides still carry it."
+  ]
+}

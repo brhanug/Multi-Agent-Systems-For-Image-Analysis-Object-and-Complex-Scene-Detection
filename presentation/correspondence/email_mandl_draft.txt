@@ -1,0 +1,12 @@
+Subject: Thesis draft for your feedback
+
+Dear Prof. Dr. Mandl,
+
+Please find attached the current draft of my thesis. It is built around the corrected design and evaluates the five scene classes and the eight object classes. Chapters 6 and 7 (from page 55) hold the main results, including the tests on pictures drawn at random from the archive.
+
+I would be grateful for any feedback, ideally by 27 November, so that I can work it in before submitting on 4 December. I also have two short questions: whether you agree with the new subtitle, "When Can an Automatic Answer Be Trusted? Confidence, Not Disagreement, Under a Risk Promise for Historical Illustrations", which replaces the old one because it named a hypothesis the thesis rejects, and the date and time limit of the defence.
+
+If it suits you, I would be glad to meet briefly, in person or online.
+
+Best regards,
+Brhanu Atsbaha

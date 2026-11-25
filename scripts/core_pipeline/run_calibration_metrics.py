@@ -62,6 +62,18 @@ def main():
     # 2. Define Proxy Ground Truth for "Failure" (Ambiguous/Error state)
     # We define a failure as cases where the overall realism (c_bar) is below a strict threshold (0.4)
     # OR where the difference between maximum and minimum agent scores is > 0.6 (extreme conflict)
+    #
+    # CAUTION -- this label is CIRCULAR with respect to the predictors evaluated
+    # below, not an independent target: c_bar and max_diff are themselves built
+    # from the same 4 agent_cols as every predictor here (Raw_YOLO_Confidence_
+    # Inverse is a direct component of c_bar; Agent_Disagreement_Std is std of
+    # the same columns max_diff uses; Unified_Uncertainty_U is literally
+    # 0.6*sigma_agents + 0.4*(1-c_bar), a linear combination of the label's own
+    # two inputs). AUROC/AUPRC=1.0000 below is therefore guaranteed by
+    # construction and demonstrates nothing -- it is a self-consistency check,
+    # not an error-prediction experiment, and must not be cited as evidence of
+    # real predictive power. (Found and flagged during the full-project
+    # re-run audit; not cited anywhere in the thesis or slides.)
     df["max_diff"] = df[agent_cols].max(axis=1) - df[agent_cols].min(axis=1)
     df["proxy_failure_label"] = ((df["c_bar"] < 0.4) | (df["max_diff"] > 0.6)).astype(int)
     
@@ -81,9 +93,15 @@ def main():
     y_unified_prob = df["unified_uncertainty_U"].values
     y_unified_prob = y_unified_prob / (y_unified_prob.max() + 1e-9)
     
-    # 3. Experiment A2: Error Prediction Metrics
-    print("\n--- Experiment A2: Error Prediction Metrics ---")
-    metrics = {}
+    # 3. Experiment A2: Self-Consistency Check (NOT an independent error-prediction
+    # experiment -- see CAUTION comment above proxy_failure_label. AUROC/AUPRC
+    # near 1.0 here is expected by construction and is not evidence of real
+    # predictive power on unseen error labels.)
+    print("\n--- Experiment A2: Self-Consistency Check vs. Circular Proxy Label ---")
+    print("    (label is derived from the same agent columns as the predictors; AUROC~1.0 is expected, not a finding)")
+    metrics = {"_caveat": "proxy_failure_label is circular with respect to all three predictors below "
+                           "(built from the same 4 agent columns) -- AUROC/AUPRC near 1.0 is guaranteed "
+                           "by construction, not an independent finding. Not cited in the thesis or slides."}
     predictors = {
         "Raw_YOLO_Confidence_Inverse": y_raw_error_prob,
         "Agent_Disagreement_Std": y_disagreement_prob,

@@ -29,10 +29,18 @@ def fact_check():
         checks["RQ1_detector_vlm_gap"] = domain.get("domain_gap_evidence", {}).get("detector_fail_vlm_pass_pct")
 
     # 2. RQ2: Disagreement Analysis
+    # NOTE: rq2_disagreement_analysis.json was restructured during the
+    # full-project re-run audit -- the old top-level "best_roc_auc" was a
+    # circular-by-construction number (see that script's caveats) and no
+    # longer exists. The authoritative figure is now the independent,
+    # human-annotation-grounded evaluation.
     rq2 = load_json("rq2_disagreement_analysis.json")
     if rq2:
         checks["RQ2_disagreement_issue_correlation"] = rq2.get("disagreement_issue_correlation")
-        checks["RQ2_best_roc_auc"] = rq2.get("best_roc_auc")
+        checks["RQ2_best_roc_auc_vs_proxy_heuristic"] = rq2.get("best_roc_auc_vs_proxy")
+        gt_block = rq2.get("predictors_vs_independent_gt_label", {})
+        checks["RQ2_best_roc_auc_vs_independent_gt"] = gt_block.get("best_roc_auc")
+        checks["RQ2_independent_gt_n_matched"] = gt_block.get("n_matched_images")
 
     # 3. RQ4: HITL Efficiency
     hitl = load_json("hitl_simulation_summary.json")

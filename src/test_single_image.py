@@ -2,11 +2,11 @@ from transformers import OwlViTProcessor, OwlViTForObjectDetection
 from PIL import Image
 import torch
 
-model_path = "/data/brhanu/models/owlvit-base-patch16"
+model_id = "google/owlvit-base-patch16"
 img_path = "/data/brhanu/thesis_project/data/colibri/images/data/PPN1752245350/00000008_0.jpg"
 
-processor = OwlViTProcessor.from_pretrained(model_path)
-model = OwlViTForObjectDetection.from_pretrained(model_path, use_safetensors=True, local_files_only=True)
+processor = OwlViTProcessor.from_pretrained(model_id)
+model = OwlViTForObjectDetection.from_pretrained(model_id)
 model.to("cuda" if torch.cuda.is_available() else "cpu").eval()
 
 text = [["child", "family", "book", "horse", "tree"]]

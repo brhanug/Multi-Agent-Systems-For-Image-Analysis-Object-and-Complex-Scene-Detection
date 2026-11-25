@@ -9,7 +9,7 @@ from ultralytics import YOLO
 # ------------------------------------------------------------
 ENHANCED_PATH = "/data/brhanu/thesis_project/pytorch-CycleGAN-and-pix2pix/results/hist2modern_cyclegan_v2/test_latest/images"
 OUTPUT_DIR = "/data/brhanu/thesis_project/data/labels/cyclegan_pseudo_v2"
-YOLO_MODEL_PATH = "/data/brhanu/thesis_project/runs/detect/train_refine_long3/weights/best.pt"
+YOLO_MODEL_PATH = "/data/brhanu/thesis_project/runs/detect/yolo11_v2_augmented_refresh/weights/best.pt"
 CONF_THRESHOLD = 0.2  # adjust between 0.1-0.25 if too few detections
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)

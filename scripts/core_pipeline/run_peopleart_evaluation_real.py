@@ -2,10 +2,21 @@
 """
 run_peopleart_evaluation_real.py
 -----------------------------------
-Real measured quantitative evaluation on the PeopleArt dataset.
-Loads the pre-downloaded PeopleArt-master dataset, runs YOLOv11m
-inference, parses the ground-truth XML annotations, and computes
-actual style-stratified Precision, Recall, F1, and SAA metrics.
+Loads the pre-downloaded PeopleArt-master dataset, runs YOLOv11m inference,
+parses the ground-truth XML annotations, and computes REAL style-stratified
+Precision/Recall/F1 (genuine tp/fp/fn against ground-truth boxes).
+
+WARNING -- the "vlm_confidence", "agreement_score", "saa_fusion_score", and
+"epistemic_uncertainty" fields below are NOT real measurements despite the
+module name. Only mean_yolo_conf is computed from a real model output;
+vlm_conf and agreement are two hardcoded constants assigned per style bucket
+by a keyword match on the style name (see below) -- no VLM was queried and
+no real multi-agent agreement was computed for this benchmark. A thesis
+claim built on these fields ("inter-agent uncertainty peaks on abstract
+styles") was withdrawn during a full-project reproducibility audit; it was
+also internally inconsistent with its own cited numbers. Do not cite
+saa_fusion_score/epistemic_uncertainty from this script's output as a real
+result -- only precision/recall/f1_score are genuine.
 """
 
 import os

@@ -1,0 +1,22 @@
+<section id="dog" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:96px 128px 140px;display:flex;flex-direction:column;gap:20px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">One picture through the whole system</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:56px;font-weight:600;line-height:1.1;color:#1E2733">A grandmother and a boy, step by step</h2>
+<div style="display:flex;gap:28px">
+<div style="width:380px;display:flex;flex-direction:column;gap:8px">
+<img src="/_blob/ca8fc64f1a7e5393d42facbb156d9fa3" alt="An old woman at her spindle talking to a boy on a stool, with a small hen under the bench" style="width:380px;height:386px;object-fit:contain;background:#FFFDF8;border-radius:10px">
+<p style="font-size:23px;line-height:1.3;color:#5D6874">Book PPN1756648816, page 272 · a test picture</p>
+<p style="font-size:23px;line-height:1.3;color:#1E2733"><b>Human labels:</b> scene · family · person, child (the hen was not boxed)</p>
+</div>
+<table style="font-size:23px;color:#3E4A57;width:1256px">
+<tr><th style="width:19%">Step</th><th style="width:81%">What happens to this picture</th></tr>
+<tr><td><b>② agents</b></td><td>Object finder: person 0.972, misses the boy and the hen · Scene matcher: family 0.327, drawing 0.157 · Describer: child 0.995, person 0.989, drawing 0.985, family 0.485, teaching 0.427, animal 0.311</td></tr>
+<tr><td><b>③ probabilities</b></td><td>“scene”: object finder 0.98 · scene matcher 0.94 · describer 0.99</td></tr>
+<tr><td><b>④ answers</b></td><td>Scene at all: 0.6×0.98 + 0.2×0.94 + 0.2×0.99 = <b>0.97</b> · Class: <b>family</b> 0.54 (fixed weights: drawing) · Objects: person 0.93, child 0.37, animal 0.23</td></tr>
+<tr><td><b>⑤ uncertainty</b></td><td>Scene: 0.47 from the line 0.5 · Class: 1 − 0.54 = 0.46</td></tr>
+<tr><td><b>⑥ decisions</b></td><td>Scene <b>approved</b> (0.47 &gt; 0.171) · Class → <b>a person</b> (0.46 above 0.26) · Objects: list <b>person, child, animal</b> → a person confirms</td></tr>
+</table>
+</div>
+<p style="font-size:26px;line-height:1.4;color:#1E2733">Each agent misses something; together they get all three answers right. The class is still checked by a person, because 0.54 is not sure enough.</p>
+<p style="position:absolute;left:128px;bottom:56px;width:1664px;font-size:24px;color:#7A8591">Part 3 of 5 · The corrected design</p>
+<aside>Here is the real picture we have been following: an old woman at her spindle, talking to a boy on a stool — and if you look closely, a small hen under the bench. It is a test picture, so the system never saw it during training or calibration. Each agent misses something. The object finder is sure about the woman but misses the boy and the hen. The scene matcher likes the family sentence best. The describer sees the boy and partly the hen, but for the scene it says yes to drawing, family and teaching all at once. Mapped to “scene” probabilities: 0.98, 0.94 and 0.99; combined, 0.97 — clearly a scene, so it is approved. The class mapping, which weighs all 27 numbers, puts family first at 0.54 — correct, while the old fixed weights would have said drawing. But 0.54 is not sure enough for the five percent promise, so a person confirms the class. The object list is person, child and animal. The annotator drew boxes only for the woman and the boy — the animal on the list is the hen, which is really there.</aside>
+</section>

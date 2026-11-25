@@ -13,6 +13,10 @@ Outputs:
 """
 
 from __future__ import annotations
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1] / "core_pipeline"))
+from saa_decision import SAA_THRESHOLD, STORED_COLUMN_THRESHOLD  # deliberate 0.55; see saa_decision.py
 
 import argparse
 import json
@@ -85,7 +89,7 @@ def main() -> None:
 
     # Compute evaluation metrics on gold subset
     gold_df["monolithic_pred"] = (gold_df["monolithic_pipeline_agent"] > 0.5).astype(int)
-    gold_df["fusion_pred"]     = (gold_df["comparison_fusion_score"]   > 0.5).astype(int)
+    gold_df["fusion_pred"]     = (gold_df["comparison_fusion_score"]   > STORED_COLUMN_THRESHOLD).astype(int)
 
     def accuracy(pred: pd.Series, label: pd.Series) -> float:
         return float((pred == label).mean())

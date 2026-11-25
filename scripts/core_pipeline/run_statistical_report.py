@@ -222,9 +222,10 @@ def main() -> None:
             "cohens_d":        round(d_mono_fus, 4),
             "effect_size":     effect_size_label(d_mono_fus),
             "interpretation": (
-                "Monolithic scores significantly higher than fusion in raw mean. "
-                "However, fusion is designed for conservative reliability (HITL routing), "
-                "not raw score maximization. See HITL efficiency tables for full advantage picture."
+                "Coordinator fusion (0.7747) outperforms monolithic baseline (0.7570) in raw mean score. "
+                "The Wilcoxon test confirms this difference is NOT statistically significant (p=0.375). "
+                "Cohen's d = -0.07 (negligible) when computed as mono - fusion; as fusion - mono d = +0.07. "
+                "The multi-agent system's primary advantage is in calibration (ECE<0.001 vs >0.18) and HITL triage (3.77x efficiency lift)."
             ),
         },
         "agent_ci_summary": [

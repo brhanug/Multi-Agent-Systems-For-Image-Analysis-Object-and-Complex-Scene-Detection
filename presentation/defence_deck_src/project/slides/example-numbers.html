@@ -1,0 +1,39 @@
+<section id="example-numbers" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:84px 128px 130px;display:flex;flex-direction:column;gap:16px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">The grandmother and the boy · every number, every class</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:50px;font-weight:600;line-height:1.1;color:#1E2733">What each agent reported, and what the system made of it</h2>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px">
+<p style="font-size:26px;font-weight:600;color:#1E2733">8 object classes</p>
+<table style="font-size:24px;color:#3E4A57;width:860px">
+<tr><th style="width:20%">Class</th><th style="width:22%">Object finder</th><th style="width:20%">Describer</th><th style="width:20%">Combined</th><th style="width:18%">In picture</th></tr>
+<tr><td><b>person</b></td><td>0.972</td><td>0.989</td><td><b>0.929 ✓</b></td><td>yes</td></tr>
+<tr><td><b>child</b></td><td>0</td><td>0.995</td><td><b>0.366 ✓</b></td><td>yes</td></tr>
+<tr><td><b>animal</b></td><td>0.013</td><td>0.311</td><td><b>0.231 ✓</b></td><td>a hen*</td></tr>
+<tr><td>building</td><td>0</td><td>0.105</td><td>0.016</td><td>no</td></tr>
+<tr><td>weapon</td><td>0</td><td>0.077</td><td>0.056</td><td>no</td></tr>
+<tr><td>vehicle</td><td>0</td><td>0.017</td><td>0.003</td><td>no</td></tr>
+<tr><td>tree</td><td>0</td><td>0.025</td><td>0.077</td><td>no</td></tr>
+<tr><td>text</td><td>0</td><td>0.064</td><td>0.047</td><td>no</td></tr>
+</table>
+<p style="font-size:23px;line-height:1.35;color:#5D6874">✓ = on the list: combined ≥ 0.088 (at most 10% of objects missed). *The hen is there but was not boxed.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px">
+<p style="font-size:26px;font-weight:600;color:#1E2733">6 scene answers</p>
+<table style="font-size:24px;color:#3E4A57;width:776px">
+<tr><th style="width:24%">Answer</th><th style="width:22%">Scene matcher</th><th style="width:18%">Describer</th><th style="width:20%">System</th><th style="width:16%">Label</th></tr>
+<tr><td>teaching</td><td>0.046</td><td>0.427</td><td>0.024</td><td></td></tr>
+<tr><td><b>family</b></td><td>0.327</td><td>0.485</td><td><b>0.536</b></td><td><b>✓</b></td></tr>
+<tr><td>playing</td><td>0.000</td><td>0.031</td><td>0.071</td><td></td></tr>
+<tr><td>landscape</td><td>0.000</td><td>0.047</td><td>0.003</td><td></td></tr>
+<tr><td>drawing</td><td>0.157</td><td>0.985</td><td>0.321</td><td></td></tr>
+<tr><td>no scene</td><td>0.000</td><td>—</td><td>0.045</td><td></td></tr>
+</table>
+<p style="font-size:23px;line-height:1.35;color:#5D6874">All 27 numbers go into one learned mapping. The old fixed 0.6/0.2/0.2 would have said drawing (0.59).</p>
+</div>
+</div>
+<div style="background:#1E2733;border-radius:14px;padding:18px 26px">
+<p style="font-size:24px;line-height:1.4;color:#F3EEE4"><b style="color:#E8B07A">Reading the table:</b> agents give raw numbers; “combined” and “system” are probabilities after the learned mappings.</p>
+</div>
+<p style="position:absolute;left:128px;bottom:48px;width:1664px;font-size:24px;color:#7A8591">Part 3 of 5 · The corrected design</p>
+<aside>This slide shows every number for the example. On the left, the eight object classes. The object finder is sure about the person, but reports nothing for the boy and almost nothing for the hen. The describer is sure about both the person and the child, and gives the hen 0.311. After mapping, the agents’ probabilities are averaged — the scene matcher also contributes here — giving 0.93 for person, 0.37 for child and 0.23 for animal. The list threshold at a 10 percent promise is 0.088, so the list is person, child and animal. The annotator drew boxes for the woman and the boy only; the animal is the hen, which is really in the picture. On the right, the six scene answers. The scene matcher likes family best; the describer says yes to drawing, and half yes to family and teaching. The single learned mapping of all 27 numbers puts family first at 0.54 and drawing second — and family is the human label. With the old fixed weights the answer would have been drawing.</aside>
+</section>

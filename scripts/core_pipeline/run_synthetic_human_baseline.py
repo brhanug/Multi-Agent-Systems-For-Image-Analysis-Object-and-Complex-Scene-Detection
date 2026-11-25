@@ -75,7 +75,7 @@ def main():
     parser.add_argument("--base-dir",   default="/data/brhanu/thesis_project")
     parser.add_argument("--scores-csv", default="results/multi_agent/agent_comparison_scores.csv")
     parser.add_argument("--manifest",   default="final_dataset/metadata/manifest.csv")
-    parser.add_argument("--worksheet",  default="human_baseline_gold_kit/labeling_worksheet.csv")
+    parser.add_argument("--worksheet",  default="human_spatial_audit/user_annotations_300.csv")
     parser.add_argument("--output-dir", default="results/multi_agent")
     args = parser.parse_args()
 
@@ -90,7 +90,11 @@ def main():
     df = scores.merge(manifest, on="image_id", how="inner", suffixes=("","_m"))
     df["img_key"] = df["image_id"]
     
-    # Focus on the 500 worksheet images
+    # Focus on the worksheet images (accepts either an "Image_ID" or "image_id" column)
+    id_col = "Image_ID" if "Image_ID" in worksheet.columns else "image_id"
+    worksheet["Image_ID"] = worksheet[id_col].astype(str).apply(
+        lambda x: x.replace("_", "/", 1) if x.startswith("PPN") and "/" not in x else x
+    )
     worksheet["img_key"] = worksheet["Image_ID"]
     subset = df[df["image_id"].isin(worksheet["Image_ID"])].copy()
     if len(subset) == 0:

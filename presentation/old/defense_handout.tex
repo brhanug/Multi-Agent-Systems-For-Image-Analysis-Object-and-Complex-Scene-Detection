@@ -1,0 +1,139 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=1.6cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{HildesheimRed}{RGB}{165,30,55}
+\definecolor{PrismGray}{RGB}{90,95,105}
+\definecolor{RuleGray}{RGB}{200,203,210}
+
+\titleformat{\section}{\large\bfseries\color{HildesheimRed}}{}{0pt}{}
+\titlespacing*{\section}{0pt}{10pt}{4pt}
+
+\usepackage{lastpage}
+\pagestyle{fancy}\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyhead[L]{\footnotesize\color{PrismGray} Computer Vision for Historic Archives --- Defense Handout}
+\fancyhead[R]{\footnotesize\color{PrismGray} Brhanu Atsbaha}
+\fancyfoot[C]{\footnotesize\color{PrismGray}\thepage\ of \pageref{LastPage}}
+
+\setlist[itemize]{leftmargin=1.1em, itemsep=1.5pt, topsep=2pt}
+\newcommand{\num}[1]{\textbf{#1}}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries Multi-Agent Systems for Image Analysis}\\[1mm]
+{\normalsize Cross-Modal Agent Disagreement as a Bounded Signal for Epistemic Uncertainty}\\[2mm]
+{\footnotesize\color{PrismGray} Brhanu Atsbaha \quad$\cdot$\quad University of Hildesheim \quad$\cdot$\quad Advisors: Prof.\ Dr.\ Thomas Mandl, Shereen Elsayed}
+\end{center}
+\vspace{-2mm}
+\rule{\textwidth}{0.8pt}
+
+\section{The argument, in seven steps}
+\begin{enumerate}[leftmargin=1.4em, itemsep=2pt, topsep=3pt]
+  \item A COCO-trained detector applied as-is is weak on these scans: AUROC $0.79$ / $0.74$ / $0.75$ for person / animal / vehicle.
+  \item Training a student on the teacher's own pseudo-labels appears to fix this --- $\text{mAP}_{50}=\num{0.768}$ against those labels.
+  \item Graded against a \emph{human} instead of its teacher, the same model collapses to $\num{0.1462}$. The improvement was an illusion of self-agreement.
+  \item Disagreement between four heterogeneous models predicts real errors well on ambiguous, scene-positive content: $\text{ROC-AUC}=\num{0.9724}$ ($C_1$, $n=801$).
+  \item It ties the best single-model baseline on discrimination ($0.9724$ vs $0.9726$) but wins on \emph{calibration}: $\text{ECE}<\num{0.001}$ vs $0.19$.
+  \item It fails where all four models share the same systematic error --- on confirmed true negatives, $\text{ROC-AUC}=\num{0.1259}$, well below chance.
+  \item \textbf{The contribution is therefore not ``AI replaces archivists''} but a routing mechanism that measures where automated analysis should and should not be trusted.
+\end{enumerate}
+
+\section{Headline results}
+\begin{center}\footnotesize
+\begin{tabular}{p{5.6cm} l l p{5.4cm}}
+\toprule
+\textbf{Result} & \textbf{Value} & \textbf{Cohort} & \textbf{Scope / caveat} \\
+\midrule
+SAA error detection & $0.9724$ & $C_1$, $n{=}801$ & Positive-heavy expert cohort; in-sample \\
+Calibration after Platt scaling & $\text{ECE}<0.001$ & $C_1$ & vs $0.19$ for the best single-model baseline \\
+Out-of-sample generalization & $0.860$ & test $n{=}249$ & Publication-disjoint, corrected labels \\
+\quad on positive images & $0.9687$ & $n{=}211$ & Works \\
+\quad on confirmed true negatives & $0.1259$ & $n{=}319$ & \textbf{Fails} --- the documented boundary \\
+Conformal Risk Control & $\mathcal{R}=0.0201$ & test $n{=}249$ & Bound holds at every $\alpha$ tested \\
+\quad auto-approval / error recall & $60.6\%$ / $91.1\%$ & & $2.31\times$ lift ($3.09\times$ at $\alpha{=}0.15$, but recall drops to $57\%$) \\
+SCI-tercile heuristic triage & $\le 1.15\times$ & & \textbf{Negative result}, retained and reported \\
+Scene agent as deployed / corrected & $0.4172$ / $0.7754$ & test $n{=}249$ & \textbf{Below chance} --- read from SigLIP's softmax, not its sigmoid \\
+Negative-evidence detector & $\mathbf{0.8305}$ & test $n{=}249$ & $+0.111$ over the corrected baseline, CI $[+0.045,+0.181]$ \\
+Fusion with a scene-\emph{absence} term & $0.7599\!\to\!\mathbf{0.8231}$ & test $n{=}249$ & $+0.063$, CI $[+0.021,+0.114]$; the formulation fix that works \\
+Pseudo-label collapse & $0.768\!\to\!0.1462$ & $C_2$, $n{=}300$ & Same model, two ground truths \\
+Retrieval Precision@10 & $1.000$ vs $0.180$ & $C_0$ & 10-query pilot; proxy relevance labels \\
+Inter-annotator agreement & $\kappa=0.337$ & $n{=}124$ & ``Fair''; no true negatives in that overlap \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{The data-integrity correction (asked about most)}
+An earlier version of this thesis reported the triage guarantee as \emph{failing} out-of-sample. Investigating why found the cause was the evaluation pool, not the method: \num{1{,}199} of its \num{2{,}000} images carried unverified, catalog-default ``no scene'' labels that had never been through human review.
+
+Three independent raters have re-checked \num{734} of them and found \num{57.5\%} mislabeled --- real scenes marked absent. Rebuilt on a corrected \num{1{,}250}-image pool (\num{196} confirmed negatives), the guarantee \emph{holds}. The lift estimate was itself revised down twice as the negative sample grew from $7$ to \num{38} confirmed images ($3.62$--$7.10\times \rightarrow 2.31$--$3.09\times$) --- reported openly, because a negative-control statistic should not be trusted before its sample is large.
+
+\section{What this thesis does \emph{not} claim}
+\begin{itemize}
+  \item \textbf{Not a window into what a model ``knows.''} $U_{\text{SAA}}$ is a proxy built from disagreement, not a measurement of epistemic state.
+  \item \textbf{Not the only option.} A single model, asked correctly, reaches $0.9726$. The contribution is calibration, not exclusivity.
+  \item \textbf{Not deployment-general.} A conformal guarantee is valid only relative to the distribution it was calibrated on.
+  \item \textbf{Not proven to transfer.} See below --- it demonstrably does not, without recalibration.
+  \item \textbf{Shapley explains, it does not prove causation.}
+\end{itemize}
+
+\section{Three honest negative results, and one repair that worked}
+\textbf{0. Nine formulations, none better than plain confidence.} Nine formulations were evaluated against a non-circular label --- four signal sets, three weighting schemes, three operators including the mutual-information (BALD) decomposition. The best reaches \num{0.7650} against \num{0.8167} for confidence. Pruning the weakest member and competence weighting both make it \emph{worse}. An exhaustive enumeration of all $8!=\num{40{,}320}$ orderings of the reachable signal states puts the ceiling at \num{0.8871} against \num{0.8828} for confidence --- \textbf{no estimator over these signals can win by more than \num{0.0043}}.
+
+\textbf{1. The shared blind spot.} On confirmed true negatives all four models confidently agree on the same mistake, so disagreement cannot see it ($\text{ROC-AUC}=0.1259$, $n=319$, \num{50} errors, $95\%$ CI $[0.062,0.196]$). A third annotation pass replicated this on \num{123} negatives disjoint from the original estimate ($0.1852$), so it no longer rests on a small sample. This is the method's boundary condition, and it is the reason the thesis frames its contribution as routing rather than replacement.
+
+\medskip
+\textbf{1b. Eight repairs, a ceiling, and the gap never closes.} Every plausible cause was corrected and re-measured: the derived Agreement term; the object-signal fallback; the near-constant VLM term; the volume-based OCR term; the eight-valued discretisation; the circular error label; the softmax scene channel; and the unanimous ensemble. Every calibrated member lay above $0.5$ on every image --- the \num{84.5\%} base rate, not the signals --- and class-balanced calibration drops unanimity to \num{14.9\%}. \textbf{Where all four genuinely reach different conclusions, disagreement scores \num{0.5014}: chance, and the widest gap of any variant ($-0.307$).} Disagreement is not uninformative because the models never disagree --- it is uninformative \emph{when they do}. The ceiling now covers the continuous case too: with the corrected channel $A^{\text{scene}}$ takes \num{1{,}520} values so $8!$ enumeration is impossible, and flexible models fitted \emph{inside} the test partition --- an optimistic bound --- reach \num{0.8251}--\num{0.8391} against \num{0.8480} for plain confidence.
+
+\medskip
+\textbf{2. Transfer to a new archive fails --- and the reason is instructive.} Ground truth was collected for \num{23} of \num{24} images downloaded live from the Europeana API. All are human-confirmed scene-positive; the unchanged pipeline misses \num{65.2\%} of them. The error-\emph{detection} question could not be scored at all, because the ensemble collapsed. The intuitive symptoms mislead here --- the VLM is two-valued on Europeana \emph{and} on Colibri, and fusion is object-dominated ($r\approx0.98$--$0.99$) on both by construction. What separates them is variance: measured by the effective rank of the agent covariance spectrum, Europeana carries \num{1.37} independent signals (CI \num{1.06}--\num{1.61}) against \num{2.50} on Colibri. \textbf{A disagreement-based method requires the ensemble to stay heterogeneous on the target domain} --- and that is checkable from agent scores alone, before any labelling.
+
+\medskip
+\textbf{3. The repair that \emph{did} work.} The dominant failure is a false positive on a true negative --- printed text, sheet music, ornament --- \textbf{none of which the five deployed prompts can name}. Adding explicit \emph{negative} prompts, scored with SigLIP's own logit scale and bias, reaches \num{0.8305} against scene presence versus \num{0.7188} for the corrected single channel. That is $+0.111$, CI $[+0.045,+0.181]$ --- \textbf{the only interval in this thesis excluding zero}. Error rate \num{29.7\%} against \num{42.2\%} as deployed; flags \num{81.6\%} of true negatives against \num{31.8\%} of positives. Caveat volunteered: only \num{38} true negatives in test.
+
+\section{Tier 2 curation agents --- all three gold-labelled, all three limited}
+Per the Architectural Decoupling Rule these run \emph{after} validation and never feed the trust signal, so none of this affects the results above.
+\begin{center}\footnotesize
+\begin{tabular}{l l l p{7.4cm}}
+\toprule
+\textbf{Agent} & \textbf{Precision} & \textbf{$n$} & \textbf{Finding} \\
+\midrule
+2 --- contradiction & $23.3\%$ & 90 & Usually catches a YOLO miss, not a VLM hallucination \\
+4 --- cross-archive & $55.7\%$ & 79 & Rises to $100\%$ at similarity $\ge 0.92$ --- a usable threshold \\
+5 --- grounded OCR & $52.5\%$ & 40 & Its ``real OCR'' bucket is near a coin flip; median WER $100\%$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Reproducibility}
+\begin{itemize}
+  \item \num{35} experiment scripts carry a \texttt{-{}-verify} flag that recomputes the result and fails loudly if it has drifted. Last full sweep: \textbf{\num{35} passed, $0$ failed}.
+  \item An eleven-stage worksheet reproduces every cited number from cached model outputs --- no GPU and no paid API calls for the verification path, about ten minutes end to end: \texttt{REPRODUCTION\_WORKSHEET.md}
+  \item The full Tier 1 re-run (four models, \num{12{,}110} images) is scripted and resumable, $\approx$\num{4}\,h\,\num{40} on four GPUs. The scene channel is a parameter, so the deployed figures stay reproducible byte-for-byte while the corrected column is computed beside them.
+  \item Full instructions, plus a claim\,$\rightarrow$\,script\,$\rightarrow$\,artifact table: \texttt{REPRODUCE.md}
+\end{itemize}
+
+\section{Known limitations, stated plainly}
+\begin{itemize}
+  \item \num{465} of the \num{1{,}199}-image default-labelled block remain unreviewed; completing them would tighten the negative-control estimate further.
+  \item The Europeana pilot is $n{=}24$ and contains no negative controls.
+  \item Retrieval relevance labels are a proxy sharing agent scores with the retrieval signal --- supplementary, not an unbiased benchmark. Validated on one archive; architecturally general in principle, not demonstrated across domains.
+\end{itemize}
+
+\vfill
+\rule{\textwidth}{0.4pt}
+{\footnotesize\color{PrismGray} Every figure on this sheet is reproducible from the committed pipeline. Numbers withdrawn or revised during the project's own integrity audits are documented in the thesis rather than removed --- including the two revisions of the efficiency-lift estimate and the withdrawal of three earlier Tier 2 benchmarks.}
+
+\end{document}

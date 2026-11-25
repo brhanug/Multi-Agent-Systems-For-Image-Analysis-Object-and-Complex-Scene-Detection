@@ -1,0 +1,1002 @@
+[
+  {
+    "cvat_id": 802,
+    "full_id": "PPN1816495190_00000281_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1816495190_00000281_0.jpg"
+  },
+  {
+    "cvat_id": 807,
+    "full_id": "PPN1816500674_00000200_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1816500674_00000200_0.jpg"
+  },
+  {
+    "cvat_id": 814,
+    "full_id": "PPN1816500674_00000413_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1816500674_00000413_1.jpg"
+  },
+  {
+    "cvat_id": 815,
+    "full_id": "PPN1816500674_00000440_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1816500674_00000440_0.jpg"
+  },
+  {
+    "cvat_id": 824,
+    "full_id": "PPN1816500674_00000590_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1816500674_00000590_0.jpg"
+  },
+  {
+    "cvat_id": 840,
+    "full_id": "PPN1817987607_00000286_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1817987607_00000286_0.jpg"
+  },
+  {
+    "cvat_id": 844,
+    "full_id": "PPN1817987607_00000394_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1817987607_00000394_0.jpg"
+  },
+  {
+    "cvat_id": 852,
+    "full_id": "PPN1817987607_00000544_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1817987607_00000544_0.jpg"
+  },
+  {
+    "cvat_id": 855,
+    "full_id": "PPN1817987607_00000587_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1817987607_00000587_0.jpg"
+  },
+  {
+    "cvat_id": 862,
+    "full_id": "PPN1817987607_00000624_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1817987607_00000624_0.jpg"
+  },
+  {
+    "cvat_id": 865,
+    "full_id": "PPN1817987607_00000641_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1817987607_00000641_0.jpg"
+  },
+  {
+    "cvat_id": 866,
+    "full_id": "PPN1817987607_00000645_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1817987607_00000645_0.jpg"
+  },
+  {
+    "cvat_id": 889,
+    "full_id": "PPN1818215756_00000360_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1818215756_00000360_1.jpg"
+  },
+  {
+    "cvat_id": 894,
+    "full_id": "PPN1818215756_00000381_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1818215756_00000381_1.jpg"
+  },
+  {
+    "cvat_id": 897,
+    "full_id": "PPN1818215756_00000390_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1818215756_00000390_0.jpg"
+  },
+  {
+    "cvat_id": 911,
+    "full_id": "PPN1818789132_00000174_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1818789132_00000174_0.jpg"
+  },
+  {
+    "cvat_id": 915,
+    "full_id": "PPN1819090841_00000138_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1819090841_00000138_0.jpg"
+  },
+  {
+    "cvat_id": 919,
+    "full_id": "PPN1819090841_00000339_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1819090841_00000339_0.jpg"
+  },
+  {
+    "cvat_id": 921,
+    "full_id": "PPN1819090841_00000391_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1819090841_00000391_0.jpg"
+  },
+  {
+    "cvat_id": 925,
+    "full_id": "PPN1819090841_00000469_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1819090841_00000469_0.jpg"
+  },
+  {
+    "cvat_id": 931,
+    "full_id": "PPN1819090841_00000536_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1819090841_00000536_0.jpg"
+  },
+  {
+    "cvat_id": 932,
+    "full_id": "PPN1819090841_00000544_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1819090841_00000544_0.jpg"
+  },
+  {
+    "cvat_id": 936,
+    "full_id": "PPN1819090841_00000581_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1819090841_00000581_0.jpg"
+  },
+  {
+    "cvat_id": 939,
+    "full_id": "PPN1819090841_00000652_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1819090841_00000652_0.jpg"
+  },
+  {
+    "cvat_id": 942,
+    "full_id": "PPN1819092992_00000330_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1819092992_00000330_0.jpg"
+  },
+  {
+    "cvat_id": 943,
+    "full_id": "PPN1819092992_00000344_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1819092992_00000344_0.jpg"
+  },
+  {
+    "cvat_id": 946,
+    "full_id": "PPN181910513X_00000405_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN181910513X_00000405_0.jpg"
+  },
+  {
+    "cvat_id": 947,
+    "full_id": "PPN181910513X_00000428_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN181910513X_00000428_0.jpg"
+  },
+  {
+    "cvat_id": 962,
+    "full_id": "PPN1822201950_00000101_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1822201950_00000101_0.jpg"
+  },
+  {
+    "cvat_id": 964,
+    "full_id": "PPN1822240441_00000097_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1822240441_00000097_0.jpg"
+  },
+  {
+    "cvat_id": 976,
+    "full_id": "PPN1822245974_00000193_2",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1822245974_00000193_2.jpg"
+  },
+  {
+    "cvat_id": 979,
+    "full_id": "PPN1822483654_00000234_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1822483654_00000234_0.jpg"
+  },
+  {
+    "cvat_id": 987,
+    "full_id": "PPN1822483654_00000526_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1822483654_00000526_0.jpg"
+  },
+  {
+    "cvat_id": 990,
+    "full_id": "PPN1822483654_00000674_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1822483654_00000674_0.jpg"
+  },
+  {
+    "cvat_id": 992,
+    "full_id": "PPN1822483654_00000741_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1822483654_00000741_0.jpg"
+  },
+  {
+    "cvat_id": 994,
+    "full_id": "PPN1822483654_00000765_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1822483654_00000765_0.jpg"
+  },
+  {
+    "cvat_id": 999,
+    "full_id": "PPN1822813441_00000449_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1822813441_00000449_1.jpg"
+  },
+  {
+    "cvat_id": 1002,
+    "full_id": "PPN1823741223_00000033_3",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1823741223_00000033_3.jpg"
+  },
+  {
+    "cvat_id": 1007,
+    "full_id": "PPN1823741223_00000094_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1823741223_00000094_1.jpg"
+  },
+  {
+    "cvat_id": 1010,
+    "full_id": "PPN1823741223_00000112_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1823741223_00000112_0.jpg"
+  },
+  {
+    "cvat_id": 1018,
+    "full_id": "PPN1823855598_00000315_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1823855598_00000315_0.jpg"
+  },
+  {
+    "cvat_id": 1024,
+    "full_id": "PPN1824535554_00000122_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1824535554_00000122_0.jpg"
+  },
+  {
+    "cvat_id": 1025,
+    "full_id": "PPN182658725X_00000102_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN182658725X_00000102_1.jpg"
+  },
+  {
+    "cvat_id": 1029,
+    "full_id": "PPN1826609180_00000194_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1826609180_00000194_0.jpg"
+  },
+  {
+    "cvat_id": 1030,
+    "full_id": "PPN1826609180_00000259_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1826609180_00000259_0.jpg"
+  },
+  {
+    "cvat_id": 1035,
+    "full_id": "PPN1826614516_00000218_3",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1826614516_00000218_3.jpg"
+  },
+  {
+    "cvat_id": 1048,
+    "full_id": "PPN1826657495_00000053_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1826657495_00000053_1.jpg"
+  },
+  {
+    "cvat_id": 1056,
+    "full_id": "PPN1830250302_00000080_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1830250302_00000080_0.jpg"
+  },
+  {
+    "cvat_id": 1058,
+    "full_id": "PPN1830256866_00000097_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1830256866_00000097_0.jpg"
+  },
+  {
+    "cvat_id": 1063,
+    "full_id": "PPN183042405X_00000001_4",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN183042405X_00000001_4.jpg"
+  },
+  {
+    "cvat_id": 1071,
+    "full_id": "PPN1830499742_00000164_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1830499742_00000164_0.jpg"
+  },
+  {
+    "cvat_id": 1084,
+    "full_id": "PPN1830506005_00000244_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1830506005_00000244_0.jpg"
+  },
+  {
+    "cvat_id": 1086,
+    "full_id": "PPN183055154X_00000146_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN183055154X_00000146_0.jpg"
+  },
+  {
+    "cvat_id": 1088,
+    "full_id": "PPN1831066114_00000180_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1831066114_00000180_0.jpg"
+  },
+  {
+    "cvat_id": 1093,
+    "full_id": "PPN1831218518_00000038_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1831218518_00000038_0.jpg"
+  },
+  {
+    "cvat_id": 1114,
+    "full_id": "PPN183128149X_00000111_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN183128149X_00000111_1.jpg"
+  },
+  {
+    "cvat_id": 1119,
+    "full_id": "PPN1832100650_00000003_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1832100650_00000003_0.jpg"
+  },
+  {
+    "cvat_id": 1124,
+    "full_id": "PPN1832100650_00000032_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1832100650_00000032_1.jpg"
+  },
+  {
+    "cvat_id": 1127,
+    "full_id": "PPN1832113663_00000078_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1832113663_00000078_0.jpg"
+  },
+  {
+    "cvat_id": 1128,
+    "full_id": "PPN1832530000_00000128_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1832530000_00000128_0.jpg"
+  },
+  {
+    "cvat_id": 1131,
+    "full_id": "PPN1832573974_00000305_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1832573974_00000305_0.jpg"
+  },
+  {
+    "cvat_id": 1134,
+    "full_id": "PPN1833270207_00000145_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1833270207_00000145_0.jpg"
+  },
+  {
+    "cvat_id": 1135,
+    "full_id": "PPN1833290542_00000016_3",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1833290542_00000016_3.jpg"
+  },
+  {
+    "cvat_id": 1139,
+    "full_id": "PPN1833354362_00000111_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1833354362_00000111_1.jpg"
+  },
+  {
+    "cvat_id": 1151,
+    "full_id": "PPN1837132763_00000214_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1837132763_00000214_0.jpg"
+  },
+  {
+    "cvat_id": 1166,
+    "full_id": "PPN1837157073_00000114_3",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1837157073_00000114_3.jpg"
+  },
+  {
+    "cvat_id": 1176,
+    "full_id": "PPN1837157073_00000145_2",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1837157073_00000145_2.jpg"
+  },
+  {
+    "cvat_id": 1190,
+    "full_id": "PPN1837157073_00000178_2",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1837157073_00000178_2.jpg"
+  },
+  {
+    "cvat_id": 1193,
+    "full_id": "PPN1837311110_00000255_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1837311110_00000255_0.jpg"
+  },
+  {
+    "cvat_id": 1194,
+    "full_id": "PPN1837311250_00000316_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1837311250_00000316_1.jpg"
+  },
+  {
+    "cvat_id": 1208,
+    "full_id": "PPN1837311250_00000378_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1837311250_00000378_1.jpg"
+  },
+  {
+    "cvat_id": 1212,
+    "full_id": "PPN1837311447_00000080_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1837311447_00000080_0.jpg"
+  },
+  {
+    "cvat_id": 1230,
+    "full_id": "PPN1837925887_00000022_3",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1837925887_00000022_3.jpg"
+  },
+  {
+    "cvat_id": 1233,
+    "full_id": "PPN1837925887_00000038_3",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1837925887_00000038_3.jpg"
+  },
+  {
+    "cvat_id": 1234,
+    "full_id": "PPN1837925887_00000044_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1837925887_00000044_0.jpg"
+  },
+  {
+    "cvat_id": 1236,
+    "full_id": "PPN1837925887_00000050_2",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1837925887_00000050_2.jpg"
+  },
+  {
+    "cvat_id": 1239,
+    "full_id": "PPN1837937834_00000329_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1837937834_00000329_0.jpg"
+  },
+  {
+    "cvat_id": 1241,
+    "full_id": "PPN1837940150_00000159_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1837940150_00000159_0.jpg"
+  },
+  {
+    "cvat_id": 1248,
+    "full_id": "PPN1838109994_00000162_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1838109994_00000162_0.jpg"
+  },
+  {
+    "cvat_id": 1250,
+    "full_id": "PPN1838109994_00000274_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1838109994_00000274_0.jpg"
+  },
+  {
+    "cvat_id": 1252,
+    "full_id": "PPN1838109994_00000319_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1838109994_00000319_0.jpg"
+  },
+  {
+    "cvat_id": 1258,
+    "full_id": "PPN1838145761_00000020_4",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1838145761_00000020_4.jpg"
+  },
+  {
+    "cvat_id": 1261,
+    "full_id": "PPN1838145761_00000037_4",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1838145761_00000037_4.jpg"
+  },
+  {
+    "cvat_id": 1267,
+    "full_id": "PPN1838145761_00000073_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1838145761_00000073_1.jpg"
+  },
+  {
+    "cvat_id": 1269,
+    "full_id": "PPN1838145761_00000080_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1838145761_00000080_1.jpg"
+  },
+  {
+    "cvat_id": 1270,
+    "full_id": "PPN1838145761_00000080_2",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1838145761_00000080_2.jpg"
+  },
+  {
+    "cvat_id": 1272,
+    "full_id": "PPN1838145761_00000085_3",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1838145761_00000085_3.jpg"
+  },
+  {
+    "cvat_id": 1277,
+    "full_id": "PPN1838205772_00000162_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1838205772_00000162_0.jpg"
+  },
+  {
+    "cvat_id": 1288,
+    "full_id": "PPN183963944X_00000348_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN183963944X_00000348_0.jpg"
+  },
+  {
+    "cvat_id": 1291,
+    "full_id": "PPN1839645326_00000108_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1839645326_00000108_1.jpg"
+  },
+  {
+    "cvat_id": 1294,
+    "full_id": "PPN1839645326_00000116_2",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1839645326_00000116_2.jpg"
+  },
+  {
+    "cvat_id": 1298,
+    "full_id": "PPN1839686960_00000101_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1839686960_00000101_0.jpg"
+  },
+  {
+    "cvat_id": 1302,
+    "full_id": "PPN1840954272_00000067_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1840954272_00000067_1.jpg"
+  },
+  {
+    "cvat_id": 1306,
+    "full_id": "PPN1841049557_00000202_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1841049557_00000202_1.jpg"
+  },
+  {
+    "cvat_id": 1308,
+    "full_id": "PPN1841054100_00000291_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1841054100_00000291_1.jpg"
+  },
+  {
+    "cvat_id": 1310,
+    "full_id": "PPN1841060186_00000138_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1841060186_00000138_0.jpg"
+  },
+  {
+    "cvat_id": 1312,
+    "full_id": "PPN1841060186_00000186_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1841060186_00000186_0.jpg"
+  },
+  {
+    "cvat_id": 1315,
+    "full_id": "PPN1841713953_00000136_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1841713953_00000136_0.jpg"
+  },
+  {
+    "cvat_id": 1339,
+    "full_id": "PPN1843322943_00000127_1",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1843322943_00000127_1.jpg"
+  },
+  {
+    "cvat_id": 1340,
+    "full_id": "PPN1843322943_00000147_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1843322943_00000147_1.jpg"
+  },
+  {
+    "cvat_id": 1342,
+    "full_id": "PPN1843322943_00000159_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1843322943_00000159_0.jpg"
+  },
+  {
+    "cvat_id": 1343,
+    "full_id": "PPN1843322943_00000169_1",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1843322943_00000169_1.jpg"
+  },
+  {
+    "cvat_id": 1347,
+    "full_id": "PPN1843332787_00000057_2",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1843332787_00000057_2.jpg"
+  },
+  {
+    "cvat_id": 1349,
+    "full_id": "PPN1843339889_00000266_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1843339889_00000266_0.jpg"
+  },
+  {
+    "cvat_id": 1353,
+    "full_id": "PPN1843339889_00000318_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1843339889_00000318_0.jpg"
+  },
+  {
+    "cvat_id": 1364,
+    "full_id": "PPN1844594661_00000197_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1844594661_00000197_0.jpg"
+  },
+  {
+    "cvat_id": 1370,
+    "full_id": "PPN1845187539_00000197_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1845187539_00000197_0.jpg"
+  },
+  {
+    "cvat_id": 1371,
+    "full_id": "PPN1845187539_00000278_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1845187539_00000278_0.jpg"
+  },
+  {
+    "cvat_id": 1393,
+    "full_id": "PPN184528948X_00000226_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN184528948X_00000226_0.jpg"
+  },
+  {
+    "cvat_id": 1401,
+    "full_id": "PPN1845388925_00000038_3",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1845388925_00000038_3.jpg"
+  },
+  {
+    "cvat_id": 1402,
+    "full_id": "PPN1845388925_00000046_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1845388925_00000046_0.jpg"
+  },
+  {
+    "cvat_id": 1412,
+    "full_id": "PPN1845704835_00000395_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1845704835_00000395_0.jpg"
+  },
+  {
+    "cvat_id": 1430,
+    "full_id": "PPN184976414X_00000197_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN184976414X_00000197_0.jpg"
+  },
+  {
+    "cvat_id": 1439,
+    "full_id": "PPN1849786305_00000117_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1849786305_00000117_0.jpg"
+  },
+  {
+    "cvat_id": 1445,
+    "full_id": "PPN1849815070_00000086_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1849815070_00000086_0.jpg"
+  },
+  {
+    "cvat_id": 1447,
+    "full_id": "PPN1849815070_00000104_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1849815070_00000104_0.jpg"
+  },
+  {
+    "cvat_id": 1464,
+    "full_id": "PPN1850535744_00000180_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1850535744_00000180_0.jpg"
+  },
+  {
+    "cvat_id": 1465,
+    "full_id": "PPN1850578605_00000121_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1850578605_00000121_0.jpg"
+  },
+  {
+    "cvat_id": 1477,
+    "full_id": "PPN1851261869_00000093_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1851261869_00000093_0.jpg"
+  },
+  {
+    "cvat_id": 1490,
+    "full_id": "PPN1852064943_00000218_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852064943_00000218_1.jpg"
+  },
+  {
+    "cvat_id": 1493,
+    "full_id": "PPN1852064943_00000272_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852064943_00000272_0.jpg"
+  },
+  {
+    "cvat_id": 1495,
+    "full_id": "PPN1852064943_00000277_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852064943_00000277_0.jpg"
+  },
+  {
+    "cvat_id": 1497,
+    "full_id": "PPN1852093692_00000006_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852093692_00000006_0.jpg"
+  },
+  {
+    "cvat_id": 1505,
+    "full_id": "PPN1852093919_00000455_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852093919_00000455_0.jpg"
+  },
+  {
+    "cvat_id": 1526,
+    "full_id": "PPN1852146427_00000065_25",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852146427_00000065_25.jpg"
+  },
+  {
+    "cvat_id": 1528,
+    "full_id": "PPN1852150505_00000206_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1852150505_00000206_0.jpg"
+  },
+  {
+    "cvat_id": 1536,
+    "full_id": "PPN1852244852_00000220_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852244852_00000220_0.jpg"
+  },
+  {
+    "cvat_id": 1541,
+    "full_id": "PPN1852244852_00000341_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852244852_00000341_0.jpg"
+  },
+  {
+    "cvat_id": 1542,
+    "full_id": "PPN1852769815_00000233_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852769815_00000233_1.jpg"
+  },
+  {
+    "cvat_id": 1544,
+    "full_id": "PPN1852796626_00000177_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852796626_00000177_1.jpg"
+  },
+  {
+    "cvat_id": 1548,
+    "full_id": "PPN1852800186_00000101_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852800186_00000101_1.jpg"
+  },
+  {
+    "cvat_id": 1559,
+    "full_id": "PPN1852841419_00000002_28",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852841419_00000002_28.jpg"
+  },
+  {
+    "cvat_id": 1565,
+    "full_id": "PPN1852844175_00000077_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852844175_00000077_1.jpg"
+  },
+  {
+    "cvat_id": 1566,
+    "full_id": "PPN1852844175_00000085_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852844175_00000085_1.jpg"
+  },
+  {
+    "cvat_id": 1576,
+    "full_id": "PPN1852905581_00000271_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852905581_00000271_0.jpg"
+  },
+  {
+    "cvat_id": 1578,
+    "full_id": "PPN1852935251_00000142_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852935251_00000142_0.jpg"
+  },
+  {
+    "cvat_id": 1579,
+    "full_id": "PPN1852935251_00000150_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852935251_00000150_0.jpg"
+  },
+  {
+    "cvat_id": 1582,
+    "full_id": "PPN1852935251_00000231_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1852935251_00000231_0.jpg"
+  },
+  {
+    "cvat_id": 1589,
+    "full_id": "PPN1852936118_00000424_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1852936118_00000424_0.jpg"
+  },
+  {
+    "cvat_id": 1611,
+    "full_id": "PPN1853356883_00000327_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1853356883_00000327_1.jpg"
+  },
+  {
+    "cvat_id": 1618,
+    "full_id": "PPN1853474835_00000015_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1853474835_00000015_0.jpg"
+  },
+  {
+    "cvat_id": 1622,
+    "full_id": "PPN1853474835_00000130_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1853474835_00000130_0.jpg"
+  },
+  {
+    "cvat_id": 1625,
+    "full_id": "PPN1853535222_00000244_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1853535222_00000244_0.jpg"
+  },
+  {
+    "cvat_id": 1634,
+    "full_id": "PPN185378236X_00000529_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN185378236X_00000529_1.jpg"
+  },
+  {
+    "cvat_id": 1642,
+    "full_id": "PPN1855123274_00000178_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1855123274_00000178_0.jpg"
+  },
+  {
+    "cvat_id": 1660,
+    "full_id": "PPN1856403262_00000399_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1856403262_00000399_0.jpg"
+  },
+  {
+    "cvat_id": 1665,
+    "full_id": "PPN1857954904_00000046_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1857954904_00000046_1.jpg"
+  },
+  {
+    "cvat_id": 1666,
+    "full_id": "PPN1857954904_00000084_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1857954904_00000084_1.jpg"
+  },
+  {
+    "cvat_id": 1667,
+    "full_id": "PPN1857954904_00000095_2",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1857954904_00000095_2.jpg"
+  },
+  {
+    "cvat_id": 1668,
+    "full_id": "PPN1857954904_00000096_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1857954904_00000096_1.jpg"
+  },
+  {
+    "cvat_id": 1678,
+    "full_id": "PPN1858447275_00000210_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1858447275_00000210_0.jpg"
+  },
+  {
+    "cvat_id": 1683,
+    "full_id": "PPN1858729343_00000212_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1858729343_00000212_0.jpg"
+  },
+  {
+    "cvat_id": 1691,
+    "full_id": "PPN1859009379_00000151_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1859009379_00000151_0.jpg"
+  },
+  {
+    "cvat_id": 1698,
+    "full_id": "PPN1859087981_00000121_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1859087981_00000121_0.jpg"
+  },
+  {
+    "cvat_id": 1719,
+    "full_id": "PPN1859200435_00000083_2",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1859200435_00000083_2.jpg"
+  },
+  {
+    "cvat_id": 1720,
+    "full_id": "PPN1859200435_00000091_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1859200435_00000091_1.jpg"
+  },
+  {
+    "cvat_id": 1725,
+    "full_id": "PPN1860674836_00000277_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1860674836_00000277_0.jpg"
+  },
+  {
+    "cvat_id": 1729,
+    "full_id": "PPN1860806953_00000028_2",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1860806953_00000028_2.jpg"
+  },
+  {
+    "cvat_id": 1730,
+    "full_id": "PPN1860819958_00000146_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1860819958_00000146_0.jpg"
+  },
+  {
+    "cvat_id": 1740,
+    "full_id": "PPN1860884024_00000540_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1860884024_00000540_0.jpg"
+  },
+  {
+    "cvat_id": 1741,
+    "full_id": "PPN1860887732_00000106_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1860887732_00000106_0.jpg"
+  },
+  {
+    "cvat_id": 1747,
+    "full_id": "PPN1865944610_00000051_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1865944610_00000051_0.jpg"
+  },
+  {
+    "cvat_id": 1748,
+    "full_id": "PPN1865949566_00000055_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1865949566_00000055_1.jpg"
+  },
+  {
+    "cvat_id": 1757,
+    "full_id": "PPN186729642X_00000093_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN186729642X_00000093_0.jpg"
+  },
+  {
+    "cvat_id": 1759,
+    "full_id": "PPN1867628163_00000016_2",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1867628163_00000016_2.jpg"
+  },
+  {
+    "cvat_id": 1769,
+    "full_id": "PPN1868089509_00000113_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1868089509_00000113_0.jpg"
+  },
+  {
+    "cvat_id": 1774,
+    "full_id": "PPN186861252X_00000191_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN186861252X_00000191_1.jpg"
+  },
+  {
+    "cvat_id": 1795,
+    "full_id": "PPN1870219201_00000201_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1870219201_00000201_0.jpg"
+  },
+  {
+    "cvat_id": 1796,
+    "full_id": "PPN1870226380_00000052_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1870226380_00000052_0.jpg"
+  },
+  {
+    "cvat_id": 1801,
+    "full_id": "PPN1870451023_00000142_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1870451023_00000142_1.jpg"
+  },
+  {
+    "cvat_id": 1811,
+    "full_id": "PPN1870671899_00000026_2",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1870671899_00000026_2.jpg"
+  },
+  {
+    "cvat_id": 1823,
+    "full_id": "PPN1871314038_00000287_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1871314038_00000287_0.jpg"
+  },
+  {
+    "cvat_id": 1826,
+    "full_id": "PPN1871720958_00000080_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1871720958_00000080_0.jpg"
+  },
+  {
+    "cvat_id": 1835,
+    "full_id": "PPN1874979693_00000053_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1874979693_00000053_1.jpg"
+  },
+  {
+    "cvat_id": 1840,
+    "full_id": "PPN1877062138_00000051_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1877062138_00000051_1.jpg"
+  },
+  {
+    "cvat_id": 1844,
+    "full_id": "PPN1877431737_00000013_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1877431737_00000013_0.jpg"
+  },
+  {
+    "cvat_id": 1853,
+    "full_id": "PPN1877645559_00000003_3",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1877645559_00000003_3.jpg"
+  },
+  {
+    "cvat_id": 1860,
+    "full_id": "PPN1878492195_00000008_4",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1878492195_00000008_4.jpg"
+  },
+  {
+    "cvat_id": 1881,
+    "full_id": "PPN1879820102_00000025_2",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1879820102_00000025_2.jpg"
+  },
+  {
+    "cvat_id": 1884,
+    "full_id": "PPN1879843714_00000047_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1879843714_00000047_1.jpg"
+  },
+  {
+    "cvat_id": 1887,
+    "full_id": "PPN1879854767_00000018_3",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1879854767_00000018_3.jpg"
+  },
+  {
+    "cvat_id": 1891,
+    "full_id": "PPN1879899353_00000014_4",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1879899353_00000014_4.jpg"
+  },
+  {
+    "cvat_id": 1894,
+    "full_id": "PPN1879901595_00000043_2",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1879901595_00000043_2.jpg"
+  },
+  {
+    "cvat_id": 1899,
+    "full_id": "PPN1879905868_00000023_2",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1879905868_00000023_2.jpg"
+  },
+  {
+    "cvat_id": 1900,
+    "full_id": "PPN1880315564_00000041_2",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1880315564_00000041_2.jpg"
+  },
+  {
+    "cvat_id": 1904,
+    "full_id": "PPN1880349418_00000012_3",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1880349418_00000012_3.jpg"
+  },
+  {
+    "cvat_id": 1905,
+    "full_id": "PPN1880349418_00000012_4",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1880349418_00000012_4.jpg"
+  },
+  {
+    "cvat_id": 1917,
+    "full_id": "PPN1881728234_00000084_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1881728234_00000084_1.jpg"
+  },
+  {
+    "cvat_id": 1926,
+    "full_id": "PPN1881728234_00000146_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1881728234_00000146_0.jpg"
+  },
+  {
+    "cvat_id": 1931,
+    "full_id": "PPN1881728234_00000214_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1881728234_00000214_0.jpg"
+  },
+  {
+    "cvat_id": 1934,
+    "full_id": "PPN1881728234_00000243_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1881728234_00000243_0.jpg"
+  },
+  {
+    "cvat_id": 1935,
+    "full_id": "PPN1881728234_00000259_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1881728234_00000259_0.jpg"
+  },
+  {
+    "cvat_id": 1941,
+    "full_id": "PPN1882218795_00000206_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1882218795_00000206_0.jpg"
+  },
+  {
+    "cvat_id": 1950,
+    "full_id": "PPN1882268474_00000212_0",
+    "resolved_path": "/data/brhanu/thesis_project/human_spatial_audit/images/PPN1882268474_00000212_0.jpg"
+  },
+  {
+    "cvat_id": 1962,
+    "full_id": "PPN1882292502_00000040_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1882292502_00000040_1.jpg"
+  },
+  {
+    "cvat_id": 1970,
+    "full_id": "PPN1882292502_00000064_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1882292502_00000064_1.jpg"
+  },
+  {
+    "cvat_id": 1981,
+    "full_id": "PPN1882292502_00000099_1",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1882292502_00000099_1.jpg"
+  },
+  {
+    "cvat_id": 1983,
+    "full_id": "PPN1882292502_00000101_2",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1882292502_00000101_2.jpg"
+  },
+  {
+    "cvat_id": 1996,
+    "full_id": "PPN1885972776_00000197_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN1885972776_00000197_0.jpg"
+  },
+  {
+    "cvat_id": 1998,
+    "full_id": "PPN188597325X_00000214_0",
+    "resolved_path": "/data/brhanu/thesis_project/cvat_upload_temp/obj_train_data/PPN188597325X_00000214_0.jpg"
+  }
+]

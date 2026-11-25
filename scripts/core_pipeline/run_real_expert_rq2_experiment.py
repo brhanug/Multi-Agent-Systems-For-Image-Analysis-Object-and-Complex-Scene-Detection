@@ -12,14 +12,8 @@ EXPERT_CSV = BASE / "human_spatial_audit" / "user_annotations_800.csv"
 SCORES_CSV = BASE / "results/multi_agent/agent_comparison_scores.csv"
 OUTPUT_DIR = BASE / "results/multi_agent"
 
-def normalize_id(name):
-    p = str(name).replace("images/", "").replace("\\", "/")
-    p = p.split("/")[-1]
-    p = p.rsplit(".", 1)[0]
-    parts = p.split("_")
-    if len(parts) >= 2 and parts[0].startswith("PPN"):
-        return "_".join(parts[-2:])
-    return p
+from picture_ids import full_id as normalize_id, read_expert_annotations   # book and page, never the page alone
+
 
 def expected_calibration_error(y_true, y_prob, n_bins=10):
     prob_true, prob_pred = calibration_curve(y_true, y_prob, n_bins=n_bins, strategy='uniform')
@@ -34,7 +28,7 @@ def main():
     print("🚀 Running PATH 1 REAL EXPERIMENT: Disagreement vs. Single-Model Confidence on 801 Expert Images...")
     
     # 1. Load expert gold labels and restrict to reviewed set (n=801)
-    expert = pd.read_csv(EXPERT_CSV)
+    expert = read_expert_annotations(EXPERT_CSV)
     expert['cvat_id'] = expert.index
     expert_reviewed = expert[expert['cvat_id'] <= 800].copy()
     expert_reviewed["gold_has_scene"] = (expert_reviewed["n_scene_labels"] > 0).astype(int)

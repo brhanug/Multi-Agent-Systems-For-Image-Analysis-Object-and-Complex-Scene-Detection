@@ -1,0 +1,30 @@
+<section id="algo-decide" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:104px 128px 150px;display:flex;flex-direction:column;gap:24px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Algorithm 2 · done for every picture</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:60px;font-weight:600;line-height:1.1;color:#1E2733">Deciding one picture</h2>
+<div style="display:flex;gap:32px">
+<div style="flex:1;background:#1E2733;border-radius:16px;padding:30px;display:flex;flex-direction:column;gap:10px">
+<p style="font-size:24px;color:#E8B07A">INPUT: a scan; the weights (Alg. 1); the cut-offs λ̂ (Alg. 3)</p>
+<p style="font-size:26px;line-height:1.4;color:#F3EEE4"><b>1</b>  restore the scan; run the three agents → 27 numbers</p>
+<p style="font-size:26px;line-height:1.4;color:#F3EEE4"><b>2</b>  each agent: p = 1 ÷ (1 + e<span style="color:#E8B07A">−(bias + weights · numbers)</span>)</p>
+<p style="font-size:26px;line-height:1.4;color:#F3EEE4"><b>3</b>  <b>scene at all</b>: p = 0.6·p₁ + 0.2·p₂ + 0.2·p₃;  u = 1 − |p − 0.5|</p>
+<p style="font-size:26px;line-height:1.4;color:#F3EEE4;padding-left:40px">if u &lt; λ̂ approve, else a person</p>
+<p style="font-size:26px;line-height:1.4;color:#F3EEE4"><b>4</b>  <b>scene class</b>: 6 probabilities from all 27 numbers; answer = largest</p>
+<p style="font-size:26px;line-height:1.4;color:#F3EEE4;padding-left:40px">u = 1 − largest; if u &lt; λ̂-class approve, else a person + short list</p>
+<p style="font-size:26px;line-height:1.4;color:#F3EEE4"><b>5</b>  <b>objects</b>: per class, average of 3 probabilities; list = classes ≥ t</p>
+<p style="font-size:24px;color:#E8B07A">OUTPUT: three answers, each approved or routed to a person</p>
+</div>
+<div style="width:480px;display:flex;flex-direction:column;gap:18px">
+<div style="background:#FBF0D9;border-radius:16px;padding:26px">
+<p style="font-size:25px;line-height:1.4;color:#1E2733"><b>In one sentence:</b> turn the agents’ numbers into three answers, and let each answer through only if it is sure enough.</p>
+</div>
+<div style="background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:6px">
+<p style="font-size:24px;color:#A2461B">THE EXAMPLE</p>
+<p style="font-size:25px;line-height:1.4">p = 0.97, u = 0.53 &lt; 0.829 → approved</p>
+<p style="font-size:25px;line-height:1.4">class family 0.54, u = 0.46 &gt; 0.26 → a person</p>
+<p style="font-size:25px;line-height:1.4">objects ≥ 0.088 → person, child, animal</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:56px;width:1664px;font-size:24px;color:#7A8591">Part 3 of 5 · The corrected design · the algorithms</p>
+<aside>Algorithm two runs for every picture and learns nothing. Restore the scan and run the three agents. For each agent, put its numbers into its learned formula to get a probability. For “scene at all”, take the weighted average of the three probabilities, measure how far it is from 0.5, and approve if the uncertainty is below the cut-off. For the scene class, compute the six class probabilities from all 27 numbers, pick the largest, and approve only if the largest is high enough; otherwise a person gets a short list. For objects, average the three agents’ probabilities per class and list the classes above the threshold for a person to confirm. For the example: the scene call is approved, the class goes to a person, and the object list is person, child and animal.</aside>
+</section>

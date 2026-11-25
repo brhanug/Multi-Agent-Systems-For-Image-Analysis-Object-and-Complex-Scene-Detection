@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import os
 
-model_path = "/data/brhanu/thesis_project/runs/detect/train3/weights/best.pt"
+model_path = "/data/brhanu/thesis_project/runs/detect/yolo11_v2_augmented_refresh/weights/best.pt"
 source_path = "/data/brhanu/thesis_project/data/images/val"
 output_dir = "/data/brhanu/thesis_project/pseudo_labels/val_pseudo_v4"
 

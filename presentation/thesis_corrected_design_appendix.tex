@@ -1,0 +1,135 @@
+\chapter{Further Analyses of the Corrected Design}
+\label{app:corrected_more}
+
+This appendix holds analyses of the corrected design that support, but are not needed for, the main line of Chapter~\ref{ch:corrected_design}, and the list of planned and added analyses.
+
+\section{What the System Calls a Scene}
+\label{sec:scene_definition}
+
+The scene / no-scene target used throughout counts a picture as a scene if any scene type was given, and ``drawing'' is one of the five types. Among the 801 expert-reviewed pictures of the labelled pool, 796 count as a scene by that definition, and 624 of them carry only the type ``drawing''. In that part of the pool, the target therefore separates illustrations from the rest more than it separates scenes; the pool's ``no scene'' pictures come mostly from the reviewed negative controls (text pages, sheet music, ornaments).
+
+Whether the corrected design also finds scenes in the narrower sense was tested on these 801 pictures (322 books): a picture counts as a scene only if teaching, family, playing or landscape was given, which holds for $21.5\%$ of them. With the mappings refitted for this definition and everything else unchanged, over 200 book-disjoint redraws, the corrected design ranks real scenes at an AUROC of $0.851$ ($[0.767, 0.914]$) and approves $64.8\%$ of pictures automatically at $\alpha = 0.05$ with a realised risk of $0.047$ ($79.5\%$ at $\alpha=0.10$). Almost all of these approvals are confident calls that a picture shows \emph{no} real scene, the majority class here; pictures with a real scene go to a person. With a decision line fitted on the training books, which makes real-scene calls, the design approves only $12.8\%$ at $\alpha=0.05$ (Section~\ref{sec:decision_line}). The deployed design, scored on the same test books, ranks real scenes at $0.792$ and cannot keep the promise at $\alpha = 0.05$ at all: no cut-off is feasible, so it approves nothing. The corrected design therefore ranks real scenes well, but under a strict promise it confirms mainly their absence; these figures rest on one expert's scene types.
+
+\section{Does Agreement Clean Training Labels?}
+\label{sec:label_filter}
+
+The rebuilt object finder was trained on boxes from a new teacher (Grounding DINO), kept only where LLaVA confirmed the box's class in the picture. That run changed the teacher and added the agreement filter at once, so it cannot say which of the two produced the gain from a mean AP50 of $0.123$ to $0.210$. The filter was therefore tested on its own. The teacher, the 11,028 pictures and the book-level split were held fixed, and three students were trained that differ only in which boxes they see: all teacher boxes at the teacher's default threshold (37,125), only the boxes LLaVA confirms (33,657), and a random subset with the same number of boxes per class as the confirmed set (33,657), the control that separates \emph{better} labels from \emph{fewer} labels. Each was trained twice with different seeds and scored on the 300 hand-annotated pictures (Table~\ref{tab:label_filter}).
+
+\begin{table}[!htbp]
+\centering
+\caption[Students trained on three label sets]{Mean AP50 over the eight classes for students trained on three label sets from the same teacher, two runs each, on all 300 hand-annotated pictures and on the 164 never used in any training set.}
+\label{tab:label_filter}
+\begin{tabular}{lcccc}
+\toprule
+Training labels & Run 1 & Run 2 & Mean & Mean, unseen 164 \\
+\midrule
+All teacher boxes & 0.230 & 0.199 & 0.214 & 0.190 \\
+LLaVA-confirmed boxes & 0.210 & 0.253 & 0.232 & 0.200 \\
+Random subset, same size & 0.205 & 0.198 & 0.201 & 0.182 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The filter has no effect that this experiment can establish. The confirmed labels score $0.017$ above all labels on average, lower in one run and higher in the other, and $0.030$ above the random subset, higher in both runs ($+0.006$ and $+0.055$); two runs of one setup differ by up to $0.04$, as much as the setups differ from each other. An earlier run of the same experiment, with the same seeds, ordered the three the other way ($0.213$, $0.210$ and $0.223$ for all, confirmed and random labels), so the order is within the noise of training itself. The gain over the old student therefore comes from the better teacher, which labels the classes the old teacher never did, and not from agreement between models. With two runs per setup the experiment cannot detect a small effect in either direction; what it rules out is that the filter explains the improvement. Together with the pre-registered test of Section~\ref{sec:c4_preregistered}, this closes the question for this archive: agreement between the models neither identifies the answers to trust nor the training labels to keep.
+
+\section{Agreement on Calibrated Scores}
+\label{sec:calibrated_agreement}
+
+The first agreement figures were computed on within-archive ranks, because the systems' raw scores lie on different scales. Agreement is defined more naturally on probabilities. Each system's score was therefore calibrated to a probability that the class is present, by Platt scaling on the logit of the raw score, per system and class, fitted on the 300 hand-labelled pictures (cross-fitted over five folds for every figure reported on those pictures). Agreement between two systems $m_1, m_2$ on class $c$ and picture $i$ is then $1 - |p_{m_1}(i,c) - p_{m_2}(i,c)|$, over all 12,110 pictures.
+
+A high value of this quantity is not by itself evidence that two systems see the same thing. For a rare class both calibrated probabilities are low on almost every picture, and their difference is small whatever the systems detect. Each agreement is therefore reported beside the value two systems with the same calibrated scores would reach if they were unrelated, obtained by shuffling one system's column across pictures; the excess over that value is the agreement that is not shared base rate (Table~\ref{tab:calibrated_agreement}).
+
+\begin{table}[!htbp]
+\centering
+\caption[Agreement on calibrated probabilities]{Agreement on calibrated probabilities over 12,110 pictures: mean over classes, the value for unrelated systems with the same scores, and the excess. Objects: eight classes; scenes: five scene types.}
+\label{tab:calibrated_agreement}
+\begin{tabular}{lccc}
+\toprule
+Pair & Agreement & If unrelated & Excess \\
+\midrule
+Object finder -- SigLIP (objects) & 0.883 & 0.849 & 0.033 \\
+Object finder -- LLaVA (objects) & 0.865 & 0.818 & 0.047 \\
+SigLIP -- LLaVA (objects) & 0.898 & 0.803 & 0.094 \\
+SigLIP -- LLaVA (scenes) & 0.920 & 0.865 & 0.055 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+On calibrated scores the systems agree at $0.88$ on objects and $0.92$ on scenes, but unrelated systems would reach $0.82$ and $0.87$: most of the agreement is shared base rate. The excess is largest between SigLIP and LLaVA ($0.094$), and for the common classes: for person the SigLIP--LLaVA agreement is $0.83$ against $0.57$ for unrelated systems, while for vehicle it is $0.97$ against $0.95$. The deployed object finder's calibrated probability never reaches $0.5$ for weapon, vehicle or text, so its yes/no decisions for those classes carry no agreement at all ($\kappa = 0$), and its Brier score there is no better than the base rate's. This is the quantitative reason to report chance-corrected agreement (Cohen's $\kappa$) beside the raw value, as Table~\ref{tab:scene_agreement} does.
+
+\section{Picture Properties and Confident Errors}
+\label{sec:blind_spot_features}
+
+Most of the corrected pipeline's errors are pictures on which all three agents are wrong together: on $149$ of its $199$ errors each agent's own call is wrong as well, so disagreement cannot mark them. The errors are concentrated on sparse pictures: by quartile of ink share (the fraction of pixels darker than the middle of the page's grey range), from sparsest to densest, the error rate is 30.0\%, 17.6\%, 10.9\% and 5.1\%. Whether properties measured from the pixels alone---by none of the agents---can find the errors that remain was tested on the 1,250 labelled pictures (550 books, 199 errors), with the pipeline and the error detectors both scored out of fold over five book-disjoint folds.
+
+Six properties were added to confidence: ink share, contrast (grey-level standard deviation), edge density, colour saturation, picture area and aspect ratio. Error ranking moved from an AUROC of $0.873$ with confidence alone to $0.8788$, a paired gain of $+0.006$ $[-0.006, 0.018]$ under a bootstrap over books. Among the 962 pictures the pipeline would auto-approve at $\alpha = 0.05$, which hold 61 errors, the gain is $+0.006$ $[-0.024, 0.037]$. The blind spot is real and measurable, but confidence already accounts for picture sparseness, and the confident errors that remain are not visible to simple pixel statistics. Catching them would need evidence of a different kind, for example a model trained on archival drawings.
+
+\section{What the Class ``Drawing'' Contains}
+\label{sec:drawing_clusters}
+``Drawing'' is defined only as a scene that fits none of the four specific classes (Table~\ref{tab:scene_codebook}). It holds $341$ of the $506$ scene pictures of the class-labelled pool, and the system gives it to $5{,}685$ of the $10{,}860$ archive pictures outside the pool ($52.3\%$). To see what it hides, those $5{,}685$ pictures were grouped by their SigLIP image embeddings (k-means, $k = 12$, fixed before the run), and each group was described by its most distinctive words in the describer's free-text answers and by the pictures nearest its centre (Table~\ref{tab:drawing_clusters}, Figure~\ref{fig:drawing_clusters}). This is an exploratory analysis added after the results were fixed: no accuracy is claimed, and the group names are the author's reading of the words and pictures, not labels.
+
+\begin{table}[!htbp]
+\centering
+\caption[What the class ``drawing'' contains]{The archive pictures the system calls ``drawing'', in twelve groups of similar pictures. Words: the five most distinctive words in the describer's answers for the group. Names: the author's reading of the words and of the pictures nearest the group's centre (Figure~\ref{fig:drawing_clusters}).}
+\label{tab:drawing_clusters}
+\small
+\begin{tabular}{rlrr>{\raggedright\arraybackslash}p{5.6cm}}
+\toprule
+ & Group & Pictures & Share & Distinctive words \\
+\midrule
+1 & Story pictures in text pages & 715 & 12.6\% & text, book, german, contains, written \\
+2 & Indoor and courtly scenes & 672 & 11.8\% & woman, table, man, chair, lady \\
+3 & Single figures and characters & 574 & 10.1\% & child, boy, person, wearing, hat \\
+4 & Adventure and conflict & 574 & 10.1\% & man, boat, weapon, men, ship \\
+5 & Coloured costume figures & 566 & 10.0\% & woman, man, wearing, coat, blue \\
+6 & Figures in forests and rocks & 495 & 8.7\% & tree, man, woman, rock, trees \\
+7 & Religious scenes & 485 & 8.5\% & jesus, angel, statue, kneeling, christ \\
+8 & Animal stories and fables & 454 & 8.0\% & dog, cat, animal, bear, rabbit \\
+9 & Natural history: wild animals & 450 & 7.9\% & animal, bird, deer, rock, habitat \\
+10 & Single birds and small animals & 358 & 6.3\% & bird, animal, branch, stamp, wings \\
+11 & Riders, soldiers and battles & 301 & 5.3\% & horse, soldier, riding, weapon, sword \\
+12 & A coat of arms with an animal & 41 & 0.7\% & bird, shield, color, animal, eagle \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[!htbp]
+\centering
+\safeincludegraphics[width=\textwidth]{drawing_clusters.jpg}
+\caption[Example pictures of the twelve ``drawing'' groups]{The four pictures nearest the centre of each group of Table~\ref{tab:drawing_clusters}, numbered as there. Repeated pictures are reprints of the same illustration in different books.}
+\label{fig:drawing_clusters}
+\end{figure}
+
+Three things follow. First, ``drawing'' is not one kind of picture but at least four recurring subjects that a cataloguer would want to find on their own: religious scenes (group 7, $8.5\%$), animals ($22.2\%$ across groups 8 to 10, from fables to natural-history plates), riders, soldiers and battles (group 11, $5.3\%$), and indoor and courtly life (group 2, $11.8\%$). Second, some of what the class holds is not a scene under the thesis's own rule: group 12 is $41$ copies of one coat of arms, which the rule calls ``no scene'', and group 1 mixes story illustrations with the text pages around them. Third, the groups cut across the existing classes rather than splitting one of them, so a better list of classes would be organised by subject first and activity second, not by adding classes beside ``drawing'' (Section~\ref{sec:limitations}). The sizes depend on the number of groups chosen; those for $8$ and $16$ groups are kept with the result.
+
+\section{Planned and Added Analyses}
+\label{sec:planned_analyses}
+
+\begin{table}[!htbp]
+\centering
+\caption[Planned and added analyses]{Which analyses were fixed in a written plan before they were run (date of the plan) and which were added after a result was known. Plans are files in the project repository; their commit is the time stamp.}
+\label{tab:planned_analyses}
+\scriptsize
+\begin{tabular}{>{\raggedright\arraybackslash}p{5.6cm} >{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{4.8cm}}
+\toprule
+\textbf{Analysis} & \textbf{Status} & \textbf{Where} \\
+\midrule
+Class-level disagreement against confidence (registered test) & planned, 19 Sep & Section~\ref{sec:c4_preregistered} \\
+First archive test, $400$ random pictures & planned, 4 Nov & Section~\ref{sec:archive_check} \\
+Confirmation on $294$ new pictures & planned, 5 Nov & Section~\ref{sec:archive_check} \\
+Five scene classes and eight object classes as tasks; fixed or learned combination & planned, 8 Nov & Sections~\ref{sec:scene_classes} and~\ref{sec:objects_llava_vs_fusion} \\
+Scene classes on random archive pictures & planned, 8 Nov & Section~\ref{sec:archive_check} \\
+Weighted calibration, Learn then Test, per-class prediction sets, one model as the system, restoration & planned, 9 Nov & Chapter~\ref{ch:corrected_design}, Section~\ref{sec:archive_check} \\
+Baselines, selection of the combination, joint mapping for presence, the old design learned, the triage weight, Agent~2 on the $300$, answers across the archive & planned, 9 Nov & Chapters~\ref{ch:corrected_design} to~\ref{ch:downstream_utility} \\
+Retrieval relevance judged by a person; $50$ random archive-wide links & planned, 20 Nov & Sections~\ref{sec:agent4_linking} and~\ref{sec:retrieval_benchmark} \\
+\midrule
+Learning under one definition of a scene, as a remedy for the archive & added after the first archive test & Section~\ref{sec:archive_check}, then tested as planned \\
+What the class ``drawing'' contains & added, exploratory & Section~\ref{sec:drawing_clusters} \\
+Links below and above a similarity of $0.94$ & added after the planned test & Section~\ref{sec:agent4_linking} \\
+Disagreement against confidence within each task & added after the registered test & Section~\ref{sec:c4_preregistered} \\
+LLaVA's object prompt, chosen in a pilot on $100$ of the $300$ annotated pictures & pilot on test pictures; checked on the other $200$ & Section~\ref{sec:objects_llava_vs_fusion} \\
+Analyses of the deployed design (Chapters~\ref{ch:spatial_collapse}--\ref{ch:triage_risk_control}) & not planned in writing & Appendices~\ref{app:deployed_details} and~\ref{app:audit_sequence} \\
+\bottomrule
+\end{tabular}
+\end{table}
+

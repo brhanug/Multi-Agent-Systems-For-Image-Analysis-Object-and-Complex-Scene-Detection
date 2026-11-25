@@ -1,0 +1,19 @@
+<section id="steps-map" style="background:#ECE7DC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:104px 128px 150px;display:flex;flex-direction:column;gap:24px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Map of the six steps</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:60px;font-weight:600;line-height:1.1;color:#1E2733">What goes in and what comes out of each step</h2>
+<table style="font-size:25px;color:#3E4A57;width:1664px">
+<tr><th style="width:16%">Step</th><th style="width:22%">Takes in</th><th style="width:34%">Does</th><th style="width:28%">Gives out</th></tr>
+<tr><td><b>① Restore</b></td><td>the raw scan</td><td>Real-ESRGAN, once</td><td>a cleaner scan</td></tr>
+<tr><td><b>② Agents</b></td><td>the scan</td><td>three models look independently</td><td>8 + 6 + 13 = <b>27 numbers</b></td></tr>
+<tr><td><b>③ Map</b></td><td>one agent’s numbers</td><td>a logistic regression learned on training books</td><td><b>probabilities</b></td></tr>
+<tr><td><b>④ Combine</b></td><td>the agents’ probabilities</td><td>weighted mean · one learned mapping · average</td><td><b>3 answers</b>: scene at all, scene class, objects</td></tr>
+<tr><td><b>⑤ Uncertainty</b></td><td>each answer’s probability</td><td>distance from a coin flip, or 1 − top probability</td><td>one number per answer</td></tr>
+<tr><td><b>⑥ Decide</b></td><td>uncertainty + cut-off</td><td>conformal risk control (cut-off set on calibration books)</td><td><b>approve</b> · <b>short list</b> · <b>a person</b></td></tr>
+</table>
+<div style="display:flex;gap:28px;align-items:center">
+<img src="/_blob/ca8fc64f1a7e5393d42facbb156d9fa3" alt="The running example: an old woman at her spindle talking to a boy, with a small hen under the bench" style="height:150px;width:148px;object-fit:cover;border-radius:10px;border:1px solid #CFC7B8">
+<p style="flex:1;font-size:26px;line-height:1.4;color:#1E2733">The next slides take each step in turn, with one real picture followed all the way through: <b>an old woman at her spindle talking to a boy</b>, with a small hen under the bench (book PPN1756648816, page 272; a test picture).</p>
+</div>
+<p style="position:absolute;left:128px;bottom:56px;width:1664px;font-size:24px;color:#7A8591">Part 3 of 5 · The corrected design</p>
+<aside>Before the details, here is the map. Each row is one step: what goes in, what it does, what comes out. One: the raw scan is restored once. Two: three agents look at it independently and give 27 numbers. Three: each agent’s numbers are mapped to probabilities by a small learned regression. Four: the probabilities are combined into the three answers. Five: each answer gets an uncertainty. Six: conformal risk control compares the uncertainty with a cut-off and decides — approve, give a short list, or send to a person. In the next slides I take each step in turn, following one real picture, an old woman talking to a boy, all the way through.</aside>
+</section>

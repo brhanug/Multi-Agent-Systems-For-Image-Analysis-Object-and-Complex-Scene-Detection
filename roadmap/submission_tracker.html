@@ -1,0 +1,247 @@
+<title>Road to 7 December</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one column of week sections under a sticky summary; each task is a row with status, owner, text and a note. Same visual system as the thesis roadmap. */
+:root{
+  --ground:#F2F4F1; --surface:#FFFFFF; --ink:#17201B; --muted:#5A6861; --line:#C9D2CC; --grid:#E3E8E4;
+  --accent:#1B6A72; --accent-soft:#D9ECEE;
+  --done:#2B7A4B; --done-bg:#E1F0E6; --doing:#A0650F; --doing-bg:#FAEDD5; --skip:#6F7B8E; --skip-bg:#ECEFF2;
+  --you:#B03A2A; --you-bg:#FAE5E0; --me:#1B6A72; --me-bg:#D9ECEE; --both:#5B4A9E; --both-bg:#E8E4F6;
+  --late:#B03A2A;
+  --display:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;
+  --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1311; --surface:#151C19; --ink:#E3EAE6; --muted:#9AA79F; --line:#35413B; --grid:#212A26;
+    --accent:#56B7C0; --accent-soft:#16313A;
+    --done:#63C189; --done-bg:#16301F; --doing:#E3A84D; --doing-bg:#33270E; --skip:#95A0B2; --skip-bg:#1E2428;
+    --you:#F08270; --you-bg:#3A1C17; --me:#56B7C0; --me-bg:#16313A; --both:#B4A6F0; --both-bg:#26213D;
+    --late:#F08270; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1311; --surface:#151C19; --ink:#E3EAE6; --muted:#9AA79F; --line:#35413B; --grid:#212A26;
+  --accent:#56B7C0; --accent-soft:#16313A;
+  --done:#63C189; --done-bg:#16301F; --doing:#E3A84D; --doing-bg:#33270E; --skip:#95A0B2; --skip-bg:#1E2428;
+  --you:#F08270; --you-bg:#3A1C17; --me:#56B7C0; --me-bg:#16313A; --both:#B4A6F0; --both-bg:#26213D;
+  --late:#F08270; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px;display:grid;gap:28px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(28px,4.5vw,40px);line-height:1.1}
+h2{font-size:20px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{color:var(--muted);max-width:66ch;margin:8px 0 0}
+.mono{font-family:var(--mono)}
+/* summary */
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:2px;min-width:0}
+.tile .k{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.tile .v{font-family:var(--display);font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}
+.tile .s{font-size:13px;color:var(--muted)}
+.bar{height:8px;border-radius:999px;background:var(--grid);overflow:hidden;margin-top:6px}
+.bar span{display:block;height:100%;background:var(--done);width:0;transition:width .3s}
+@media (prefers-reduced-motion:reduce){.bar span{transition:none}}
+.update{background:var(--accent-soft);border:1px solid var(--accent);border-radius:10px;padding:10px 14px;font-size:14px}
+.update b{color:var(--accent)}
+/* controls */
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-size:13px;border:0;background:transparent;color:var(--ink);padding:6px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.seg button:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{font-size:13px;color:var(--muted)}
+/* weeks */
+.week{display:grid;gap:10px}
+.week-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;border-bottom:2px solid var(--ink);padding-bottom:6px}
+.week-h .dates{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.week-h .now{font-size:12px;font-weight:600;color:var(--surface);background:var(--accent);border-radius:999px;padding:1px 9px}
+.week-h .count{margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.week-goal{margin:0;color:var(--muted);font-size:14px}
+.task{display:grid;grid-template-columns:auto 1fr;gap:10px 12px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:8px;padding:12px 14px}
+.task[data-status="done"]{border-left-color:var(--done)}
+.task[data-status="doing"]{border-left-color:var(--doing)}
+.task[data-status="skipped"]{border-left-color:var(--skip);opacity:.75}
+.task.late{border-left-color:var(--late)}
+.task input[type=checkbox]{width:20px;height:20px;margin:2px 0 0;accent-color:var(--done);cursor:pointer}
+.task .main{min-width:0;display:grid;gap:6px}
+.task .top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.task .t{font-weight:600}
+.task[data-status="done"] .t{text-decoration:line-through;text-decoration-color:var(--muted)}
+.task .d{margin:0;color:var(--muted);font-size:14px}
+.chip{font-size:12px;padding:1px 8px;border-radius:999px;border:1px solid;white-space:nowrap}
+.chip.you{color:var(--you);background:var(--you-bg);border-color:var(--you)}
+.chip.claude{color:var(--me);background:var(--me-bg);border-color:var(--me)}
+.chip.both{color:var(--both);background:var(--both-bg);border-color:var(--both)}
+.due{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.due.late{color:var(--late);font-weight:600}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+select{font:inherit;font-size:13px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:3px 6px}
+textarea{font:inherit;font-size:14px;color:var(--ink);background:var(--ground);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%;min-height:36px;resize:vertical}
+.saved{font-size:12px;color:var(--done)}
+.clnote{font-size:13px;background:var(--accent-soft);border-radius:6px;padding:6px 8px;margin:0}
+.clnote b{color:var(--accent)}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:18px;color:var(--muted)}
+.notdoing{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.notdoing ul{margin:8px 0 0;padding-left:18px;display:grid;gap:4px;font-size:14px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--muted);align-items:center}
+@media (max-width:560px){.week-h .count{margin-left:0;width:100%}}
+</style>
+
+<main class="wrap">
+  <header>
+    <div class="eyebrow">Master's thesis · Universität Hildesheim · submission plan</div>
+    <h1>Road to 7 December</h1>
+    <p class="lede">Every task left before submission, week by week. Tick a task when it is done, change its status, or leave a note for Claude in the box under it. Claude updates the same list as work gets done, so this page is always the current state.</p>
+  </header>
+
+  <section class="summary" aria-label="Summary">
+    <div class="tile"><span class="k">Submit by</span><span class="v" id="d-submit">Fri 4 Dec</span><span class="s" id="d-submit-s">planned hand-in</span></div>
+    <div class="tile"><span class="k">Deadline</span><span class="v" id="d-dead">Mon 7 Dec</span><span class="s" id="d-dead-s">official</span></div>
+    <div class="tile"><span class="k">Done</span><span class="v" id="n-done">–</span><div class="bar" aria-hidden="true"><span id="bar"></span></div></div>
+    <div class="tile"><span class="k">Open for you</span><span class="v" id="n-you">–</span><span class="s" id="n-you-s">tasks</span></div>
+    <div class="tile"><span class="k">Open for Claude</span><span class="v" id="n-me">–</span><span class="s">tasks</span></div>
+  </section>
+
+  <div id="update" class="update" hidden></div>
+
+  <div class="controls" role="group" aria-label="Filters">
+    <div class="seg" id="f-owner">
+      <button type="button" data-v="all" aria-pressed="true">Everyone</button>
+      <button type="button" data-v="you" aria-pressed="false">You</button>
+      <button type="button" data-v="claude" aria-pressed="false">Claude</button>
+    </div>
+    <div class="seg" id="f-open">
+      <button type="button" data-v="all" aria-pressed="true">All tasks</button>
+      <button type="button" data-v="open" aria-pressed="false">Open only</button>
+    </div>
+    <div class="legend"><span class="chip you">You</span><span class="chip claude">Claude</span><span class="chip both">Both</span></div>
+  </div>
+
+  <div id="weeks"><div class="empty" id="loading">Loading the task list…</div></div>
+
+  <section class="notdoing">
+    <h2>Not doing this month</h2>
+    <ul>
+      <li>New experiments. Results freeze on 15 November.</li>
+      <li>Labelling the "no scene" pictures (project 13). They feed a separate pool and would not change a headline result.</li>
+      <li>Rare-class mining (project 15) and Task E (project 12).</li>
+      <li>Tier 3, the paid frontier-model pair.</li>
+      <li>Shortening Chapters 2–5 further.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+const WEEKS = [
+  {n:1, from:"2026-11-03", to:"2026-11-08", name:"Decisions and reading", goal:"Settle the open questions with Prof. Mandl and the exam office, find the second rater, start reading."},
+  {n:2, from:"2026-11-09", to:"2026-11-15", name:"Title, reading, freeze", goal:"Agree the title, finish reading, and freeze the results on Sunday."},
+  {n:3, from:"2026-11-16", to:"2026-11-22", name:"Draft to Prof. Mandl", goal:"All your marks fixed and the full draft sent on Friday 20 November."},
+  {n:4, from:"2026-11-23", to:"2026-11-29", name:"Feedback and polish", goal:"Apply Prof. Mandl's feedback, language pass, slides to the time limit."},
+  {n:5, from:"2026-11-30", to:"2026-12-07", name:"Submission", goal:"Final PDF on Monday 30 November, submit on Friday 4 December."},
+  {n:6, from:"2026-12-08", to:"2026-12-31", name:"After submission", goal:"Defence preparation."}
+];
+const STATUS = [["todo","To do"],["doing","In progress"],["done","Done"],["skipped","Skipped"]];
+const OWNER = {you:"You", claude:"Claude", both:"Both"};
+let tasks = [], info = null, db = null, canWrite = true;
+let fOwner = "all", fOpen = "all";
+
+function today(){ const d=new Date(); return new Date(d.getFullYear(),d.getMonth(),d.getDate()); }
+function parse(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
+function fmt(s){ return parse(s).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"}); }
+function daysTo(s){ return Math.round((parse(s)-today())/86400000); }
+function el(tag, attrs={}, ...kids){ const e=document.createElement(tag); for(const[k,v] of Object.entries(attrs)){ if(k==="class") e.className=v; else if(k==="text") e.textContent=v; else e.setAttribute(k,v);} for(const k of kids) if(k) e.append(k); return e; }
+
+function countdown(){
+  const a=daysTo("2026-12-04"), b=daysTo("2026-12-07");
+  document.getElementById("d-submit-s").textContent = a>0 ? `${a} days left` : a===0 ? "today" : "passed";
+  document.getElementById("d-dead-s").textContent = b>0 ? `${b} days left` : b===0 ? "today" : "passed";
+}
+
+function render(){
+  const root=document.getElementById("weeks"); root.textContent="";
+  const done=tasks.filter(t=>t.status==="done").length, active=tasks.filter(t=>t.status!=="skipped").length;
+  document.getElementById("n-done").textContent = tasks.length ? `${done} / ${active}` : "–";
+  document.getElementById("bar").style.width = active ? `${Math.round(100*done/active)}%` : "0";
+  const open=t=>t.status==="todo"||t.status==="doing";
+  document.getElementById("n-you").textContent = tasks.filter(t=>open(t)&&(t.owner==="you"||t.owner==="both")).length;
+  document.getElementById("n-me").textContent = tasks.filter(t=>open(t)&&(t.owner==="claude"||t.owner==="both")).length;
+  const up=document.getElementById("update");
+  if(info&&info.message){ up.hidden=false; up.textContent=""; up.append(el("b",{text:`Latest from Claude${info.date?" · "+fmt(info.date):""}: `}), document.createTextNode(info.message)); } else up.hidden=true;
+
+  if(!tasks.length){ root.append(el("div",{class:"empty",text: db ? "No tasks yet. Claude adds them here; once they appear you can tick them off." : "The task list can't be reached in this view. Open the page signed in to claude.ai to see and update it."})); return; }
+  const t0=today();
+  for(const w of WEEKS){
+    let list=tasks.filter(t=>t.week===w.n).sort((a,b)=>(a.order??0)-(b.order??0));
+    const total=list.length, wdone=list.filter(t=>t.status==="done").length;
+    if(fOwner!=="all") list=list.filter(t=>t.owner===fOwner||t.owner==="both");
+    if(fOpen==="open") list=list.filter(open);
+    if(!total) continue;
+    const isNow = t0>=parse(w.from) && t0<=parse(w.to);
+    const sec=el("section",{class:"week","aria-label":`Week ${w.n}`});
+    const h=el("div",{class:"week-h"}, el("h2",{text: w.n<6?`Week ${w.n} · ${w.name}`:w.name}), el("span",{class:"dates",text:`${fmt(w.from)} – ${fmt(w.to)}`}));
+    if(isNow) h.append(el("span",{class:"now",text:"This week"}));
+    h.append(el("span",{class:"count",text:`${wdone} of ${total} done`}));
+    sec.append(h, el("p",{class:"week-goal",text:w.goal}));
+    if(!list.length) sec.append(el("p",{class:"hint",text:"Nothing matches the filter this week."}));
+    for(const t of list) sec.append(row(t));
+    root.append(sec);
+  }
+}
+
+function row(t){
+  const late = (t.status==="todo"||t.status==="doing") && t.due && daysTo(t.due)<0;
+  const r=el("article",{class:"task"+(late?" late":""),"data-status":t.status});
+  const cb=el("input",{type:"checkbox",id:`cb-${t.id}`,"aria-label":`Mark "${t.title}" done`});
+  cb.checked = t.status==="done"; cb.disabled=!canWrite;
+  cb.addEventListener("change",()=>save(t,{status: cb.checked?"done":"todo"}));
+  const top=el("div",{class:"top"}, el("label",{class:"t",for:`cb-${t.id}`,text:t.title}), el("span",{class:`chip ${t.owner}`,text:OWNER[t.owner]||t.owner}));
+  if(t.due) top.append(el("span",{class:"due"+(late?" late":""),text: late?`overdue · ${fmt(t.due)}`:`due ${fmt(t.due)}`}));
+  const main=el("div",{class:"main"}, top);
+  if(t.detail) main.append(el("p",{class:"d",text:t.detail}));
+  if(t.claudeNote){ const p=el("p",{class:"clnote"}); p.append(el("b",{text:"Claude: "}), document.createTextNode(t.claudeNote)); main.append(p); }
+  const sel=el("select",{id:`st-${t.id}`,"aria-label":"Status"}); for(const[v,l] of STATUS){ const o=el("option",{value:v,text:l}); if(v===t.status) o.selected=true; sel.append(o);} sel.disabled=!canWrite;
+  sel.addEventListener("change",()=>save(t,{status:sel.value}));
+  const meta=el("div",{class:"meta-row"}, sel);
+  const ok=el("span",{class:"saved"}); meta.append(ok);
+  const note=el("textarea",{id:`nt-${t.id}`,rows:"1",placeholder:"Note for Claude (saved when you click away)","aria-label":`Note on "${t.title}"`});
+  note.value=t.note||""; note.disabled=!canWrite;
+  note.addEventListener("blur",async()=>{ if((t.note||"")===note.value) return; if(await save(t,{note:note.value},true)){ ok.textContent="Saved"; setTimeout(()=>ok.textContent="",1800);} });
+  main.append(meta, note);
+  r.append(cb, main);
+  return r;
+}
+
+async function save(t, patch, quiet){
+  if(!db||!canWrite) return false;
+  try{ await db.doc(`tasks/${t.id}`).update({...patch, changedAt:new Date().toISOString()}); return true; }
+  catch(e){
+    if(e&&e.code==="invalid_argument"){ canWrite=false; render(); }
+    else if(!quiet){ alertBox("That change was not saved. Try again in a moment."); }
+    return false;
+  }
+}
+function alertBox(msg){ const up=document.getElementById("update"); up.hidden=false; up.textContent=msg; }
+
+for(const [id,set] of [["f-owner",v=>fOwner=v],["f-open",v=>fOpen=v]]){
+  const g=document.getElementById(id);
+  g.addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; for(const x of g.querySelectorAll("button")) x.setAttribute("aria-pressed", x===b?"true":"false"); set(b.dataset.v); render(); });
+}
+
+countdown();
+(async()=>{
+  db = window.claude ? await window.claude.use("db") : null;
+  if(!db){ render(); return; }
+  try{ const user=await window.claude.use("user"); const c=user? await user.can("data.write"):null; if(c===false) canWrite=false; }catch(_){}
+  const timer=setTimeout(()=>{ const l=document.getElementById("loading"); if(l) l.textContent="The task list is taking a while to load. It will appear here as soon as it arrives."; },10000);
+  db.collection("tasks").onSnapshot(s=>{ if(!s.metadata.fromCache) clearTimeout(timer); tasks=s.docs.map(d=>({id:d.id,...d.data()})); render(); },
+    ()=>{ clearTimeout(timer); render(); });
+  db.doc("meta/info").onSnapshot(s=>{ info=s.exists?s.data():null; render(); },()=>{});
+})();
+</script>

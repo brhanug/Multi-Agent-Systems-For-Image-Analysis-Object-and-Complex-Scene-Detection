@@ -1,0 +1,163 @@
+{
+  "version": 3,
+  "k": 200,
+  "seed": 20260916,
+  "excluded_already_labelled": 1600,
+  "excluded_in_other_tasks": 865,
+  "excluded_ornament_or_page": 1554,
+  "near_duplicate_cosine": 0.9,
+  "targets": [
+    "vehicle",
+    "building",
+    "weapon",
+    "teaching",
+    "family",
+    "landscape"
+  ],
+  "sheets": [
+    {
+      "sheet": "prompt_vehicle_1",
+      "source": "prompt",
+      "key": "vehicle",
+      "pictures": 16
+    },
+    {
+      "sheet": "prompt_vehicle_2",
+      "source": "prompt",
+      "key": "vehicle",
+      "pictures": 16
+    },
+    {
+      "sheet": "prompt_vehicle_3",
+      "source": "prompt",
+      "key": "vehicle",
+      "pictures": 8
+    },
+    {
+      "sheet": "prompt_building_1",
+      "source": "prompt",
+      "key": "building",
+      "pictures": 16
+    },
+    {
+      "sheet": "prompt_building_2",
+      "source": "prompt",
+      "key": "building",
+      "pictures": 16
+    },
+    {
+      "sheet": "prompt_building_3",
+      "source": "prompt",
+      "key": "building",
+      "pictures": 8
+    },
+    {
+      "sheet": "prompt_weapon_1",
+      "source": "prompt",
+      "key": "weapon",
+      "pictures": 16
+    },
+    {
+      "sheet": "prompt_weapon_2",
+      "source": "prompt",
+      "key": "weapon",
+      "pictures": 16
+    },
+    {
+      "sheet": "prompt_weapon_3",
+      "source": "prompt",
+      "key": "weapon",
+      "pictures": 8
+    },
+    {
+      "sheet": "prompt_teaching_1",
+      "source": "prompt",
+      "key": "teaching",
+      "pictures": 16
+    },
+    {
+      "sheet": "prompt_teaching_2",
+      "source": "prompt",
+      "key": "teaching",
+      "pictures": 16
+    },
+    {
+      "sheet": "prompt_teaching_3",
+      "source": "prompt",
+      "key": "teaching",
+      "pictures": 8
+    },
+    {
+      "sheet": "prompt_family_1",
+      "source": "prompt",
+      "key": "family",
+      "pictures": 16
+    },
+    {
+      "sheet": "prompt_family_2",
+      "source": "prompt",
+      "key": "family",
+      "pictures": 16
+    },
+    {
+      "sheet": "prompt_family_3",
+      "source": "prompt",
+      "key": "family",
+      "pictures": 8
+    },
+    {
+      "sheet": "prompt_landscape_1",
+      "source": "prompt",
+      "key": "landscape",
+      "pictures": 16
+    },
+    {
+      "sheet": "prompt_landscape_2",
+      "source": "prompt",
+      "key": "landscape",
+      "pictures": 16
+    },
+    {
+      "sheet": "prompt_landscape_3",
+      "source": "prompt",
+      "key": "landscape",
+      "pictures": 8
+    },
+    {
+      "sheet": "cluster_smallest_1",
+      "source": "cluster",
+      "key": "smallest",
+      "pictures": 16
+    },
+    {
+      "sheet": "cluster_smallest_2",
+      "source": "cluster",
+      "key": "smallest",
+      "pictures": 8
+    },
+    {
+      "sheet": "book_single_content_1",
+      "source": "book",
+      "key": "single_content",
+      "pictures": 16
+    },
+    {
+      "sheet": "book_single_content_2",
+      "source": "book",
+      "key": "single_content",
+      "pictures": 2
+    },
+    {
+      "sheet": "random_baseline_1",
+      "source": "random",
+      "key": "baseline",
+      "pictures": 16
+    },
+    {
+      "sheet": "random_baseline_2",
+      "source": "random",
+      "key": "baseline",
+      "pictures": 8
+    }
+  ]
+}

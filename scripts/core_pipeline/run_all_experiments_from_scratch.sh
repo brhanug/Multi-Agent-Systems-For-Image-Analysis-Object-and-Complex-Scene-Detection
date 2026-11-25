@@ -25,8 +25,8 @@ python3 scripts/core_pipeline/run_ppn_temporal_analysis.py
 echo "🔍 Running Agent 2 (Retrieval Agent)..."
 python3 scripts/core_pipeline/run_semantic_retrieval_eval.py
 
-# --- AGENT 3: Hallucination Critic (Agreement) ---
-echo "⚖️ Running Agent 3 (Hallucination Critic)..."
+# --- AGENT 3: Bayesian Pre-screening Ranker ---
+echo "⚖️ Running Agent 3 (Bayesian Pre-screening Ranker)..."
 python3 scripts/core_pipeline/run_rq2_disagreement_analysis.py
 
 # --- AGENT 4: Demographic Profiler ---
@@ -53,6 +53,7 @@ python3 scripts/core_pipeline/run_domain_adaptation_analysis.py
 
 # --- HUMAN BASELINE & AWLF REFINEMENT ---
 echo "👤 Running Synthetic Human Baseline & Gold Worksheet Fill..."
+python3 scripts/core_pipeline/prepare_annotator_worksheets.py
 python3 scripts/core_pipeline/run_synthetic_human_baseline.py
 python3 scripts/core_pipeline/run_synthetic_worksheet_fill.py
 python3 scripts/core_pipeline/run_gold_evaluation.py

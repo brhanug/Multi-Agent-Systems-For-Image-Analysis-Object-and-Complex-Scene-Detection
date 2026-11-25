@@ -1,0 +1,4 @@
+image_id,source,key,classes,nothing,seconds,answered_at,project
+PPN1757041184/00000097_0,cluster,028,person;animal,,45.029,2026-10-01 12:59:37,Label Studio project 10 (Task G v2)
+PPN1759171956/00000055_1,cluster,028,animal;text,no scene,12.299,2026-10-01 12:59:51,Label Studio project 10 (Task G v2)
+PPN1760376493/00000008_3,cluster,028,animal,no scene,8.22,2026-10-01 13:00:01,Label Studio project 10 (Task G v2)

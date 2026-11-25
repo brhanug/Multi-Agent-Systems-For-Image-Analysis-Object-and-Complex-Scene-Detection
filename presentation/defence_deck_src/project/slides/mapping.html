@@ -1,0 +1,22 @@
+<section id="mapping" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:112px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Step ③ · from a report to a probability</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:64px;font-weight:600;line-height:1.1;color:#1E2733">A small learned mapping per agent</h2>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<div style="background:#1E2733;border-radius:16px;padding:32px">
+<p style="font-family:'Source Serif 4', Georgia, serif;font-size:44px;color:#F3EEE4;text-align:center">p = 1 ÷ (1 + e<span style="color:#E8B07A">−(bias + Σ weight × score)</span>)</p>
+</div>
+<p style="font-size:28px;line-height:1.45">A logistic regression, fitted on the <b>training books only</b>.</p>
+<p style="font-size:28px;line-height:1.45"><b>Weights</b> say how much each score counts as evidence — learned, never set by hand.</p>
+<p style="font-size:28px;line-height:1.45"><b>Bias</b> is the answer when the agent sees nothing: 84.5% of training pictures are scenes, so “nothing seen” still leans to “scene”.</p>
+</div>
+<div style="width:620px;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:16px;align-items:center"><img src="/_blob/ca8fc64f1a7e5393d42facbb156d9fa3" alt="The example: an old woman talking to a boy" style="width:110px;height:112px;object-fit:cover;border-radius:8px"><p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Example: grandmother and boy</p></div>
+<p style="font-size:27px;line-height:1.45"><b>Object finder</b> sees person 0.972, animal 0.013:<br>sum 3.86 → <b>p = 0.98</b></p>
+<p style="font-size:27px;line-height:1.45"><b>Scene matcher</b>: its bias 2.01 plus family 0.327 and drawing 0.157 (sum 2.72) → <b>p = 0.94</b></p>
+<p style="font-size:27px;line-height:1.45"><b>Describer</b>: person 0.989, child 0.995, animal 0.311; sum 4.55 → <b>p = 0.99</b></p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7A8591">Part 3 of 5 · The corrected design</p>
+<aside>Step three. The three reports are on different scales and mean different things, so each is mapped to the same quantity: a probability. The mapping is a logistic regression, learned on the training books only. Multiply each score by a learned weight, add a bias, and squash with the logistic function into a number between 0 and 1. The weights say how much each class counts as evidence — for example a person counts strongly towards “scene”. The bias is what the agent says when it sees nothing; since 84.5 percent of the training pictures are scenes, even “nothing seen” leans towards scene. On the right is a real picture, an old woman talking to a boy: the object finder gives 0.98, the scene matcher, whose family and drawing sentences fit, gives 0.94, and the describer gives 0.99. For the scene classes the same mapping has six outputs instead of one.</aside>
+</section>

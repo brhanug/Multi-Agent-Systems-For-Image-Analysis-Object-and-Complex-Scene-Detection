@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thesis Progress – Brhanu Atsbaha</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0a0e1a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+
+  /* ── Slide container ── */
+  .slide {
+    width: 100%;
+    max-width: 1100px;
+    background: linear-gradient(145deg, #0f1629 0%, #141c35 100%);
+    border: 1px solid rgba(99,130,255,0.2);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+    margin-bottom: 30px;
+    position: relative;
+  }
+
+  /* ── Accent bar top ── */
+  .slide::before {
+    content: '';
+    display: block;
+    height: 4px;
+    background: linear-gradient(90deg, #6382ff, #a78bfa, #38bdf8, #34d399);
+  }
+
+  /* ── Header band ── */
+  .slide-header {
+    padding: 36px 48px 28px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .slide-header h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #f1f5f9;
+  }
+  .slide-header h1 span { color: #6382ff; }
+  .slide-header .meta {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 6px;
+  }
+  .badge {
+    background: linear-gradient(135deg,#6382ff22,#38bdf822);
+    border: 1px solid rgba(99,130,255,0.4);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #93c5fd;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+
+  /* ── Body ── */
+  .slide-body { padding: 28px 48px 40px; }
+
+  /* ── Stat row ── */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 20px 16px;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: rgba(99,130,255,0.4); }
+  .stat-card .value {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-card .label {
+    font-size: 0.7rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .blue   { color: #6382ff; }
+  .green  { color: #34d399; }
+  .purple { color: #a78bfa; }
+  .sky    { color: #38bdf8; }
+
+  /* ── Two-col contributions ── */
+  .contributions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .contrib-card {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .contrib-card .tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: 12px;
+  }
+  .tag-theory  { background: rgba(99,130,255,0.15); color: #818cf8; }
+  .tag-algo    { background: rgba(167,139,250,0.15); color: #c4b5fd; }
+  .tag-data    { background: rgba(56,189,248,0.15);  color: #7dd3fc; }
+  .tag-deploy  { background: rgba(52,211,153,0.15);  color: #6ee7b7; }
+
+  .contrib-card h3 {
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #e2e8f0;
+  }
+  .contrib-card p {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    line-height: 1.6;
+  }
+  .contrib-card .result {
+    margin-top: 10px;
+    display: inline-block;
+    background: rgba(52,211,153,0.1);
+    border: 1px solid rgba(52,211,153,0.25);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #34d399;
+  }
+
+  /* ── Pipeline flow ── */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 18px 24px;
+    margin-bottom: 28px;
+    overflow-x: auto;
+  }
+  .pipe-step {
+    flex: 1;
+    min-width: 110px;
+    text-align: center;
+    position: relative;
+  }
+  .pipe-step::after {
+    content: '→';
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #334155;
+    font-size: 1.2rem;
+  }
+  .pipe-step:last-child::after { display: none; }
+  .pipe-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    margin: 0 auto 8px;
+  }
+  .pipe-step h4 { font-size: 0.68rem; font-weight: 600; color: #cbd5e1; }
+  .pipe-step p  { font-size: 0.6rem;  color: #475569; margin-top: 2px; }
+
+  /* ── Status timeline ── */
+  .status-row {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .status-card {
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .status-done   { background: rgba(52,211,153,0.08);  border: 1px solid rgba(52,211,153,0.25); }
+  .status-active { background: rgba(99,130,255,0.08);  border: 1px solid rgba(99,130,255,0.3); }
+  .status-next   { background: rgba(100,116,139,0.08); border: 1px solid rgba(100,116,139,0.2); }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .dot-done   { background: #34d399; }
+  .dot-active { background: #6382ff; box-shadow: 0 0 8px #6382ff; }
+  .dot-next   { background: #475569; }
+  .status-card h4 { font-size: 0.78rem; font-weight: 700; margin-bottom: 4px; }
+  .status-card p  { font-size: 0.7rem; color: #64748b; line-height: 1.5; }
+
+  /* ── Footer ── */
+  .slide-footer {
+    padding: 18px 48px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: #475569;
+  }
+  .slide-footer strong { color: #6382ff; }
+</style>
+</head>
+<body>
+
+<div class="slide">
+
+  <!-- ─── Header ─── -->
+  <div class="slide-header">
+    <div>
+      <h1>Multi-Agent Systems for<br><span>Historical Archive Analysis</span></h1>
+      <p class="meta">Thesis Progress Report &nbsp;·&nbsp; May 2026 &nbsp;·&nbsp; Brhanu Atsbaha &nbsp;·&nbsp; Supervisor: Prof. Dr. Thomas Mandl</p>
+    </div>
+    <div class="badge">UACL Framework · Final Validation Phase</div>
+  </div>
+
+  <!-- ─── Body ─── -->
+  <div class="slide-body">
+
+    <!-- Stat row -->
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="value blue">0.989</div>
+        <div class="label">mAP50 · YOLOv11 Student</div>
+      </div>
+      <div class="stat-card">
+        <div class="value green">3.1×</div>
+        <div class="label">HITL Efficiency Gain</div>
+      </div>
+      <div class="stat-card">
+        <div class="value purple">0.975</div>
+        <div class="label">AWLF ROC-AUC</div>
+      </div>
+      <div class="stat-card">
+        <div class="value sky">1.000</div>
+        <div class="label">Semantic P@10 (Retrieval)</div>
+      </div>
+    </div>
+
+    <!-- Pipeline flow -->
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-icon" style="background:rgba(99,130,255,0.15)">🖼️</div>
+        <h4>Restoration</h4>
+        <p>CycleGAN + Real-ESRGAN + Diffusion</p>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-icon" style="background:rgba(167,139,250,0.15)">🔍</div>
+        <h4>Grounding</h4>
+        <p>GroundingDINO + Florence-2</p>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-icon" style="background:rgba(56,189,248,0.15)">🤖</div>
+        <h4>6-Agent MAS</h4>
+        <p>Spatial · Semantic · Temporal · Critic</p>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-icon" style="background:rgba(251,191,36,0.15)">⚖️</div>
+        <h4>SAA / AWLF</h4>
+        <p>Learned label filter (AUC 0.975)</p>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-icon" style="background:rgba(52,211,153,0.15)">🎓</div>
+        <h4>Student Model</h4>
+        <p>YOLOv11 · mAP50 = 0.989</p>
+      </div>
+    </div>
+
+    <!-- Contributions 2x2 -->
+    <div class="contributions">
+
+      <div class="contrib-card">
+        <div class="tag tag-theory">Formal Theory</div>
+        <h3>Theorem 1 – Variance-Entropy Equivalence</h3>
+        <p>Bayesian proof that inter-agent score variance $\sigma^2$ is an unbiased estimator of epistemic uncertainty, converting the SAA metric from heuristic to principled.</p>
+        <span class="result">Pearson r = 0.829 vs human doubt</span>
+      </div>
+
+      <div class="contrib-card">
+        <div class="tag tag-algo">Algorithm</div>
+        <h3>Agreement-Weighted Label Filter (AWLF)</h3>
+        <p>Replaces heuristic IoU thresholding with a trained logistic discriminator that weights Spatial, VLM, and Restoration Quality signals to predict label validity.</p>
+        <span class="result">ROC-AUC = 0.9757 · n = 12,110 images</span>
+      </div>
+
+      <div class="contrib-card">
+        <div class="tag tag-data">External Validation</div>
+        <h3>PeopleArt Cross-Dataset Benchmark</h3>
+        <p>Zero-shot evaluation on the PeopleArt benchmark (43 artistic styles) confirms the pipeline generalises beyond Colibri. SAA correctly detects domain shifts with 2.5× uncertainty increase.</p>
+        <span class="result">Domain-agnostic epistemic signal confirmed</span>
+      </div>
+
+      <div class="contrib-card">
+        <div class="tag tag-deploy">Deployment</div>
+        <h3>Containerised Agentic Orchestration (CAO)</h3>
+        <p>Pipeline refactored into Docker microservices with asynchronous message-bus communication. Three independent "archival sensor" streams (visual, structural, contextual) provide physical-style independence.</p>
+        <span class="result">Production-ready · Mutual Info = 0.334</span>
+      </div>
+
+    </div>
+
+    <!-- Status -->
+    <div class="status-row">
+      <div class="status-card status-done">
+        <div class="status-dot dot-done"></div>
+        <div>
+          <h4 style="color:#34d399">✓ Research Hardening Complete</h4>
+          <p>Bayesian proofs, AWLF training, PeopleArt benchmarking, agent independence analysis, and production infrastructure all finalised and committed to GitHub.</p>
+        </div>
+      </div>
+      <div class="status-card status-active">
+        <div class="status-dot dot-active"></div>
+        <div>
+          <h4 style="color:#6382ff">● Human Baseline Audit (Active)</h4>
+          <p>First 50 of 500 gold-standard images labelled in Label Studio. CORS image server running. Targeting Cohen's κ ≥ 0.70 with 2 co-annotators.</p>
+        </div>
+      </div>
+      <div class="status-card status-next">
+        <div class="status-dot dot-next"></div>
+        <div>
+          <h4 style="color:#94a3b8">○ Final Submission</h4>
+          <p>Replace synthetic proxy metrics with human-measured F1 &amp; Precision. Final LaTeX compilation and thesis submission — target end of May 2026.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─── Footer ─── -->
+  <div class="slide-footer">
+    <span>Multi-Agent Systems for Image Analysis · University of Hildesheim · 2026</span>
+    <span><strong>12,110 images</strong> &nbsp;·&nbsp; <strong>37 archival classes</strong> &nbsp;·&nbsp; <strong>6 specialised agents</strong></span>
+  </div>
+
+</div>
+
+</body>
+</html>

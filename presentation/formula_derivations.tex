@@ -1,0 +1,974 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage{seqsplit}
+
+\definecolor{AccentInk}{RGB}{51,63,156}
+\definecolor{GoodInk}{RGB}{46,125,50}
+\definecolor{WarnInk}{RGB}{179,73,31}
+\definecolor{RuleGray}{RGB}{210,208,198}
+
+\hypersetup{colorlinks=true, linkcolor=AccentInk, citecolor=AccentInk, urlcolor=AccentInk}
+
+\newcommand{\derivedfrom}[1]{\par\noindent{\small\color{WarnInk}\textbf{Derived from:} \color{black}#1}}
+\newcommand{\computedby}[1]{\par\noindent{\small\color{WarnInk}\textbf{Computed by:} \color{black}#1}}
+\newcommand{\methodref}[1]{\par\noindent{\small\color{WarnInk}\textbf{Method reference:} \color{black}#1}}
+\newcommand{\status}[1]{\hfill\textcolor{AccentInk}{\small\textbf{#1}}}
+
+\newenvironment{formulacard}[1]
+  {\medskip\noindent\rule{\linewidth}{0.6pt}\par\vspace{2pt}\textbf{\large #1}\par\vspace{4pt}}
+  {\par\vspace{4pt}}
+
+\newcommand{\notebox}[2]{%
+  \par\medskip\noindent
+  \colorbox{#1!12}{%
+    \begin{minipage}{0.965\linewidth}
+    \vspace{2pt}#2\vspace{4pt}
+    \end{minipage}%
+  }\par\medskip
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{gray}{DCV-MAC Formula Derivations}}
+\fancyhead[R]{\small\textcolor{gray}{Defense Preparation \& Reference}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{RuleGray}\leaders\hrule height \headrulewidth\hfill}}
+
+\setlist[itemize]{leftmargin=1.4em, itemsep=2pt, topsep=3pt}
+
+\title{\textcolor{AccentInk}{\Large DEFENSE PREPARATION --- WORKING REFERENCE}\\[6pt]
+\Huge Every Formula in the Thesis, Derived}
+\author{Every variable, its purpose, where it is computed, and the reference behind it \\
+\small (DCV-MAC: Dual-Core Validation and Multi-Agent Curation)}
+\date{Compiled 25 August 2026 --- verified against the actual source scripts, not just the write-up}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+\noindent\textbf{Scope.} Every mathematical object used anywhere in the thesis document and the defense slides (source files \texttt{\seqsplit{thesis\_v3\_updated.tex}} and \texttt{\seqsplit{defense\_slides.tex}}): what each variable means, which script actually computes it, and the exact citation behind it. Numeric results below were reproduced by re-running their source scripts during this audit, except where noted.
+
+\tableofcontents
+\clearpage
+
+% ======================================================================
+\section{Cohorts and Notation}
+Every formula below draws its inputs from one of these cohorts. Know which cohort a number comes from before quoting it in the room --- mixing them up is the easiest way to get caught out.
+
+\begin{center}
+\begin{tabular}{@{}lrp{9.7cm}@{}}
+\toprule
+\textbf{Symbol} & \textbf{$n$} & \textbf{What it is} \\
+\midrule
+$C_0$ & 12{,}110 & Full deployment corpus (Colibri archive) --- no human labels; used for SCI thresholds and ablation. \\
+$C_1$ & 801 & Expert Reference Cohort --- 796 scene-positive + 5 negative controls, CVAT-reviewed. Primary calibration, AWLF, CRC (in-sample). \\
+$C_2$ & 300 & Spatial Audit Cohort --- bounding-box IoU + scene labels. Source of the Bounding-Box Paradox and Exp 31. \\
+clean holdout & 1{,}200/399/401 & Publication-disjoint (PPN-level) train/cal/test split of the full 2{,}000-image pool. The only leak-free evaluation in the thesis. \\
+$C_5$ & 24 & Europeana pilot --- real, live-downloaded cross-institutional images. \\
+$i$ & --- & Index over a single image in whichever cohort is stated. \\
+$y_{\text{expert},i}$ & --- & Binary human ground-truth label (scene present / not) for image $i$. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ======================================================================
+\section{Tier 1 --- Raw Agent Signals}
+
+\notebox{WarnInk}{\textbf{Provenance correction (September 2026).} $A^{\text{object}}$ is \emph{not} the spatial detector's box count, as earlier versions of this reference and the thesis stated. The distilled student's count is zero on all $12{,}110$ images, so a fallback supplied the \textbf{VQA object count} instead: $\min(\text{VQA count}/3,\,1)$ reproduces the deployed column exactly on every image. $A^{\text{vlm}}$ is the VQA object-presence score, so the two share one source. The deployed Tier 1 vector therefore holds \textbf{three} separately-measured signals, not four. No reported number changes --- all were computed from the table as it stands --- but every ensemble claim should be read with this in mind.}
+
+\begin{formulacard}{1.1 \quad Raw Tier 1 agent scores}
+Not a derived formula --- the four base measurements everything else is built from. Each is a real model's confidence output on the \emph{restored} image $\mathbf{I}_{\text{refined}}$.
+\begin{equation}
+A_i^{\text{object}},\ A_i^{\text{scene}},\ A_i^{\text{vlm}},\ A_i^{\text{ocr}} \ \in\ [0,1]
+\end{equation}
+\begin{center}
+\begin{tabular}{@{}llp{7.3cm}@{}}
+\toprule
+\textbf{Variable} & \textbf{Model} & \textbf{Measures} \\
+\midrule
+$A_i^{\text{object}}$ & YOLOv11-seg + SAM & Spatial object-grounding confidence \\
+$A_i^{\text{scene}}$ & SigLIP & Zero-shot scene confidence --- read from the \emph{wrong channel}, see 2.10 \\
+$A_i^{\text{vlm}}$ & LLaVA-OneVision 7B & VQA description confidence \\
+$A_i^{\text{ocr}}$ & Kosmos-2.5 & Grounded inscription/OCR extraction confidence \\
+\bottomrule
+\end{tabular}
+\end{center}
+\derivedfrom{Thesis \S2.4 ``Canonical Formulation'', Level 1}
+\computedby{\texttt{run\_agent\_comparison.py}}
+\par\noindent{\small\textbf{Stored in} \texttt{agent\_comparison\_scores.csv} as \texttt{existing\_pipeline\_agent, scene\_agent, vlm\_agent, document\_agent}}
+\end{formulacard}
+
+\begin{formulacard}{1.2 \quad The Agreement signal (derived, not a 5th model)}
+\begin{equation}
+A_i^{\text{agree}} = 1 - \left| A_i^{\text{object}} - A_i^{\text{vlm}} \right|
+\end{equation}
+Pairwise concordance between the spatial agent and the VQA agent specifically --- not a fifth independent model. High when Object and VLM confidences are close together (whether both high or both low), low when they diverge sharply. This is the signal that lets $U_{\text{SAA}}$ use a 4-term standard deviation over what is architecturally a 3-model ensemble (Object, Scene, VLM): it substitutes for the model OCR would occupy, without OCR ever entering the uncertainty computation.
+
+\derivedfrom{Thesis \S2.4, Level 1 remark}
+\computedby{\texttt{run\_agent\_comparison.py} $\rightarrow$ \texttt{agreement\_agent} column}
+\par\noindent{\small\textbf{Why it exists:} every empirical script in the project actually uses this 4-signal set, not the architectural 4 (incl. OCR) --- the original write-up missed this and was corrected during this audit.}
+\end{formulacard}
+
+% ======================================================================
+\section{Every Variable: Which Agent, Which File, Which Line of Arithmetic}
+
+This section traces each signal from the model that produced it to the number that enters the
+formulas. The distinction between \emph{measured} and \emph{proxy} below is recorded per row in
+the deployed artifact itself (\texttt{agent\_comparison\_scores.csv}, columns \texttt{*\_source}),
+and is not a reconstruction.
+
+\begin{center}\small
+\begin{tabular}{@{}p{1.9cm} p{3.0cm} p{4.3cm} p{4.6cm}@{}}
+\toprule
+\textbf{Variable} & \textbf{Model / agent} & \textbf{Raw output it produces} & \textbf{Reduction to a scalar} \\
+\midrule
+$A^{\text{object}}$ &
+Intended: YOLOv11-seg $+$ SAM. \textbf{Actually: the VQA pass} &
+Intended: bounding boxes, instance masks, class scores. Actual: an integer object count &
+$\min(k/3,\,1)$ where $k$ is the count. Saturates at $k\ge3$, giving $\{0,\tfrac13,\tfrac23,1\}$ \\
+\addlinespace
+$A^{\text{scene}}$ &
+Zero-shot scene classifier (SigLIP) over taxonomy prompts &
+A confidence for the best-matching scene category &
+Clipped to $[0,1]$. Takes only $\{0.5,1\}$ on this corpus \\
+\addlinespace
+$A^{\text{vlm}}$ &
+LLaVA-OneVision 7B, VQA &
+Free-text answer to \emph{``Identify objects present: person, child, horse, building, weapon, vehicle, tree, clothing, text, animal''} &
+Reduced to a binary object-presence score $\{0,1\}$ \\
+\addlinespace
+$A^{\text{ocr}}$ &
+Kosmos-2.5, grounded OCR &
+Markdown text with each string tied to an image region &
+$\min(\ell/80,\,1)$ where $\ell$ is the character count. Measures \emph{how much} text, not whether it is right \\
+\addlinespace
+$A^{\text{agree}}$ &
+\textbf{No model.} Arithmetic on two of the above &
+--- &
+$1-|A^{\text{object}}-A^{\text{vlm}}|$; see \S2.2a for what this reduces to \\
+\addlinespace
+$\text{SRS}$ &
+Restoration stack (CycleGAN $\to$ Real-ESRGAN $\to$ SD) &
+A sharpness/restoration gain per image &
+Min-max normalised across the corpus. Feeds no headline result \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{The four VQA questions.} Every image was put to LLaVA-OneVision with the same four
+prompts, and different downstream signals are derived from different answers:
+\begin{enumerate}\itemsep2pt
+  \item \emph{``Identify objects present: person, child, horse, building, weapon, vehicle, tree, clothing, text, animal.''} $\rightarrow$ the object count behind $A^{\text{object}}$, and the presence flag behind $A^{\text{vlm}}$.
+  \item \emph{``Which scene fits best: teaching, family, playing, landscape, drawing?''} $\rightarrow$ the scene category and its confidence.
+  \item \emph{``Describe any archival handwriting or text visible.''} $\rightarrow$ used by the Tier 2 OCR agent, not by Tier 1.
+  \item \emph{``List relational triplets in (Subject, Predicate, Object) format.''} $\rightarrow$ downstream enrichment only.
+\end{enumerate}
+
+\notebox{WarnInk}{\textbf{Why question 1 matters for the whole thesis.} Both $A^{\text{object}}$ and $A^{\text{vlm}}$ are derived from the \emph{same} answer to question~1 --- one as a count, one as a presence flag. That is the mechanical reason $A^{\text{vlm}}=\mathbb{I}[A^{\text{object}}>0]$ holds on all $12{,}110$ images, and therefore the reason the Agreement term collapses (\S2.2a). It is a property of the data path, not of how the models behave.}
+
+\paragraph{Where each number is read from.} The deployed table records, per row, whether a signal
+came from its own model output file or from a manifest fallback:
+\begin{center}\small
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Signal} & \textbf{Recorded source} & \textbf{File the value came from} \\
+\midrule
+$A^{\text{object}}$ & \texttt{proxy} & manifest column \texttt{vqa\_total\_objects} \\
+$A^{\text{scene}}$  & \texttt{proxy} & manifest column \texttt{vqa\_scene\_confidence} \\
+$A^{\text{agree}}$  & \texttt{proxy} & computed from the two above \\
+$A^{\text{vlm}}$    & \texttt{measured} & \texttt{vqa\_binary\_classification.json} \\
+$A^{\text{ocr}}$    & \texttt{measured} & \texttt{kosmos\_grounding.jsonl} \\
+$\text{SRS}$        & \texttt{measured} & \texttt{srs\_scores.json} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\texttt{proxy} here means the value was read from the manifest rather than from a separate
+per-model output file; it does not mean the value was invented. The intended object path
+(\texttt{student\_v3\_count}, the distilled detector's box count) is zero on every image, so the
+fallback fired for all $12{,}110$.
+
+\notebox{GoodInk}{\textbf{What survived a rebuild.} The raw model outputs were retained, so all four signals were later re-derived from them directly --- Grounding DINO detection confidences ($12{,}100$ distinct values against the deployed four), SigLIP re-run corpus-wide ($1{,}520$ against two), a semantic overlap between the VLM's object list and the detector's labels, and OCR substance discounted for repetition. Retested without the circularity, disagreement still did not beat a plain confidence baseline. The finding is a property of the problem, not of the plumbing.}
+
+\section{Fusion and Uncertainty}
+
+\begin{formulacard}{2.1 \quad Scene-Aware Agreement --- the classification score \status{Deployed everywhere}}
+SAA$_i$ (a.k.a.\ $S_{\text{fusion}}$) answers ``is a scene present?'' It is a weighted vote, not an uncertainty measure --- that is $U_{\text{SAA}}$, next.
+\begin{equation}
+SAA_i = w_o \cdot A_i^{\text{object}} + w_s \cdot A_i^{\text{scene}} + w_v \cdot A_i^{\text{vlm}}
+\end{equation}
+\begin{center}
+\begin{tabular}{@{}llp{8.6cm}@{}}
+\toprule
+\textbf{Variable} & \textbf{Value} & \textbf{Meaning} \\
+\midrule
+$w_o$ & 0.6 & Object weight --- dominant by construction. No tuning or selection produced this value \\
+$w_s$ & 0.2 & Scene weight \\
+$w_v$ & 0.2 & VLM weight \\
+\bottomrule
+\end{tabular}
+\end{center}
+Fixed heuristic weights --- not learned, not Shapley-derived. Confirmed byte-identical across the in-sample and clean-holdout scripts, so every reported number in the thesis uses this exact vector. Thresholded at 0.5 to produce a binary scene-present prediction; that binary prediction, compared against $y_{\text{expert}}$, is what defines ``error'' everywhere in the thesis (AWLF's target, CRC's \texttt{error\_flag}).
+
+\derivedfrom{Thesis \S2.4, Level 2}
+\computedby{\texttt{run\_agent\_comparison.py} $\rightarrow$ \texttt{comparison\_fusion\_score}}
+\par\noindent{\small\textbf{Weights fixed in} \texttt{config.yaml}}
+\end{formulacard}
+
+\begin{formulacard}{2.2 \quad $U_{\text{SAA}}$ --- the disagreement / uncertainty proxy \status{Deployed everywhere}}
+This is the number behind every headline error-detection figure in the thesis (ROC-AUC 0.9724 in-sample; the corrected group-level holdout split of $0.9687$ on scene-positive images against $0.1259$ on confirmed true negatives; CRC). It is \emph{not} a function of $SAA_i$. The $0.980/0.020$ pair reported in an earlier draft is superseded --- that negative-control pool was $66.7\%$ mislabelled (card 3.4).
+\begin{equation}
+U_{\text{SAA},i} = \operatorname{std}\!\left( A_i^{\text{object}},\ A_i^{\text{agree}},\ A_i^{\text{scene}},\ A_i^{\text{vlm}} \right)
+\end{equation}
+Cross-agent standard deviation over four raw per-image signals --- Object, Agreement, Scene, VLM. High when the four disagree with each other; low when they concur (whether concurring correctly or, per the negative-control gap in \S4.3, concurring \emph{incorrectly}).
+
+\notebox{WarnInk}{\textbf{Say this cold if asked:} $U_{\text{SAA},i} \neq 1 - SAA_i$. They share three of four inputs but use different operators (weighted mean vs.\ standard deviation) and different signal sets (SAA has no Agreement term; $U_{\text{SAA}}$ has no independent Scene/VLM-only weighting). An earlier thesis draft defined $U_{\text{SAA}}$ as the algebraic complement of SAA --- that was found wrong during the reproducibility audit and corrected throughout the document (\S2.4, \S4.1, \S7.4).}
+
+\derivedfrom{Thesis \S2.4, Level 3 (corrected)}
+\computedby{\texttt{\seqsplit{exp29\_conformal\_risk\_control.py}} as \texttt{sigma\_agents}}
+\par\noindent{\small\textbf{Also reproduced in} \texttt{\seqsplit{dual\_coordinator\_orchestrator.py}}}
+\par\noindent{\small\textbf{Core agent columns:} \texttt{[existing\_pipeline\_agent, agreement\_agent, scene\_agent, vlm\_agent]}}
+\end{formulacard}
+
+\begin{formulacard}{2.2a \quad What $A^{\text{agree}}$ actually reduces to \status{Added Sept 2026}}
+The Agreement term is \emph{derived} from two of the four signals, not measured:
+\begin{equation}
+A_i^{\text{agree}} = 1 - \left|A_i^{\text{object}} - A_i^{\text{vlm}}\right|
+\end{equation}
+Since $A^{\text{vlm}}\in\{0,1\}$ this has two branches, giving the full grid
+\[
+A^{\text{agree}} \;=\;
+\bordermatrix{
+ & A^{\text{vlm}}{=}0 & A^{\text{vlm}}{=}1 \cr
+A^{\text{object}}{=}0        & \mathbf{1}    & 0 \cr
+A^{\text{object}}{=}\tfrac13 & \tfrac23      & \mathbf{\tfrac13} \cr
+A^{\text{object}}{=}\tfrac23 & \tfrac13      & \mathbf{\tfrac23} \cr
+A^{\text{object}}{=}1        & 0             & \mathbf{1} \cr}
+\]
+Because $A^{\text{vlm}}=\mathbb{I}[A^{\text{object}}>0]$ on every image, only the bold cells occur, and the term collapses to
+\begin{equation}
+A^{\text{agree}} =
+\begin{cases}
+1 & \text{if } A^{\text{object}} = 0\\
+A^{\text{object}} & \text{otherwise}
+\end{cases}
+\end{equation}
+\begin{center}\small
+\begin{tabular}{@{}ccc r l@{}}
+\toprule
+$A^{\text{object}}$ & $A^{\text{vlm}}$ & $A^{\text{agree}}$ & images & relation \\
+\midrule
+$0$ & $0$ & $1$ & $1{,}403$ & \textbf{jumps to 1} \\
+$\tfrac13$ & $1$ & $\tfrac13$ & $2{,}439$ & identical to $A^{\text{object}}$ \\
+$\tfrac23$ & $1$ & $\tfrac23$ & $1{,}534$ & identical to $A^{\text{object}}$ \\
+$1$ & $1$ & $1$ & $6{,}734$ & identical to $A^{\text{object}}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\notebox{WarnInk}{\textbf{Say this cold if asked:} $A^{\text{agree}}$ is identical to $A^{\text{object}}$ on $10{,}707$ of $12{,}110$ images ($88.4\%$), so the spread is over the object value \emph{counted twice}. On the other $1{,}403$ it inverts discontinuously to $1$, becoming a maximal outlier exactly where the ensemble unanimously reports nothing present.}
+\derivedfrom{Thesis \S2.4 Level 1; Appendix E.2}
+\computedby{\texttt{run\_uncertainty\_signal\_decomposition.py} (\texttt{--verify} reproduces)}
+\end{formulacard}
+
+\begin{formulacard}{2.2d \quad Ablating $A^{\text{agree}}$ on the same footing as its peers \status{Re-run Sept 2026}}
+Symmetric leave-one-out over all four $U_{\text{SAA}}$ terms, corrected PPN-disjoint test ($n=249$), run under \emph{both} error-label rules so no conclusion rests on the choice between them.
+\begin{center}\scriptsize
+\begin{tabular}{@{}l ccc cc@{}}
+\toprule
+& \multicolumn{3}{c}{\textbf{recomputed rule ($70$ err)}} & \multicolumn{2}{c}{\textbf{stored rule ($56$)}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-6}
+\textbf{removed} & spread & learned & rank & spread & learned \\
+\midrule
+--- (full) & $0.8600$ & $0.8664$ & --- & $0.8623$ & $0.8582$ \\
+Object & $0.8600$ & $0.8664$ & same & $0.8623$ & $0.8597$ \\
+\textbf{Agreement} & $\mathbf{0.8340}$ & $\mathbf{0.8664}$ & same & $\mathbf{0.7855}$ & $\mathbf{0.8597}$ \\
+Scene & $0.8722$ & $0.8387$ & \emph{changed} & $0.8700$ & $0.8700$ \\
+VLM & $0.7179$ & $0.8664$ & same & $0.7720$ & $0.8597$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\notebox{GoodInk}{\textbf{The answer splits by what you ask the term to do.} Out of the \emph{unweighted spread} it costs discrimination under both rules ($-0.026$, $-0.077$) --- it is a maximal outlier exactly where $A^{\text{object}}=0$, so it does contribute variance. Out of a \emph{fitted} model it changes nothing ($0.000$, $+0.0015$). Exactly, not statistically: $A^{\text{vlm}}=\mathbb{I}[A^{\text{object}}{>}0]$ on $\mathbf{100\%}$ and $A^{\text{object}}=A^{\text{agree}}\cdot\mathbb{I}[A^{\text{vlm}}{>}0]$ on $\mathbf{100\%}$, so any one of Object / Agreement / VLM is reconstructible from the other two. Drop any one and the fitted score orders the test set \emph{identically}. $U_{\text{SAA}}$ is nominally four signals; it has \textbf{two} independent inputs.}
+\notebox{WarnInk}{\textbf{The line to use:} ``A fourth term a fitted model can discard without changing a single pairwise ordering is not a fourth opinion.'' And the honest caveat, unprompted: the \emph{Scene} row flips sign between the two label rules ($-0.0277$ vs $+0.0118$), so no claim is made about it. Running both rules is what caught that --- the Agreement conclusion is stated only because it survives both.}
+\derivedfrom{Thesis \S4.6, Table~4.4}
+\computedby{\texttt{run\_agree\_ablation.py} (\texttt{--verify})}
+\end{formulacard}
+
+\begin{formulacard}{2.2b \quad Why $U_{\text{SAA}}$ has exactly eight values \status{Added Sept 2026}}
+$A^{\text{vlm}}$ is a function of $A^{\text{object}}$, and $A^{\text{agree}}$ of both, so the whole vector is fixed by the pair $(A^{\text{object}}, A^{\text{scene}})$: $4\times2=8$ states.
+\begin{center}\small
+\begin{tabular}{@{}cccc c r@{}}
+\toprule
+$A^{\text{obj}}$ & $A^{\text{agr}}$ & $A^{\text{scn}}$ & $A^{\text{vlm}}$ & $U_{\text{SAA}}$ & images \\
+\midrule
+$0$ & $1$ & $1$ & $0$ & $0.5774$ & $195$ \\
+$0$ & $1$ & $0.5$ & $0$ & $0.4787$ & $1{,}208$ \\
+$\tfrac13$ & $\tfrac13$ & $1$ & $1$ & $0.3849$ & $222$ \\
+$\tfrac13$ & $\tfrac13$ & $0.5$ & $1$ & $0.3155$ & $2{,}217$ \\
+$1$ & $1$ & $0.5$ & $1$ & $0.2500$ & $2{,}580$ \\
+$\tfrac23$ & $\tfrac23$ & $0.5$ & $1$ & $0.2097$ & $969$ \\
+$\tfrac23$ & $\tfrac23$ & $1$ & $1$ & $0.1924$ & $565$ \\
+$1$ & $1$ & $1$ & $1$ & $0.0000$ & $4{,}154$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+The two \emph{largest} values are both $A^{\text{object}}=0$ rows: maximum uncertainty exactly where the ensemble is most unanimous.
+\derivedfrom{Appendix E.3}
+\end{formulacard}
+
+\begin{formulacard}{2.2c \quad Two images worked end to end \status{Added Sept 2026}}
+\textbf{Unanimous present} --- \texttt{PPN1756550050/00000047\_1}, the largest state ($4{,}154$ images):
+\begin{align*}
+\mathbf a = (1,1,1,1),\quad \bar a = 1,\quad \textstyle\sum(a_j-\bar a)^2 = 0
+\;\Rightarrow\; U_{\text{SAA}} = \sqrt{0/3} = \mathbf{0}\\
+SAA = 0.6(1)+0.2(1)+0.2(1) = \mathbf{1.0000},\qquad
+U_{\text{triage}} = 0.6(0)+0.4(1-1) = \mathbf{0}
+\end{align*}
+\textbf{Unanimous absent} --- \texttt{PPN1756555435/00000033\_2} ($1{,}208$ images). Here $A^{\text{object}}=0$, so the derived term jumps to $1$:
+\begin{align*}
+\mathbf a &= (0,\,1,\,0.5,\,0), \qquad \bar a = 0.375\\
+(a_j-\bar a) &= (-0.375,\ +0.625,\ +0.125,\ -0.375)\\
+\textstyle\sum(a_j-\bar a)^2 &= 0.140625+\underline{\mathbf{0.390625}}+0.015625+0.140625 = 0.6875\\
+U_{\text{SAA}} &= \sqrt{0.6875/3} = \mathbf{0.4787}, \quad SAA = \mathbf{0.1000}, \quad
+U_{\text{triage}} = 0.6(0.4787)+0.4(0.625) = \mathbf{0.5372}
+\end{align*}
+\notebox{WarnInk}{\textbf{The whole argument in one number:} the underlined term is the \emph{derived} one. It supplies $0.390625$ of the $0.6875$ total, while the three \emph{measured} signals $(0,\,0.5,\,0)$ sit close together. The uncertainty here comes from the construction, not from models disagreeing.}
+
+\notebox{GoodInk}{\textbf{Expect to be challenged on image 2, and answer like this.} ``The score reports $0.4787$ --- $83\%$ of the maximum $0.5774$ --- on an image where the ensemble unanimously reports nothing. That is backwards, and it is the construction's fault, not the data's.'' Then take the initiative and give the consequence, because it is the finding: on a true negative an error needs $SAA\ge0.5$, and with $A^{\text{object}}=0$ the score cannot exceed $0.2$. So this whole stratum is \emph{error-free by arithmetic} --- $115$ of the $319$ confirmed negatives, $0$ errors between them --- and it is exactly where $U_{\text{SAA}}$ is highest. Ranges do not overlap: $[0.4787, 0.5774]$ on the guaranteed-correct images against $[0,\,0.3849]$ on the $204$ that carry all $50$ errors. The proxy ranks every guaranteed-correct image above every error before a single model output is consulted. That is where the below-chance $0.1259$ comes from.}
+\end{formulacard}
+
+\begin{formulacard}{2.3 \quad $U_{\text{triage}}$ --- two distinct instantiations \status{Fixed 25 Aug 2026}}
+This thesis defines two triage scores sharing the same $0.6/0.4$ structural form but built from different second terms. Only one is the quantity Algorithm 1 and the deployed conformal threshold $\hat\lambda$ actually use.
+
+\textbf{(a) SCI-based} (Thesis \S5.1), using the data-driven Spatial Complexity Index $\text{SCI}_i$ (object density / visual clutter, computed independently of agent confidence):
+\begin{equation}
+U_{\text{triage},i}^{\text{SCI}} = 0.6 \cdot U_{\text{SAA},i} + 0.4 \cdot (1 - \text{SCI}_i)
+\end{equation}
+This is the tercile-routing policy, reported as a negative result: it performs at chance level (0.98$\times$) on the clean holdout and is \emph{not} deployed.
+
+\textbf{(b) Mean-confidence-based} (``\texttt{unified\_U}''), substituting $\bar{c}_i$ --- the mean of the same four core agents used in $U_{\text{SAA},i}$ --- for $\text{SCI}_i$:
+\begin{equation}
+U_{\text{triage},i}^{\text{CRC}} = 0.6 \cdot \sigma_{\text{agents},i} + 0.4 \cdot (1 - \bar{c}_i), \qquad \sigma_{\text{agents},i} = U_{\text{SAA},i}
+\end{equation}
+This is the quantity the deployed Conformal Risk Control policy calibrates and thresholds $\hat\lambda = 0.5370$ against.
+
+\notebox{WarnInk}{\textbf{The distinction that matters:} SCI (scan-level clutter) and $\bar{c}$ (agent-level average confidence) measure different things despite the shared formula shape. An earlier draft presented a single Level-4 formula and let Algorithm 1 imply it fed the deployed threshold --- both the thesis and defense slides now state both variants explicitly (Thesis \S2.4/Algorithm 1/\S5.2; Slides 2.6/3.6).}
+
+\derivedfrom{Thesis \S2.4 Level 4 (corrected), Algorithm 1, \S5.2}
+\computedby{\texttt{\seqsplit{exp29\_conformal\_risk\_control.py}}, \texttt{\seqsplit{run\_clean\_holdout\_crc.py}}}
+\end{formulacard}
+
+% ======================================================================
+\begin{formulacard}{2.4 \quad Can the formulation be repaired? \status{Added Sept 2026}}
+Three defects are established: $A^{\text{agree}}$ is derived (\S2.2a); $A^{\text{vlm}}=\mathbb{I}[A^{\text{object}}>0]$ on every image; so $U_{\text{SAA}}$ is an $8$-valued function of two free inputs (\S2.2b). The obvious repair --- delete the derived term --- \textbf{does not work}, because the second defect survives it.
+\begin{center}\tiny
+\begin{tabular}{@{}p{6.4cm} c c c@{}}
+\toprule
+\textbf{Formulation} & \textbf{free inputs} & \textbf{distinct} & \textbf{ROC-AUC} \\
+\midrule
+deployed $\operatorname{std}(O,\text{Agr},S,V)$ & $2$ & $8$ & $\mathbf{0.8600}$ \\
+repair 1: derived term dropped & $2$ & $7$ & $0.8340$ \\
+repair 2: $\operatorname{std}(O,S,\text{OCR})$ & $3$ & $52$ & $0.7005$ \\
+repair 3: four re-derived from raw outputs & $4$ & $249$ & $0.6080$ \\
+\addlinespace
+baseline: $1-\bar A$, no spread & $2$ & $8$ & $0.8799$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\notebox{WarnInk}{\textbf{Performance falls at every step as independence rises.} The error label thresholds a mean of the deployed agents, so a signal built from those agents predicts it by construction. The $0.860$ was purchased by the degeneracy, not achieved despite it. The thesis states this rather than swapping formulas: re-reporting every figure under a corrected definition would misrepresent what was actually run.}
+\derivedfrom{Thesis \S4.2}
+\computedby{\texttt{run\_corrected\_formulation.py} (\texttt{--verify})}
+\end{formulacard}
+
+\begin{formulacard}{2.5 \quad Nine formulations, none of which beats confidence \status{Added Sept 2026}}
+Against one non-circular label ($n=249$, $38$ errors; predictor and uncertainty both rebuilt, error from human review). Right column is the paired difference against plain confidence.
+\begin{center}\tiny
+\begin{tabular}{@{}p{6.6cm} c c@{}}
+\toprule
+\textbf{Formulation} & \textbf{ROC-AUC} & \textbf{vs conf.} \\
+\midrule
+\multicolumn{3}{@{}l}{\emph{which signals enter}}\\
+\quad deployed $\operatorname{std}(O,\text{Agr},S,V)$ & $0.7602$ & $-0.056$ \\
+\quad derived term dropped & $0.7650$ & $-0.052$ \\
+\quad derived and redundant dropped & $0.6588$ & $-0.158$ \\
+\quad four re-derived from raw outputs & $0.7533$ & $-0.064$ \\
+\multicolumn{3}{@{}l}{\emph{how members are weighted}}\\
+\quad competence-weighted & $0.7000$ & $-0.116$ \\
+\quad at-chance member removed & $0.6952$ & $-0.121$ \\
+\quad two strongest only & $0.5551$ & $-0.262$ \\
+\multicolumn{3}{@{}l}{\emph{what operator}}\\
+\quad range instead of std & $0.7434$ & $-0.073$ \\
+\quad mutual information (BALD) & $0.6088$ & $-0.208$ \\
+\midrule
+\textbf{plain confidence} & $\mathbf{0.8167}$ & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textbf{Mutual information, worked.} Total $=H[\bar p]$; Aleatoric $=\overline{H[p_m]}$; Epistemic $=$ Total $-$ Aleatoric. Members are calibrated on train first, so $p_m$ is a probability. The decoupling works --- epistemic correlates $0.0152$ with aleatoric against $0.9188$ for deployed $U_{\text{SAA}}$ against confidence --- and disagreement still loses, by more.
+\notebox{WarnInk}{\textbf{Say this cold if asked ``did you try X?''} Removing the at-chance member makes the spread \emph{worse} ($0.7533\to0.6952$); competence weighting is worse again. The weak member carries useful variance, so pruning and reweighting are both ruled out. The limit is the \textbf{ensemble}, not the formula: all four members are web-pretrained VLMs and fail together on $319$ confirmed negatives.}
+\derivedfrom{Thesis \S4.2}
+\computedby{\texttt{run\_formulation\_search.py}, \texttt{run\_bald\_decomposition.py}}
+\end{formulacard}
+
+\begin{formulacard}{2.6 \quad Fusion weights, and a limit no weighting passes \status{Added Sept 2026}}
+The weights $(0.6,0.2,0.2)$ were never tuned. Five settings on the corrected test:
+\begin{center}\tiny
+\begin{tabular}{@{}l c c c c c@{}}
+\toprule
+$(w_o,w_s,w_v)$ & TP & FN & TN & FP & errors \\
+\midrule
+$(0.6,0.2,0.2)$ \emph{deployed} & $146$ & $65$ & $33$ & $\mathbf{5}$ & $70$ \\
+$(1/3,1/3,1/3)$ and all others tested & $179$ & $32$ & $14$ & $24$ & $\mathbf{56}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+Deployed makes \emph{more} errors but far fewer false positives: $5$ against $24$. It trades $33$ extra missed scenes for $19$ fewer fabricated ones --- for a public catalogue, plausibly the right trade. Report it as a measured operating point, not a defect.
+\notebox{WarnInk}{\textbf{A limit no weighting reaches.} $A^{\text{vlm}}=\mathbb{I}[A^{\text{object}}>0]$, so a zero object signal pins two of three fusion terms to zero and only $A^{\text{scene}}$ can vote, contributing at most $w_s$. Unless $w_s\ge0.5$ those images can \emph{never} reach the $0.5$ threshold under any weighting: $32$ of $211$ scene-positive images on the corrected test, $109$ of $796$ on $C_1$.}
+\derivedfrom{Thesis \S4.2}
+\computedby{\texttt{run\_formulation\_sensitivity.py} (\texttt{--verify})}
+\end{formulacard}
+
+\begin{formulacard}{2.7 \quad Can the weights be learned? \status{Settled exhaustively, Sept 2026}}
+$A^{\text{object}}$ takes $4$ values, $A^{\text{scene}}$ takes $2$, and $A^{\text{vlm}}=\mathbb{I}[A^{\text{object}}>0]$, so the three fusion inputs realise only \textbf{8 distinct triples} in the whole $1{,}250$-image pool. Every weighting induces one labelling of those 8 cells, so the reachable classifiers can be \emph{enumerated}, not searched. Checked by LP:
+\begin{center}\small
+\begin{tabular}{@{}l c c@{}}
+\toprule
+\textbf{Weight family} & \textbf{reachable} & \textbf{non-degenerate} \\
+\midrule
+$w\ge0$, $\sum w=1$, threshold $0.5$ (deployed form) & $\mathbf{6}$ & $5$ \\
+$w\ge0$ free scale, learned threshold & $15$ & $13$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textbf{Best by train error count:} $w=(0,1,0)$ --- the \emph{degenerate} all-positive rule. $A^{\text{scene}}$ never drops below $0.5$, so all weight on it puts every image over threshold: $38$ test errors, balanced accuracy $0.5$, in an $84.5\%$-positive pool. Majority-class, not learning.\\[1mm]
+\textbf{Best by train balanced accuracy:} $w=(1,0,0)$ at $0.8136$, deployed second at $0.8113$. \emph{On test the order reverses}: deployed $\mathbf{0.7802}$ vs $0.7720$. At the deployed false-positive budget the optimum \emph{is} the deployed classifier.
+
+\notebox{GoodInk}{\textbf{The one-line answer:} yes, they can be learned --- and it changes nothing, because there is almost nothing to learn. Six reachable classifiers is the entire search space. Add that the weights are \emph{not identifiable}: $(0.75,0,0.25)$ induces the same partition as $(0.6,0.2,0.2)$, so the deployed vector is one representative of an equivalence class, not a unique optimum. The binding constraints are the discreteness of $A^{\text{object}}$ and $A^{\text{vlm}}=\mathbb{I}[A^{\text{object}}>0]$ --- neither is a weighting problem.}
+\derivedfrom{Thesis \S4.2.1}
+\computedby{\texttt{run\_learned\_fusion\_weights.py} (\texttt{--verify})}
+\end{formulacard}
+
+\begin{formulacard}{2.8 \quad The knife-edge cell --- know this one cold \status{Found Sept 2026}}
+The cell $(A^{\text{object}},A^{\text{scene}},A^{\text{vlm}})=(\tfrac13,\,0.5,\,1)$ holds $\mathbf{276}$ of $1{,}250$ images ($22.1\%$; $52$ of $249$ test). The deployed weighting lands on its own threshold there:
+\[
+0.6\cdot\tfrac13 + 0.2\cdot 0.5 + 0.2\cdot 1 = 0.2+0.1+0.2 = \mathbf{0.5}
+\]
+But $A^{\text{object}}$ is \emph{stored} to six places as $0.333333$, so the cell evaluates to $\mathbf{0.4999998}$ and falls on the negative side by two parts in ten million.
+\begin{center}\small
+\begin{tabular}{@{}l c c@{}}
+\toprule
+\textbf{Deployed weighting on the test partition} & \textbf{TP/FN/TN/FP} & \textbf{errors} \\
+\midrule
+as stored ($0.333333$) & $146/65/33/5$ & $\mathbf{70}$ \\
+with exact $\tfrac13$ & $179/32/14/24$ & $\mathbf{56}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\notebox{WarnInk}{\textbf{Why this matters more than it looks.} $179/32/14/24$ with $56$ errors is \emph{exactly} what Thesis Table~4.2 reports for all four alternative weightings. So the whole ``deployed $70$ vs alternatives $56$'' contrast is this one cell flipping, and the flip is a stored decimal truncation, not the weights. The conservative operating point ($5$ false positives against $24$) is real in its effect and defensible for a public catalogue --- but it was \emph{not chosen}. Say so plainly: it is an accident that happens to fall on the cautious side. A system whose behaviour on a fifth of its corpus rests on the seventh decimal of a stored constant is fragile, and pinning that cell deliberately is the first thing a successor should fix.}
+\derivedfrom{Thesis \S4.2.1, Table 4.2}
+\computedby{\texttt{run\_learned\_fusion\_weights.py} (\texttt{--verify})}
+\end{formulacard}
+
+\begin{formulacard}{2.9 \quad The ceiling --- why no formulation can win \status{Proved exhaustively, Sept 2026}}
+The strongest single result in the uncertainty chapter. $A^{\text{object}}$ has $4$ values, $A^{\text{scene}}$ has $2$, $A^{\text{vlm}}=\mathbb{I}[A^{\text{object}}>0]$ --- so the measured signals realise \textbf{8 cells}. Any function of them is \emph{constant within a cell}, so its ranking is fixed by how it orders those 8 cells. The best ordering sorts cells by true error rate.
+\begin{center}\small
+\begin{tabular}{@{}l c@{}}
+\toprule
+\textbf{Score on the corrected held-out partition ($n=249$, $70$ errors)} & \textbf{ROC-AUC} \\
+\midrule
+\textbf{CEILING --- best of all $8!=40{,}320$ orderings} & $\mathbf{0.8871}$ \\
+plain confidence, $1-SAA$ & $0.8828$ \\
+learned combination, $A^{\text{agree}}$ dropped & $0.8801$ \\
+learned combination, $A^{\text{agree}}$ retained & $0.8664$ \\
+deployed $U_{\text{SAA}}$, 4-term std & $0.8600$ \\
+3-term std, $A^{\text{agree}}$ dropped, unweighted & $0.8340$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\notebox{GoodInk}{\textbf{Say this if asked ``did you try formulation X?''} You do not need to have tried it. Confidence sits $\mathbf{0.0043}$ below the maximum \emph{any} estimator over these signals can reach --- any weighting, any nonlinearity, any classifier, fitted however well. So no formulation can beat a plain confidence score by more than four thousandths of ROC-AUC. This turns nine failed attempts into a bound. Verified by enumerating all $40{,}320$ orderings, not by argument.}
+\notebox{WarnInk}{\textbf{And the follow-up: ``what if you drop $A^{\text{agree}}$ and learn the weights?''} Dropping it alone \emph{hurts} ($0.8600\to0.8340$). Dropping it \emph{and} learning helps ($0.8801$) --- the two only work together. Keeping it in a learned model is worse than dropping it ($0.8664$), as expected for a term equal to $A^{\text{object}}$ on $88.4\%$ of images. Still loses to confidence: $-0.0027$, CI $[-0.0160,\,0.0109]$. Exactly what the ceiling requires.}
+\derivedfrom{Thesis \S4.2.2}
+\computedby{\texttt{run\_drop\_agree\_learn\_values.py} (\texttt{--verify})}
+\end{formulacard}
+
+\begin{formulacard}{2.10 \quad The scene agent read the wrong SigLIP channel \status{Found Sept 2026}}
+SigLIP is trained with a \textbf{sigmoid} objective --- that is what separates it from CLIP. Each image--prompt pair receives an independent calibrated probability, and an image matching none of the prompts scores near zero on all of them. The pipeline discarded that channel and applied a \textbf{softmax} across the five scene prompts:
+\begin{equation}
+A_i^{\text{scene,deployed}} = \max_c \operatorname{softmax}(z_{ic})
+\qquad\text{vs.}\qquad
+A_i^{\text{scene,correct}} = \max_c \sigma(z_{ic})
+\end{equation}
+All five prompts name a \emph{scene type} (teaching, family, playing, landscape, drawing), so a softmax over them is a forced choice \emph{among} scenes and cannot express absence.
+\begin{center}\small
+\begin{tabular}{@{}l c c@{}}
+\toprule
+& \textbf{softmax (deployed)} & \textbf{sigmoid (unused)} \\
+\midrule
+corpus minimum & $0.2956$ & $\mathbf{0.0}$ \\
+below $0.01$ & never & $\mathbf{48.6\%}$ of images \\
+correlation between the two & \multicolumn{2}{c}{$-0.096$} \\
+\textbf{ROC-AUC vs.\ scene presence} & $\mathbf{0.4172}$ & $\mathbf{0.7754}$ \\
+learned fusion coefficient & $-0.162$ & $+0.486$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\notebox{WarnInk}{\textbf{Say this cold:} the deployed scene agent scored \emph{below chance} against the quantity it names, and a fitted fusion assigns it a \textbf{negative} coefficient --- it prefers to subtract the signal the deployed formula adds at $+0.2$. On the $5{,}887$ images SigLIP says match no scene prompt, the deployed signal reports mean $0.84$ and exceeds $0.5$ on $95.2\%$. Both channels were computed in the same pass and stored for all $12{,}110$ images; only the softmax was used. Paired gain from switching: $+0.3578$, CI $[+0.2991,+0.4145]$.}
+\derivedfrom{Thesis \S2.4, Table~2.7}
+\computedby{\texttt{run\_scene\_channel\_fix.py} (\texttt{--verify})}
+\end{formulacard}
+
+\begin{formulacard}{2.11 \quad The ensemble was unanimous --- and breaking it made things worse \status{Settled Sept 2026}}
+Disagreement can rank errors only where members reach \emph{different conclusions}, not merely different degrees of one conclusion. Every calibrated member probability lay above $0.5$ on every test image, the ensemble mean confined to $[0.71,0.93]$. That follows from the $84.5\%$ positive base rate, not from the signals, so class-balanced calibration removes it.
+\begin{center}\small
+\begin{tabular}{@{}l c c c c@{}}
+\toprule
+\textbf{Configuration} & \textbf{Unanimity} & \textbf{Epistemic} & \textbf{Confid.} & \textbf{Difference} \\
+\midrule
+deployed channel, unweighted & $100\%$ & $0.6122$ & $0.8037$ & $-0.192$ \\
+deployed channel, balanced & $11.2\%$ & $0.5886$ & $0.7993$ & $-0.209$ \\
+corrected channel, unweighted & $100\%$ & $0.6472$ & $0.8312$ & $-0.184$ \\
+\textbf{corrected channel, balanced} & $\mathbf{14.9\%}$ & $\mathbf{0.5014}$ & $0.8093$ & $\mathbf{-0.307}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\notebox{WarnInk}{\textbf{The line to use:} ``Disagreement is not uninformative because the models never disagree --- it is uninformative \emph{when they do}.'' In the one configuration where all four genuinely reach different conclusions, the epistemic term scores $\mathbf{0.5014}$: chance to three decimals, and the widest gap of any row. This was the last hypothesis under which the central claim could have survived.}
+\notebox{GoodInk}{\textbf{Eight repairs, one result.} Derived Agreement term; object-signal fallback; near-constant VLM term; volume-based OCR term; eight-valued discretisation; circular error label; softmax scene channel; unanimous ensemble. Each a real defect with a plausible claim to being the cause; each corrected and re-measured. The gap never closes, and usually widens. \emph{The repairs are the contribution}, not failed attempts to avoid the finding.}
+\derivedfrom{Thesis \S2.4, Table~2.8}
+\computedby{\texttt{run\_scene\_channel\_fix.py}, \texttt{run\_bald\_decomposition.py} (\texttt{--verify})}
+\end{formulacard}
+
+\begin{formulacard}{2.12 \quad A detector for the error the system actually makes \status{Added Sept 2026}}
+The dominant failure is a false positive on a true negative, and the negative-control audit established what those are: printed text, sheet music, non-representational ornament. \textbf{None of the five deployed prompts can name any of them.} The repair is to say so --- add explicit \emph{negative} prompts and score both groups with SigLIP's own logit scale and bias:
+\begin{equation}
+\text{margin}_i = \max_{c\,\in\,\text{scene}} \sigma(s\cdot\cos_{ic} + b) \;-\; \max_{c\,\in\,\text{non-scene}} \sigma(s\cdot\cos_{ic} + b)
+\end{equation}
+\begin{center}\small
+\begin{tabular}{@{}l c@{}}
+\toprule
+\textbf{Signal (test partition, $n=249$)} & \textbf{ROC-AUC vs.\ scene presence} \\
+\midrule
+deployed softmax, as shipped & $0.4345$ \\
+corrected sigmoid, single channel & $0.7188$ \\
+negative evidence alone, inverted & $0.8140$ \\
+margin: scene $-$ negative & $0.8295$ \\
+\textbf{fitted on both evidences} & $\mathbf{0.8305}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\notebox{GoodInk}{\textbf{The only interval in this thesis that excludes zero.} Against the \emph{corrected} baseline --- beating the broken channel would prove nothing --- the margin gains $+0.1114$, CI $[+0.0448,+0.1809]$, and the two-feature fit $+0.1120$, CI $[+0.0443,+0.1828]$. Test error rate $\mathbf{29.7\%}$ against $36.6\%$ for the fully corrected fusion and $42.2\%$ as deployed. It flags $81.6\%$ of true negatives against $31.8\%$ of positives; mean negative evidence $0.390$ on true negatives against $0.059$ on positives. Found by taking the failure analysis seriously, not by adding a model.}
+\notebox{WarnInk}{\textbf{The caveat to volunteer:} the test partition holds \textbf{38} true negatives, and the negative class is precisely what this detector exists to find, so its precision is the least well estimated quantity in the chapter. More labelled negatives would tighten it further than any other annotation.}
+\derivedfrom{Thesis \S2.4, Table~2.10}
+\computedby{\texttt{run\_negative\_evidence\_detector.py} (\texttt{--verify})}
+\end{formulacard}
+
+\begin{formulacard}{2.13 \quad The corrections applied end to end \status{Added Sept 2026}}
+Correcting the channel and refitting the weights are \emph{separable} improvements; both contribute. The deployed $0.6/0.2/0.2$ was hand-set around a signal running backwards.
+\begin{center}\small
+\begin{tabular}{@{}l c c c@{}}
+\toprule
+\textbf{Configuration} ($n=249$) & \textbf{Error rate} & \textbf{Bal.\ acc.} & \textbf{$SAA$ vs.\ scene} \\
+\midrule
+deployed channel, hand-set $0.6/0.2/0.2$ & $42.2\%$ & $0.6649$ & $0.7222$ \\
+deployed channel, weights refitted & $37.8\%$ & $0.6909$ & $0.7387$ \\
+corrected channel, hand-set weights & $39.4\%$ & $0.6815$ & $0.7478$ \\
+\textbf{corrected channel, weights refitted} & $\mathbf{36.6\%}$ & $0.6873$ & $\mathbf{0.7599}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\notebox{GoodInk}{Refitted on the corrected channel the weights become $\mathbf{0.245/0.487/0.269}$ --- the scene agent moves from smallest weight to largest. Re-running the whole section on the corrected channel leaves every conclusion standing: the disagreement gap \emph{widens} from $-0.2782$ to $-0.3176$, CI $[-0.3976,-0.2401]$, and corpus-wide confidence triage certifies $64.6\%$ against $61.1\%$.}
+\notebox{WarnInk}{\textbf{Be precise about what is and is not resolved:} the fused-score gain is $+0.0377$, CI $[-0.0254,+0.0956]$ --- it \emph{spans zero}. At $n=249$ an effect that size cannot be resolved; the case rests on the signal-level measurement, where the interval excludes zero comfortably. One configuration changes status honestly: the rebuild that \emph{inherits} a fixed threshold rather than refitting becomes degenerate under the corrected channel and its figures are withheld --- the guard working, not a new defect.}
+\derivedfrom{Thesis \S2.4, Table~2.9}
+\computedby{\texttt{run\_corrected\_channel\_refit.py} (\texttt{--verify})}
+\end{formulacard}
+
+\begin{formulacard}{2.14 \quad Fixing the formulation: the term that was missing \status{Added Sept 2026}}
+Repairing each signal to measure its namesake changed nothing (2.12). \emph{Replacing} one does. Every fusion signal, and all five SigLIP prompts, measure a scene's \textbf{presence}; nothing measured its \textbf{absence}.
+\begin{equation}
+SAA_i^{\text{corrected}} = 0.192\,A_i^{\text{object}} + 0.500\,A_i^{\text{scene}} - 0.308\,A_i^{\text{negative}}
+\end{equation}
+\begin{center}\small
+\begin{tabular}{@{}l c c c@{}}
+\toprule
+\textbf{Signal set} ($n=249$) & \textbf{Error rate} & \textbf{Bal.\ acc.} & \textbf{$SAA$ vs.\ scene} \\
+\midrule
+$A^{\text{object}}$ alone & $41.8\%$ & $0.6672$ & $0.7037$ \\
+$A^{\text{object}} + A^{\text{scene}}$, $A^{\text{vlm}}$ deleted & $39.8\%$ & $0.6683$ & $0.7408$ \\
+as deployed, corrected channel & $\mathbf{36.6\%}$ & $0.6873$ & $0.7599$ \\
+\textbf{with the negative term} & $39.8\%$ & $\mathbf{0.7115}$ & $\mathbf{0.8231}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\notebox{GoodInk}{\textbf{Say this cold:} $+0.0631$, $95\%$ CI $[+0.0208, +0.1138]$ --- excludes zero. The negative term takes the second-largest weight and the only negative sign in the formulation. What the fusion was missing was not a better operator over the same quantities; it was \emph{a quantity none of them measured}.}
+\notebox{WarnInk}{\textbf{And correct the premise if asked ``so $A^{\text{vlm}}$ was useless?''} No. It is near chance at ranking \emph{errors} ($0.569$), which is what made it look useless --- but deleting it from the \emph{fusion} raises the error rate $36.6\% \rightarrow 39.8\%$ and lowers scene ranking $0.7599 \rightarrow 0.7408$. The two levels ask different questions of the same signal, and a signal can be worthless for one and load-bearing for the other.}
+\derivedfrom{Thesis \S2.4, Table~2.11}
+\computedby{\texttt{run\_formulation\_ceiling\_corrected.py} (\texttt{--verify})}
+\end{formulacard}
+
+\begin{formulacard}{2.15 \quad The ceiling for continuous signals \status{Added Sept 2026}}
+Card 2.9's ceiling is exact but \emph{conditional}: enumerating $8!=40{,}320$ orderings requires $A^{\text{scene}}$ to be two-valued. On the corrected channel it takes $1{,}520$ values, so enumeration is impossible and the bound must be \emph{estimated} instead --- flexible models fitted \emph{inside} the test partition, held out only by publication fold.
+\begin{center}\small
+\begin{tabular}{@{}l c l c@{}}
+\toprule
+\multicolumn{2}{@{}l}{\textbf{Unsupervised operators}} & \multicolumn{2}{l}{\textbf{Ceiling, fitted inside test}} \\
+\midrule
+std over 5 signals & $0.2310$ & logistic & $0.8251$ \\
+range (max $-$ min) & $0.2320$ & gradient boosting & $0.8391$ \\
+mean pairwise $|\Delta|$ & $0.2052$ & random forest & $0.8362$ \\
+BALD epistemic & $0.4727$ & & \\
+\midrule
+\multicolumn{3}{@{}l}{\textbf{plain confidence} $1-SAA$} & $\mathbf{0.8480}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\notebox{GoodInk}{\textbf{Why this is a bound and not just another comparison:} those models see the test distribution during model selection, so they are \emph{optimistic} --- they bound from above what any learnable function of these signals can reach on these images. An optimistic upper bound that still does not reach confidence closes the continuous case as the enumeration closed the discrete one.}
+\notebox{WarnInk}{\textbf{One candidate came close and is not claimed.} Gradient boosting over confidence \emph{plus} the five repaired levels reaches $0.8922$ against $0.8480$, stable to sd $0.0002$ over $15$ seeds, uncorrected interval excluding zero. Nine formulations were compared against the same baseline; the corrected interval straddles zero with a lower bound that changes sign between bootstrap runs. And it uses the \emph{levels} under supervision rather than a spread --- AWLF's route, improving the always-supervised component from $0.8702$ to $0.8922$, not rescuing the central claim.}
+\derivedfrom{Thesis \S2.4}
+\computedby{\texttt{run\_formulation\_ceiling\_corrected.py} (\texttt{--verify})}
+\end{formulacard}
+
+\section{Calibration and Risk}
+
+\begin{formulacard}{3.1 \quad Platt scaling --- probability calibration \status{Deployed}}
+\begin{equation}
+P(y=1 \mid SAA_i) = \frac{1}{1 + \exp\!\left( A \cdot SAA_i + B \right)}
+\end{equation}
+A logistic-regression re-calibration of the raw fusion score, fitted on a held-out 50\% split of $C_1$. $A$ and $B$ are the two scalar parameters fit by that regression --- not fixed constants, and not the same $A$ as any agent variable elsewhere in this document (unfortunate but standard notational overlap with the general Platt-scaling literature).
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Result} & \textbf{Value} \\
+\midrule
+ECE, before & 0.750 (uncalibrated fusion, badly overconfident) \\
+ECE, after & $<0.001$, on the same held-out split \\
+\bottomrule
+\end{tabular}
+\end{center}
+\derivedfrom{Thesis \S4.5 (Platt scaling, ECE)}
+\methodref{Platt (1999) \cite{platt1999}}
+\end{formulacard}
+
+\begin{formulacard}{3.2 \quad Conformal Risk Control (CRC) \status{Fixed 25 Aug 2026}}
+The thesis's actual defended triage mechanism, with a formal distribution-free guarantee. Two thresholds exist and must not be confused: $\hat\lambda = 0.372$ is the \textbf{deployed} value on the corrected group-level pool, and every workload claim rests on it; $\hat\lambda = 0.5370$ belongs to the in-sample $C_1$ calibration and is reported for continuity only.
+\begin{equation}
+\mathcal{R}(\lambda) = \mathbb{E}\!\left[\, \text{error}_i \cdot \mathbb{I}\!\left( U_{\text{triage},i} < \lambda \right) \right] \ \le\ \alpha, \qquad \alpha = 0.05
+\end{equation}
+where
+\begin{align}
+\text{error}_i &= \mathbb{I}\!\left( \text{sign}(S_{\text{fusion},i} \ge 0.5) \neq y_{\text{expert},i} \right) \\
+U_{\text{triage},i} &= 0.6 \cdot \sigma_{\text{agents},i} + 0.4 \cdot (1 - \bar{c}_i) \qquad \text{(\S2.3(b) above)}
+\end{align}
+Two steps, in order: (1) fix the ground-truth error label from the classification score; (2) threshold a \emph{separate} uncertainty score for auto-approval eligibility. Approve when the system is confident enough in its decision, not merely on the decision's raw score.
+
+\notebox{WarnInk}{\textbf{Documented vs.\ implemented, before the fix:} an earlier draft wrote this as directly thresholding $SAA_i$ against $\lambda$ (i.e.\ approve if $SAA_i \ge \lambda$) --- a different, simpler mechanism than what the script does. Corrected 25 Aug 2026 across Thesis \S5.2 and Algorithm 3 to state the real two-step mechanism above, matching \texttt{\seqsplit{exp29\_conformal\_risk\_control.py}} exactly.}
+
+Threshold selection rule (matches the code exactly, verified line-for-line):
+\begin{equation}
+\hat\lambda = \max\left\{ \lambda \in [0,1] \ :\ \frac{n_{\text{cal}}}{n_{\text{cal}}+1}\, \hat{R}(\lambda) + \frac{1}{n_{\text{cal}}+1} \ \le\ \alpha \right\}
+\end{equation}
+\begin{center}
+\begin{tabular}{@{}p{3.4cm}p{2.7cm}p{8.6cm}@{}}
+\toprule
+\textbf{Result} & \textbf{Value} & \textbf{Split} \\
+\midrule
+$\hat\lambda$ & 0.5370 & Calibrated on $C_1$, $n_{\text{cal}}=400$ \\[3pt]
+$\mathcal{R}(\hat\lambda)$, in-sample & $0.0075 \le 0.05$ \checkmark & $C_1$ test, $n=401$ --- 87.5\% auto-approved, 94.3\% error recall, 7.57$\times$ lift \\[3pt]
+$\mathcal{R}(\hat\lambda)$, clean holdout & $0.182 > 0.05$ (violated) & Publication-disjoint test, $n=401$ --- bound violated to $\alpha=0.15$; 0.98$\times$ lift (chance) \\
+\bottomrule
+\end{tabular}
+\end{center}
+\derivedfrom{Thesis \S5.2, Algorithm 3}
+\computedby{\texttt{\seqsplit{exp29\_conformal\_risk\_control.py}}}
+\par\medskip\noindent\textbf{How $\hat\lambda$ is actually selected.} Take the largest threshold whose finite-sample-corrected empirical risk still clears $\alpha$:
+\begin{equation}
+\hat\lambda = \max\left\{\lambda \;:\; \frac{n}{n+1}\,\hat R(\lambda) + \frac{1}{n+1} \;\le\; \alpha\right\}
+\end{equation}
+The $\tfrac{1}{n+1}$ term is what makes the bound hold with no distributional assumption. Worked on the corrected pool, $n=252$, $\alpha=0.05$:
+\begin{align*}
+\tfrac{1}{n+1} &= \tfrac{1}{253} = 0.003953\\
+\tfrac{252}{253}\hat R(\lambda) + 0.003953 \le 0.05
+&\iff \hat R(\lambda) \le (0.05-0.003953)\cdot\tfrac{253}{252} = 0.046230\\
+\Rightarrow\ \hat\lambda &= 0.372
+\end{align*}
+On the test partition: $60.6\%$ auto-approval, $91.1\%$ error recall, $\mathcal R = 0.0201 \le 0.05$, efficiency lift $0.911/0.394 \approx 2.31\times$.
+\notebox{GoodInk}{\textbf{Score-agnostic.} CRC bounds risk over whatever score it is calibrated on. The findings about what $U_{\text{SAA}}$ measures (\S2.2a) therefore do not weaken this guarantee --- a point worth making explicitly if the disagreement result comes up.}
+\methodref{Angelopoulos \& Bates (2023) \cite{angelopoulos2024conformal}}
+\end{formulacard}
+
+\begin{formulacard}{3.3 \quad AWLF v2 --- error-targeted meta-classifier \status{Deployed}}
+\begin{equation}
+y_i = \begin{cases} 1 & \text{if } \text{sign}(SAA_i \ge 0.5) \neq y_{\text{expert},i} \\ 0 & \text{otherwise} \end{cases}
+\end{equation}
+Replaces AWLF v1's target (raw scene-presence, which collapsed to a trivial $F_1=0.9969$ under 99.4\% class imbalance). AWLF v2 instead predicts \emph{whether the pipeline will be wrong} --- the actually useful triage question.
+\begin{equation}
+\mathbf{x}_i = \left[\, U_{\text{SAA},i},\ \text{SCI}_i,\ \text{IoU}_i,\ \text{Entropy}(A_i),\ \text{AspectAreaRatio}_i \,\right]
+\end{equation}
+\begin{equation}
+f_{\text{AWLF}} = \arg\min_f \sum_i \mathcal{L}_{\text{log}}\!\left( y_i, f(\mathbf{x}_i) \right) + \Omega(f)
+\end{equation}
+The meta-feature vector fed to a Gradient-Boosted classifier: standard boosted-tree logistic loss plus tree-complexity regularization $\Omega(f)$.
+\begin{center}
+\begin{tabular}{@{}p{2.4cm}p{2.4cm}p{9.9cm}@{}}
+\toprule
+\textbf{Result} & \textbf{Value} & \textbf{Split} \\
+\midrule
+ROC-AUC & 0.9896 & In-sample, $C_1$, 5-fold CV --- development only \\
+ROC-AUC & 0.6669 & Original group holdout ($n=401$) --- \emph{superseded}: that pool was $66.7\%$ mislabelled \\
+ROC-AUC & \textbf{0.8702} & Corrected trustworthy pool, group-level holdout ($n=249$) --- \textbf{quote this one} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\derivedfrom{Thesis \S2.5, Algorithm 2}
+\computedby{\texttt{\seqsplit{exp20\_error\_targeted\_awlf.py}}}
+\methodref{Friedman (2001) \cite{friedman2001} --- gradient boosting}
+\end{formulacard}
+
+% ======================================================================
+\begin{formulacard}{3.4 \quad The shared blind spot, and its replication \status{Updated Sept 2026}}
+The one place the uncertainty signal demonstrably fails. On images a human confirms contain no scene, all four models agree the image shows something, and all four are wrong --- so the spread stays low exactly where a curator most needs a warning.
+\begin{center}\small
+\begin{tabular}{@{}l c c c l@{}}
+\toprule
+\textbf{Pool} & \textbf{$n$} & \textbf{errors} & \textbf{ROC-AUC} & \textbf{$95\%$ CI} \\
+\midrule
+Original held-out test & $38$ & $5$ & $0.1152$ & $[0.000,\,0.396]$ \\
+Third annotation pass, \emph{disjoint} & $123$ & $27$ & $0.1852$ & $[0.0799,\,0.3059]$ \\
+\textbf{All confirmed negatives} & $\mathbf{319}$ & $\mathbf{50}$ & $\mathbf{0.1259}$ & $[0.0619,\,0.1959]$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\notebox{GoodInk}{\textbf{Say this cold if asked ``isn't that just a small sample?''} It was: the first estimate rested on $5$ errors and its interval nearly reached chance. A third rater then reviewed $285$ further images, disjoint from everything used before, and the finding \emph{replicated independently} at $0.1852$ --- an interval again lying entirely below chance. Pooled, the error count behind it is now $50$ rather than $5$ and the interval is roughly three times tighter. Every interval sits wholly below $0.5$.}
+\notebox{GoodInk}{\textbf{The follow-up question, and the answer that wins it.} ``Below chance --- so your models are anti-correlated with error?'' No. Two things make this subgroup degenerate. \emph{One:} $115$ of the $319$ cannot be errors at all ($A^{\text{object}}=0 \Rightarrow SAA\le0.2 < 0.5$), and those are precisely the images the derived term hands the highest uncertainty --- see card 2.2c. Restrict to the $204$ where an error is possible and it rises to $0.22$: still below chance, so a real residual failure remains, but a quarter of the gap was arithmetic. \emph{Two:} on a confirmed negative, ``error'' \emph{is} $SAA\ge0.5$, so the plain confidence baseline scores exactly $\mathbf{0.000}$ here --- perfectly inverted by definition. A subgroup where the natural baseline is $0$ cannot rank any $SAA$-derived score fairly.}
+
+\notebox{GoodInk}{\textbf{Then reframe it the way deployment asks it.} Among the $968$ images the pipeline actually flagged scene-present with a human label ($918$ true, $50$ false, $409$ volumes, every label human-sourced), the pipeline's decision is constant and cannot leak. There $U_{\text{SAA}}$ scores $\mathbf{0.7043}$ and confidence $0.7465$. So the honest limitation is not ``disagreement fails on negatives'' --- it is that disagreement carries genuine above-chance information about which flagged images are wrong, while the below-chance figure belongs to a stratum that is degenerate for \emph{every} score built on $SAA$.}
+
+\notebox{WarnInk}{\textbf{The complementary detector --- asked for in \S7.5, attempted, negative.} Raw signals that never enter $SAA$ (GroundingDINO boxes/confidences $+$ OCR statistics), $5$-fold CV grouped by PPN volume: strict set $0.7299$ (CI $[0.6536,0.7994]$), full raw set $0.7616$ (CI $[0.6827,0.8338]$). Both beat chance; neither beats confidence --- paired bootstrap $+0.0148$, CI $[-0.0742,\,0.0959]$. \emph{If asked why you are reporting a failure:} an earlier version of this detector scored $0.7727$ inside the negatives-only pool and was discarded, because there the target and $SAA\ge0.5$ are the same vector --- it was recovering the pipeline's own decision. Fitting both targets returned identical numbers, which is what caught it.}
+\computedby{\texttt{decompose\_negative\_control\_blind\_spot.py}, \texttt{run\_unanimous\_fp\_detector.py} (both \texttt{--verify})}
+\derivedfrom{Thesis \S4.3 (corrected group-level holdout); \S7.4 boundary 1; \S7.5 future work}
+\computedby{\texttt{evaluate\_expanded\_negative\_controls.py} (\texttt{--verify})}
+\end{formulacard}
+
+\begin{formulacard}{3.5 \quad Predictive ablation, and calibration that actually holds out \status{Added Sept 2026}}
+\textbf{Which signal is load-bearing?} Leave-one-out on \emph{error detection}, not on mean spread. Corrected PPN-disjoint test partition, $n=249$, $70$ errors.
+\begin{center}\small
+\begin{tabular}{@{}l c c c@{}}
+\toprule
+\textbf{Signals retained} & \textbf{spread} & \textbf{learned} & \textbf{$\Delta$} \\
+\midrule
+Object, Scene, VLM (full) & $0.8340$ & $0.8664$ & --- \\
+Scene, VLM \ (\emph{Object out}) & $0.7574$ & $0.7803$ & $-0.0861$ \\
+Object, VLM \ (\emph{Scene out}) & $0.6333$ & $0.8387$ & $-0.0277$ \\
+Object, Scene \ (\emph{VLM out}) & $0.6653$ & $\mathbf{0.8772}$ & $\mathbf{+0.0108}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\notebox{GoodInk}{\textbf{Two things to say here.} Object is load-bearing --- removing it costs $0.0861$, the largest loss --- yet Thesis Table~4.3 records its removal as the \emph{smallest} change in mean spread. Descriptive and predictive ablation rank the agents differently, and only the second speaks to the deployed task. And removing the VLM signal \emph{improves} the learned score ($+0.0108$): the dependency $A^{\text{vlm}}=\mathbb{I}[A^{\text{object}}>0]$ surfacing a third time, from a new direction.}
+
+\textbf{Calibration across publication boundaries.} \S4.5's $\text{ECE}<0.001$ is fitted and scored on a \emph{random} $50\%$ split of $C_1$, where pages of one volume sit on both sides. On the PPN-disjoint split ($360$ train volumes, $79$ test, none shared):
+\begin{center}\small
+\begin{tabular}{@{}l c@{}}
+\toprule
+\textbf{On the publication-disjoint test partition} & \textbf{ECE} \\
+\midrule
+uncalibrated & $0.116$ \\
+after Platt scaling (fitted on train) & $\mathbf{0.109}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\notebox{WarnInk}{\textbf{Say it in one line:} the score \emph{ranks} errors well across publications ($\text{ROC-AUC}=0.8828$) and is \emph{not} well calibrated across them. A monotone recalibration cannot change ranking; what fails to transfer is the score-to-probability map. Anyone relying on the stated probabilities rather than the ordering must recalibrate on their own holdings.}
+
+\textbf{Consensus $+$ disagreement?} Consensus alone $0.8828$, disagreement alone $0.8600$, both together $0.8828$ --- paired difference exactly $0$. Over eight cells the fitted combination reproduces the ordering consensus already gives. Adding disagreement to confidence contributes nothing measurable.
+\derivedfrom{Thesis \S4.2.2, \S4.5, \S4.6}
+\computedby{\texttt{run\_review\_gaps\_p2\_p3.py} (\texttt{--verify})}
+\end{formulacard}
+
+\section{Attribution and Convergence}
+
+\begin{formulacard}{4.1 \quad Shapley attribution (interpretability only --- not deployed) \status{Supplementary}}
+\begin{equation}
+\phi_i = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|!\,(|N|-|S|-1)!}{|N|!} \left[\, v(S \cup \{i\}) - v(S) \,\right]
+\end{equation}
+Standard cooperative game-theory formula: the average marginal contribution of player $i$ across every possible ordering of the other players, where $v(S)$ is the coalition value function (here, the calibration objective achieved by fusing exactly the agents in coalition $S$). Computed exactly over all $2^4-1$ coalitions of the 4-player game --- Object, Scene, VLM, Agreement.
+\begin{center}
+\begin{tabular}{@{}llr@{}}
+\toprule
+\textbf{Agent} & $\phi_i$ & \textbf{Normalized} \\
+\midrule
+VLM (LLaVA-OneVision) & 0.330 & 33.0\% \\
+Agreement & 0.283 & 28.3\% \\
+Scene (SigLIP) & 0.196 & 19.6\% \\
+Object (YOLOv11-seg) & 0.192 & 19.2\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+\notebox{WarnInk}{\textbf{Don't conflate with SAA weights:} these $\phi$ values do \emph{not} replace $w=[0.6, 0.2, 0.2]$. No result elsewhere in the thesis uses Shapley-weighted fusion --- this is retained purely as an interpretability study. If asked why the deployed weights don't match $\phi$: the deployed weights were fixed heuristics chosen before this analysis existed; $\phi$ was computed afterward to check what a data-driven attribution would say, and was never re-integrated into production.}
+\derivedfrom{Thesis Appendix --- Shapley (Exp 30)}
+\computedby{\texttt{\seqsplit{exp30\_shapley\_weighted\_fusion.py}}}
+\methodref{Shapley (1953) \cite{shapley1953}}
+\end{formulacard}
+
+\begin{formulacard}{4.2 \quad IoU and the spatial meta-learner \status{Standard metric + deployed model}}
+\begin{equation}
+\text{IoU}(B, G) = \frac{|B \cap G|}{|B \cup G|}
+\end{equation}
+$B$ = predicted box, $G$ = ground-truth box. The thesis's ``Bounding-Box Error Paradox'' evaluates $1 - \text{mean(IoU)}$ as a spatial-divergence signal and finds it near-zero correlated with SAA disagreement ($r=-0.0137$, $p=0.858$) --- SAA tracks \emph{semantic} category confusion, not \emph{coordinate} placement error. Resolving this required a dedicated meta-learner over:
+\begin{align}
+\text{features} &= \left[\, \text{IoU},\ \text{box area},\ \text{class-probability entropy},\ \text{aspect-ratio variance} \,\right] \notag\\
+&\longrightarrow\ \text{Gradient-Boosted classifier}
+\end{align}
+\begin{center}
+\begin{tabular}{@{}p{7.6cm}p{6cm}@{}}
+\toprule
+\textbf{Signal} & \textbf{ROC-AUC} \\
+\midrule
+Raw spatial confidence (naive) & 0.4655 --- worse than chance \\
+GB spatial meta-learner (5-fold CV) & $0.6759 \pm 0.130$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\derivedfrom{Thesis \S3.3}
+\computedby{\texttt{\seqsplit{exp31\_gb\_spatial\_meta\_learner.py}}}
+\methodref{Everingham et al.\ (2010) \cite{everingham2010} --- PASCAL VOC IoU convention}
+\end{formulacard}
+
+% ======================================================================
+\begin{formulacard}{4.3 \quad Effective rank --- the heterogeneity precondition \status{Added Sept 2026}}
+A label-free check of whether an ensemble still carries enough independent variation for a disagreement statistic over it to mean anything. For the signal covariance $\Sigma$ with eigenvalues $\lambda_i$ and $p_i = \lambda_i / \sum_j \lambda_j$:
+\begin{equation}
+\text{eff-rank}(\Sigma) = \exp\!\left(-\sum_i p_i \log p_i\right)
+\end{equation}
+Worked on $C_0$ over the four core signals:
+\begin{align*}
+\boldsymbol\lambda &= (0.000000,\ 0.043022,\ 0.105629,\ 0.221285)\\
+\mathbf p &= (0,\ 0.1163,\ 0.2855,\ 0.5982)\\
+H = -\textstyle\sum p_i \log p_i &= 0.9155
+\quad\Longrightarrow\quad \text{eff-rank} = e^{0.9155} = \mathbf{2.498}
+\end{align*}
+\notebox{WarnInk}{\textbf{The first eigenvalue is exactly zero.} Four signals but three free parameters, so $\Sigma$ is singular --- the derived-term dependency of \S2.2a reappearing as a rank deficiency. Four signals carry the information of about two and a half.}
+On the second archive the same computation gives $\mathbf{1.37}$ against $2.50$ here: the ensemble collapses toward a single effective signal, which is why disagreement carries no information there. Runs \emph{before} any annotation.
+\derivedfrom{Thesis \S3.6; Appendix E}
+\computedby{\texttt{run\_uncertainty\_signal\_decomposition.py}}
+\end{formulacard}
+
+\section{Standard Metrics}
+Textbook definitions --- the committee is unlikely to ask for a derivation, but you should be able to state them without hesitating.
+
+\begin{center}
+\begin{tabular}{@{}p{2.6cm}p{6.6cm}p{5.2cm}@{}}
+\toprule
+\textbf{Metric} & \textbf{Formula} & \textbf{Reference} \\
+\midrule
+Precision / Recall & $P = \frac{TP}{TP+FP}$, \ $R = \frac{TP}{TP+FN}$ & --- \\[4pt]
+F1 & $\dfrac{2PR}{P+R}$ & --- \\[6pt]
+ROC-AUC & $P\big(\text{score(pos)} > \text{score(neg)}\big)$ & Hand \& Till (2001) \cite{handtill2001} \\[3pt]
+mAP50 / mAP50-95 & mean AP over classes @ IoU=0.5 / averaged over IoU=0.5:0.95 & Everingham et al.\ (2010) \cite{everingham2010}; Lin et al.\ (2014) \cite{lin2014} \\[3pt]
+ECE & $\sum_m \frac{n_m}{n} \left| \text{acc}(m) - \text{conf}(m) \right|$ & Guo et al.\ (2017) \cite{guo2017} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Statistical tests cited}
+\begin{center}
+\begin{tabular}{@{}p{2.6cm}p{4.4cm}p{2.6cm}p{4cm}@{}}
+\toprule
+\textbf{Test} & \textbf{Where used} & \textbf{Result} & \textbf{Reference} \\
+\midrule
+Wilcoxon signed-rank & Monolithic vs.\ fusion accuracy, $C_1$ & $p=0.375$ (n.s.) & Wilcoxon (1945) \cite{wilcoxon1945} \\[3pt]
+Cohen's $d$ & Same comparison, effect size & $d=+0.07$ (negligible) & Cohen (1988) \cite{cohen1988} \\[3pt]
+Cohen's $\kappa$ & Annotator A vs.\ B inter-rater reliability & (cross-check script) & Cohen (1960) \cite{cohen1960} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\noindent{\small The Wilcoxon/Cohen's $d$ result is the statistical backbone of a key thesis argument: multi-agent fusion doesn't significantly beat a single strong VLM on raw accuracy --- its value is calibration (ECE $0.280\!\to\!<\!0.001$) and triage precision, not accuracy. That is the difference between ``fusion works'' and ``fusion is useful,'' and the thesis argues only the latter.}
+
+% ======================================================================
+\section{Defense-Critical: Where the Write-Up and the Code Used to Disagree}
+Both gaps below were found by reading the actual scripts against the thesis text, then corrected the same day (25 Aug 2026) in \emph{thesis\_v3\_updated.tex} and \emph{defense\_slides.tex} (Algorithm 1, Algorithm 3, \S2.4 Level 4, \S5.2, Slides 2.6 and 3.6) --- rebuilt and visually verified, no overflow or truncation. Neither was a fabrication; both were honest, defensible design choices that simply weren't written down. Keep the explanations below in your head anyway --- a committee member may still ask you to walk through \emph{why} the code does what it does, even though the PDF now states it correctly.
+
+\begin{enumerate}[leftmargin=1.6em]
+\item \textbf{$U_{\text{triage}}$'s second term: SCI vs.\ $\bar{c}$ (mean confidence).} The thesis now documents both as separate, named quantities (\S2.3 above): $U^{\text{SCI}}_{\text{triage}}$ (the non-deployed \S5.1 policy, shown honestly to fail at 0.98$\times$ chance) and $U^{\text{CRC}}_{\text{triage}}$ (substituting $\bar{c}$, mean of the 4 core agents, for SCI --- the quantity $\hat\lambda=0.5370$ is actually calibrated against). \emph{If asked:} these are genuinely different signals sharing a formula shape --- SCI is scan-level clutter, $\bar{c}$ is agent-level average confidence --- and the algorithm/section that previously conflated them now spells out which is which.
+\item \textbf{CRC's loss function: thresholding SAA vs.\ thresholding uncertainty.} \S5.2 and Algorithm 3 now state the real two-step mechanism exactly: fix the error label from $SAA \ge 0.5$ first, then threshold the separate $U_{\text{triage}}$ (CRC variant) score for auto-approval --- ``approve when confident enough,'' not ``approve when SAA says so.'' \emph{If asked why:} this is the more defensible design of the two (approving based on confidence-in-the-decision rather than the decision's raw score) --- the fix was to the documentation, not the mechanism, which was always correct and produced every real number in the thesis.
+\end{enumerate}
+
+\noindent\textbf{Withdrawn, and why --- have this ready.} An earlier draft carried a proposition on \emph{fixed-point convergence of consensus refinement}: if the iterative consensus operator were a contraction ($\gamma<1$), Banach's theorem would guarantee a unique stationary state. It was removed from the thesis and is no longer claimed anywhere. The reason is that $\gamma<1$ was never proven for the actual kernel-smoothing operator; all that could be reported was that refinement converged within $\le 3$ iterations in every run, which is consistent with contractive behaviour but is not evidence of it. A theorem whose hypothesis is unverified proves nothing about the system, so it was cut rather than left standing as decoration. \emph{If a committee member has an older draft and asks:} say it was withdrawn deliberately, and that the empirical convergence observation survives without it.
+
+\noindent\textbf{Already fixed earlier in the same audit, for reference:} $U_{\text{SAA}} \neq 1-SAA$. An earlier draft defined $U_{\text{SAA}}$ as the algebraic complement of SAA. Found wrong and corrected in three places (\S2.4, \S4.1, \S7.4) to the real 4-term standard-deviation formula, before the two gaps above were even found. If a committee member has seen an older draft, this is the one place text could plausibly still disagree with what is in their hands --- the current version is consistent throughout.
+
+\clearpage
+% ======================================================================
+% thebibliography auto-generates its own "References" heading below --
+% just make sure it lands in the TOC.
+\addcontentsline{toc}{section}{References}
+
+\begin{thebibliography}{99}
+
+\bibitem{shapley1953}
+Lloyd S. Shapley.
+\newblock A value for $n$-person games.
+\newblock In Harold W. Kuhn and Albert W. Tucker, editors, \emph{Contributions to the Theory of Games}, volume 2, pages 307--317. Princeton University Press, Princeton, NJ, 1953.
+
+\bibitem{angelopoulos2024conformal}
+Anastasios N. Angelopoulos and Stephen Bates.
+\newblock Conformal Prediction: A Gentle Introduction.
+\newblock \emph{Foundations and Trends in Machine Learning}, 16(4):494--591, 2023.
+
+\bibitem{platt1999}
+John C. Platt.
+\newblock Probabilistic outputs for support vector machines and comparisons to regularized likelihood methods.
+\newblock In \emph{Advances in Large Margin Classifiers}, pages 61--74. MIT Press, 1999.
+
+\bibitem{friedman2001}
+Jerome H. Friedman.
+\newblock Greedy function approximation: A gradient boosting machine.
+\newblock \emph{Annals of Statistics}, 29(5):1189--1232, 2001.
+
+\bibitem{guo2017}
+Chuan Guo, Geoff Pleiss, Yu Sun, and Kilian Q. Weinberger.
+\newblock On calibration of modern neural networks.
+\newblock In \emph{Proceedings of the 34th International Conference on Machine Learning (ICML)}, pages 1321--1330, 2017.
+
+\bibitem{cohen1960}
+Jacob Cohen.
+\newblock A coefficient of agreement for nominal scales.
+\newblock \emph{Educational and Psychological Measurement}, 20(1):37--46, 1960.
+
+\bibitem{cohen1988}
+Jacob Cohen.
+\newblock \emph{Statistical Power Analysis for the Behavioral Sciences}.
+\newblock Lawrence Erlbaum Associates, 2nd edition, 1988.
+
+\bibitem{wilcoxon1945}
+Frank Wilcoxon.
+\newblock Individual comparisons by ranking methods.
+\newblock \emph{Biometrics Bulletin}, 1(6):80--83, 1945.
+
+\bibitem{everingham2010}
+Mark Everingham, Luc Van Gool, Christopher K. I. Williams, John Winn, and Andrew Zisserman.
+\newblock The PASCAL Visual Object Classes (VOC) Challenge.
+\newblock \emph{International Journal of Computer Vision}, 88(2):303--338, 2010.
+
+\bibitem{lin2014}
+Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva Ramanan, Piotr Doll\'ar, and C.\ Lawrence Zitnick.
+\newblock Microsoft COCO: Common objects in context.
+\newblock In \emph{European Conference on Computer Vision (ECCV)}, pages 740--755, 2014.
+
+\bibitem{handtill2001}
+David J. Hand and Robert J. Till.
+\newblock A simple generalisation of the area under the ROC curve for multiple class classification problems.
+\newblock \emph{Machine Learning}, 45(2):171--186, 2001.
+
+
+\end{thebibliography}
+
+\bigskip
+\noindent{\small\textcolor{gray}{Built from a direct read of \texttt{thesis\_v3\_updated.tex} and the scripts in \texttt{scripts/core\_pipeline/} on 25 Aug 2026. Every numeric result above was reproduced by re-running its source script. If a script changes after this date, re-derive rather than trust this document.}}
+
+\end{document}

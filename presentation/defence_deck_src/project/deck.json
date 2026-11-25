@@ -1,0 +1,101 @@
+{
+  "v": 4,
+  "attachments": {},
+  "cover": "cover",
+  "createdOnFiles": {
+    "at": "2026-11-09T22:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "faces": {
+    "ibm-plex-sans": {
+      "family": "IBM Plex Sans",
+      "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap"
+    },
+    "source-serif-4": {
+      "family": "Source Serif 4",
+      "href": "https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&display=swap"
+    }
+  },
+  "lists": "css",
+  "order": [
+    "cover",
+    "question",
+    "tasks",
+    "pictures",
+    "answer",
+    "why-agents",
+    "old-arch",
+    "old-flaw",
+    "collapse",
+    "diagnosis",
+    "new-arch",
+    "agents",
+    "mapping",
+    "combine",
+    "promise",
+    "promise-curve",
+    "dog",
+    "presence",
+    "classes",
+    "objects",
+    "baselines",
+    "disagreement",
+    "archive",
+    "proven",
+    "limits",
+    "thanks",
+    "faq-weights",
+    "faq-promise",
+    "faq-stats",
+    "faq-figure",
+    "terms",
+    "old-signals",
+    "eight-states",
+    "old-levels",
+    "old-cutoff",
+    "why-new",
+    "steps-map",
+    "agent-numbers",
+    "weights-origin",
+    "uncertainty",
+    "flow",
+    "algo-learn",
+    "algo-decide",
+    "algo-cutoff",
+    "example-numbers",
+    "protocol",
+    "baselines-why",
+    "archive-why",
+    "archive-answers",
+    "tier2",
+    "agenda"
+  ],
+  "sections": {
+    "s1": {
+      "description": "Why this thesis exists, its two tasks, and its answer in one slide",
+      "start": "cover"
+    },
+    "s2": {
+      "description": "Why several agents, the design as first deployed, how its numbers were computed, and why it fails",
+      "start": "why-agents"
+    },
+    "s3": {
+      "description": "From diagnosis to design, why each part is there, then the six steps with one picture",
+      "start": "diagnosis"
+    },
+    "s4": {
+      "description": "Results inside the labelled pool, against baselines, and on the archive",
+      "start": "presence"
+    },
+    "s5": {
+      "description": "What is proven, what is not, and what comes next",
+      "start": "proven"
+    },
+    "s6": {
+      "description": "Backup slides: likely questions, then the detail behind the main talk (old design, algorithms, protocol, baselines, archive, Tier 2)",
+      "start": "faq-weights"
+    }
+  },
+  "title": "Thesis Defence: Trusting Automatic Answers on Historical Illustrations"
+}

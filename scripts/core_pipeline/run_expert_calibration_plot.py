@@ -12,18 +12,15 @@ EXPERT_CSV = BASE / "human_spatial_audit" / "user_annotations_800.csv"
 SCORES_CSV = BASE / "results/multi_agent/agent_comparison_scores.csv"
 OUT_DIR = BASE / "latex_assets"
 
-def normalize_id(name):
-    p = str(name).replace("images/", "").replace("\\", "/")
-    p = p.split("/")[-1].rsplit(".", 1)[0]
-    parts = p.split("_")
-    return "_".join(parts[-2:]) if len(parts) >= 2 and parts[0].startswith("PPN") else p
+from picture_ids import full_id as normalize_id, read_expert_annotations   # book and page, never the page alone
+
 
 def main():
     print("Running Expert Calibration Analysis...")
     os.makedirs(OUT_DIR, exist_ok=True)
     
     # Load Data
-    expert = pd.read_csv(EXPERT_CSV)
+    expert = read_expert_annotations(EXPERT_CSV)
     expert['cvat_id'] = expert.index
     expert_reviewed = expert[expert['cvat_id'] <= 800].copy()
     expert_reviewed["gold_has_scene"] = (expert_reviewed["n_scene_labels"] > 0).astype(int)
