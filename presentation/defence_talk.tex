@@ -92,6 +92,14 @@
 \newtcolorbox{exbox}[1][]{enhanced,colback=okbg,colframe=okc,boxrule=0pt,leftrule=3pt,arc=2pt,
   left=6pt,right=6pt,top=4pt,bottom=4pt,fontupper=\small\raggedright,title={Example},coltitle=okc,colbacktitle=okbg,
   fonttitle=\scriptsize\bfseries,attach title to upper={\ \ },#1}
+\newcommand{\relcard}[4]{%
+  \begin{tcolorbox}[enhanced,colback=white,colframe=line,boxrule=0.6pt,arc=3pt,left=6pt,right=6pt,top=4pt,bottom=5pt,
+    title={#1},coltitle=navy,colbacktitle=soft,fonttitle=\small\bfseries,halign title=flush left,toptitle=2pt,bottomtitle=2pt,fontupper=\footnotesize\raggedright]
+  {\scriptsize\color{muted}#2}\par\vspace{3pt}
+  {\scriptsize\bfseries\color{muted}WHAT IT SHOWED}\par\vspace{1pt}#3\par\vspace{4pt}
+  {\color{line}\rule{\linewidth}{0.5pt}}\par\vspace{3pt}
+  {\scriptsize\bfseries\color{navy}WHAT THIS THESIS ADDS}\par\vspace{1pt}{\color{navy}#4}
+  \end{tcolorbox}}
 \newcommand{\takeaway}[1]{\vfill\begin{keybox}#1\end{keybox}}
 \newcommand{\stepn}[1]{{\setlength{\fboxsep}{1.3pt}\colorbox{navy}{\color{white}\bfseries\scriptsize\,#1\,}}}
 \newcommand{\yes}[1]{{\color{okc}\bfseries #1}}
@@ -265,34 +273,32 @@ RQ4 \;Retrieval, cross-archive links? & {\color{risk}\textbf{Partially}}\\
 \end{frame}
 
 \begin{frame}{Related research (1 of 2): detection and disagreement}
-\footnotesize
-\renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
-\toprule
-\textbf{Line of research} & \textbf{What it established} & \textbf{What this thesis adds or tests}\\
-\midrule
-\textbf{Historical object detection}\newline{\scriptsize Kim, Im \& Mandl 2024} & Transfer learning and pseudo-labels find objects without manual labels (F1 0.58 over 15 types) & Grades such a student against \textbf{people}: 0.768 against its teacher, 0.146 against human boxes; the cause is the teacher; a better teacher: 0.210\\
-\textbf{Committee and ensemble disagreement}\newline{\scriptsize Seung et al.\ 1992; Lakshminarayanan et al.\ 2017} & Disagreement among models as a measure of uncertainty & Tests it with \textbf{different kinds} of model, fixed in advance: never better than confidence; 149 of 199 errors shared\\
-\textbf{Disagreement estimates error}\newline{\scriptsize Jiang et al.\ 2022; Baek et al.\ 2022} & How \emph{many} answers are wrong (same-task models) & Asks \emph{which picture} is wrong: negative here\\
-\bottomrule
-\end{tabularx}
-\takeaway{Known for models of one kind and for error \emph{rates}; tested here per picture, with models of different kinds, on historical prints.}
+\begin{tcbraster}[raster columns=3,raster equal height,raster column skip=8pt]
+\relcard{Historical object detection}{Kim, Im \& Mandl 2024}
+  {Transfer learning and pseudo-labels find objects in historical images without manual labels (F1 0.58 over 15 types).}
+  {Grades such a student against \textbf{people}: 0.768 against its teacher, 0.146 against human boxes. The cause is the teacher; a better teacher reaches 0.210.}
+\relcard{Committee and ensemble disagreement}{Seung et al.\ 1992; Lakshminarayanan et al.\ 2017}
+  {Disagreement among models is used as a measure of uncertainty.}
+  {Tests it with models of \textbf{different kinds}, in a test fixed in advance: never better than confidence, because 149 of 199 errors are shared.}
+\relcard{Disagreement estimates error}{Jiang et al.\ 2022; Baek et al.\ 2022}
+  {Disagreement estimates \emph{how many} answers are wrong, for models trained for the same task.}
+  {Asks \emph{which picture} is wrong, with models of different kinds: the answer is negative here.}
+\end{tcbraster}
 \note{Where the thesis sits, part one. Kim, Im and Mandl showed that pseudo-labelling finds objects without manual labels; I grade such a student against people and trace its failure to the teacher. Committee and ensemble methods use disagreement as uncertainty; I test that with genuinely different models, in a test fixed in advance, and it does not beat confidence because most errors are shared. Jiang and Baek estimate how many answers are wrong; I ask which picture is wrong.}
 \end{frame}
 
 \begin{frame}{Related research (2 of 2): confidence, risk promises, illustrations}
-\footnotesize
-\renewcommand{\arraystretch}{1.4}
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
-\toprule
-\textbf{Line of research} & \textbf{What it established} & \textbf{What this thesis adds or tests}\\
-\midrule
-\textbf{Confidence and calibration}\newline{\scriptsize Hendrycks \& Gimpel 2017; Guo et al.\ 2017; Ovadia et al.\ 2019} & A model's own confidence is a strong baseline; calibration degrades under shift & Confidence is the better router on historical prints, once each agent is mapped to a probability\\
-\textbf{Conformal risk control}\newline{\scriptsize Angelopoulos et al.\ 2024, 2025; Barber et al.\ 2023} & A risk promise without model assumptions, if new data are like the calibration data & Tests the promise on \textbf{random archive pictures}: 16.2\% with pool calibration, 5.4--5.9\% with archive calibration\\
-\textbf{Multimodal models on book illustrations}\newline{\scriptsize Piper \& Jiang 2026} & Strong models match people on concrete tasks and reproduce their disagreement on others & The same limit: scene classes recognised about as reliably as people agree ($\kappa = 0.34$)\\
-\bottomrule
-\end{tabularx}
-\takeaway{Conformal guarantees assume new data are like the calibration data; this thesis checks that assumption on the archive and shows what happens when it fails.}
+\begin{tcbraster}[raster columns=3,raster equal height,raster column skip=8pt]
+\relcard{Confidence and calibration}{Hendrycks \& Gimpel 2017; Guo et al.\ 2017; Ovadia et al.\ 2019}
+  {A model's own confidence is a strong baseline for finding its errors; calibration degrades under shift.}
+  {Confidence is the better router on historical prints, once each agent is mapped to a probability.}
+\relcard{Conformal risk control}{Angelopoulos et al.\ 2024, 2025; Barber et al.\ 2023}
+  {A risk promise without assumptions about the models, if new data are like the calibration data.}
+  {Tests that condition on \textbf{random archive pictures}: 16.2\% approved and wrong with pool calibration, 5.4--5.9\% with archive calibration.}
+\relcard{Multimodal models on book illustrations}{Piper \& Jiang 2026}
+  {Strong models match people on concrete tasks and reproduce people's disagreement on others.}
+  {The same limit: scene classes are recognised about as reliably as people agree ($\kappa = 0.34$).}
+\end{tcbraster}
 \note{Part two. A model's own confidence is a known strong baseline, and calibration degrades under shift; here confidence is the better router once each agent is mapped to a probability. Conformal risk control gives a promise if new data are like the calibration data; I test exactly that on random archive pictures. Piper and Jiang see the same limit as I do: models match people only as far as people agree.}
 \end{frame}
 
