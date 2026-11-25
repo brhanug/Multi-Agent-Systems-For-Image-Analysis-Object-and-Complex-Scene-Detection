@@ -2,8 +2,8 @@
 
 **When Can an Automatic Answer Be Trusted? Confidence, Not Disagreement, Under a Risk Promise for Historical Illustrations**
 
-Master thesis, Brhanu Atsbaha, University of Hildesheim. First advisor: Prof. Dr. Thomas Mandl.
-Defence: 10 December 2026.
+Master thesis, Brhanu Atsbaha, University of Hildesheim. Advisors: Prof. Dr. Thomas Mandl and Shereen Elsayed.
+Submitted December 2026; defence on 10 December 2026. The submitted PDF is [presentation/thesis_v4.pdf](presentation/thesis_v4.pdf) (142 pages).
 
 This repository holds the thesis, the defence material, and every script behind a number in them.
 The system the thesis puts forward is the **corrected design** of Chapters 6 and 7: three agents
@@ -17,9 +17,10 @@ describe the earlier, deployed design and why it was replaced.
 
 | Document | Source | Build |
 |---|---|---|
-| Thesis | [presentation/thesis_v4.tex](presentation/thesis_v4.tex), which includes [thesis_corrected_design_chapter.tex](presentation/thesis_corrected_design_chapter.tex) (Ch. 6–7), [thesis_corrected_design_appendix.tex](presentation/thesis_corrected_design_appendix.tex) (App. G) and [latex_assets/failure_gallery.tex](latex_assets/failure_gallery.tex) (App. A) | `cd presentation && ~/.local/bin/tectonic -X compile thesis_v4.tex` |
+| Thesis ([PDF](presentation/thesis_v4.pdf)) | [presentation/thesis_v4.tex](presentation/thesis_v4.tex) (a copy of `thesis_v3_updated.tex`, which is the file to edit), which includes [thesis_corrected_design_chapter.tex](presentation/thesis_corrected_design_chapter.tex) (Ch. 6–7), [thesis_corrected_design_appendix.tex](presentation/thesis_corrected_design_appendix.tex) (App. G) and [latex_assets/failure_gallery.tex](latex_assets/failure_gallery.tex) (App. A) | `cd presentation && cp thesis_v3_updated.tex thesis_v4.tex && ~/.local/bin/tectonic -X compile thesis_v4.tex` |
 | Defence slides, Beamer (48 pages) | [presentation/defense_slides_v2.tex](presentation/defense_slides_v2.tex) | same, with `defense_slides_v2.tex` |
-| Defence slides sent to the advisors (51 slides) | [presentation/defence_deck_src/](presentation/defence_deck_src/) → [Thesis_Defence_Slides.pdf](presentation/Thesis_Defence_Slides.pdf) | |
+| Defence slides for the talk (26 slides and 25 backup slides) | [presentation/defence_deck_src/](presentation/defence_deck_src/) (the HTML slides of the online deck) | export a PDF from the deck page |
+| Defence preparation: likely questions and the numbers to quote | [presentation/defense_prep_sheet.md](presentation/defense_prep_sheet.md) | |
 | Handout (2 pages) | [presentation/defense_handout_v2.tex](presentation/defense_handout_v2.tex) | same, with `defense_handout_v2.tex` |
 
 Figures live in [latex_assets/](latex_assets/), the bibliography in [presentation/references.bib](presentation/references.bib).
@@ -40,12 +41,12 @@ and write to `results/multi_agent/`.
 |---|---|---|
 | 1 | Introduction, state of the art, baselines | text only |
 | 2 | Method and architecture, the data, restoration, SAA formula | core: `run_agent_comparison.py`, `run_multi_agent_validation.py`, `run_scene_complexity_index.py` |
-| 3 | Spatial grounding collapse (0.768 → 0.146) | core: `run_spatial_error_prediction_100.py`, `run_box_level_iou_uncertainty.py`, `run_iou_error_taxonomy.py`; labels in `human_spatial_audit/user_annotations_300.csv` |
+| 3 | Spatial grounding collapse (0.768 → 0.146) | core: `run_spatial_error_prediction_100.py`, `run_box_level_iou_uncertainty.py`, `run_iou_error_taxonomy.py`; signal_rebuild: `run_ultralytics_val_deployed.py` (0.146 with the same validator as 0.768; `--device N` picks the GPU); labels in `human_spatial_audit/user_annotations_300.csv` |
 | 4 | Disagreement as uncertainty, held-out validation, Platt calibration, Tier 1 ablation | core: `build_corrected_negative_control_pool.py`, `build_corrected_clean_holdout_split.py`, `run_corrected_clean_holdout_evaluation.py`, `run_uncertainty_signal_decomposition.py`, `run_calibration_metrics.py`, `run_tier1_ablation.py` |
 | 5 | Triage and conformal risk control (deployed design) | core: `run_corrected_clean_holdout_crc.py`, `exp29_conformal_risk_control.py`, `run_hitl_simulation.py` |
 | 6 | **The corrected design** | see the table below |
 | 7 | **The corrected design on the archive** | see the table below |
-| 8 | Agents 2, 4, 5 and the retrieval pilot | core: `run_tier2_agent_gold_precision.py`, `check_agent5_ocr_degeneracy.py`, `run_semantic_retrieval_eval.py`; signal_rebuild: `run_agent2_on_300.py`, `run_agent4_link_checks.py`, `run_agent5_buckets_rerun.py` |
+| 8 | Agents 2, 4, 5 and the retrieval pilot | core: `run_tier2_agent_gold_precision.py`, `check_agent5_ocr_degeneracy.py`, `run_semantic_retrieval_eval.py`; signal_rebuild: `run_agent2_on_300.py`, `run_agent4_link_checks.py`, `run_agent5_buckets_rerun.py`, `run_human_judgements.py` (retrieval and archive links judged by a person) |
 | 9 | Conclusions, ethics, what the thesis does not claim, limitations | text only |
 
 ### Chapters 6 and 7, section by section
@@ -67,9 +68,9 @@ which ties every number in these sections to its result file.
 | 6.12 Review effort for the archive | `run_review_hours.py` |
 | 6.13 The system against its baselines | `run_baselines.py`, `run_baselines_extra.py` |
 | 7.1 Does the promise hold on the archive? | `run_final_check.py` (704 pictures), `run_confirm_check.py` (300 pictures), `run_archive_approval_breakdown.py`, `run_external_audit.py`, `run_presort_controls.py` |
-| 7.2 The system's answers across the archive | `run_archive_answers.py`, `run_archive_scene_classes.py` |
+| 7.2 The system's answers across the archive | `run_archive_answers.py`, `run_archive_scene_classes.py` (`--partial`: the 179 of 444 pictures labelled) |
 | 7.3 A better teacher for the object finder | `run_teacher_candidates_on_300.py`, `train_gdino_student.py` |
-| 7.4 A pre-registered test of disagreement | `run_c4_preregistered.py` |
+| 7.4 A pre-registered test of disagreement | `run_c4_preregistered.py`, `run_c4_task_aligned.py` (disagreement within each task) |
 | 7.5 Scene agreement: systems and people | `run_scene_agreement.py` |
 | 7.6 Does restoration help? | `run_restoration_ablation.py` |
 
@@ -89,16 +90,16 @@ which ties every number in these sections to its result file.
 
 ## 3. Checking that the thesis matches the results
 
-Four checkers compare every cited number with its result file. None of them edits the thesis.
+Three checkers compare cited numbers with their result files. None of them edits the thesis.
 
 ```bash
 P=.venv/bin/python3
-$P scripts/thesis_v4_chapter6_check.py        # Chapters 6–7, App. A and G: 586 + 55 numbers
+$P scripts/thesis_v4_chapter6_check.py        # Chapters 6–7, App. A and G: 662 numbers; scene-class and other main-file figures: 109
 $P scripts/thesis_c1_figures_check.py         # in-sample (C1) figures: 43 numbers
 $P scripts/thesis_rerun_figures.py --verify   # figures that predate v4: 39 numbers
 ```
 
-State on 20 November 2026: **723 of 723 match.**
+State on 25 November 2026: **853 of 853 match** (662 + 109 + 43 + 39).
 
 ---
 
@@ -117,7 +118,7 @@ See [REPRODUCE.md](REPRODUCE.md). In short:
 
 | Folder | What it holds |
 |---|---|
-| [presentation/](presentation/) | Thesis, slides, handout (sources and PDFs). `thesis_v3_updated.tex` and `advisor_document_2026-09-29.tex` stay because the checkers and rerun scripts still read them; earlier slides and meeting documents are in `presentation/old/`, emails to the advisors in `presentation/correspondence/` |
+| [presentation/](presentation/) | Thesis, slides, handout (sources and PDFs). `thesis_v3_updated.tex` and `advisor_document_2026-09-29.tex` stay because the checkers and rerun scripts still read them; earlier slides, meeting documents, the September source package and superseded PDFs are in `presentation/old/` (dated file names), emails to the advisors in `presentation/correspondence/` |
 | `config.yaml`, `configs/`, `tier2_selection.*` | Settings and the Tier 2 picture list, read by scripts |
 | `*.pt` at the root | Detector and SAM weights that some scripts load by bare file name (not in git) |
 | [latex_assets/](latex_assets/) | Figures included by the thesis |

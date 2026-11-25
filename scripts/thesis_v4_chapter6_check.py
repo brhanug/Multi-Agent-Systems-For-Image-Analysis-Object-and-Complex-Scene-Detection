@@ -752,6 +752,10 @@ ENTRIES = [
     (f"SigLIP -- LLaVA (objects) & 0.898 & ⟨⟩ & 0.094", f"{CA}:objects|corpus|siglip-llava|mean_if_unrelated", f3),
     (f"SigLIP -- LLaVA (scenes) & ⟨⟩ & 0.865 & 0.055", f"{CA}:scenes|corpus|siglip-llava|mean_agreement", f3),
     (f"Object finder -- SigLIP (objects) & ⟨⟩ & 0.849 & 0.033", f"{CA}:objects|corpus|detector-siglip|mean_agreement", f3),
+    # --- final check 25 Nov 2026: unpinned figures that predated the 3 Nov rerun
+    ("the learned shares average $⟨⟩$, $0.24$ and $0.33$.", "fusion_weights_corrected.json:learned_weight_shares|object|mean", lambda x: f"{x:.2f}"),
+    ("the learned shares average $0.43$, $⟨⟩$ and $0.33$.", "fusion_weights_corrected.json:learned_weight_shares|scene|mean", lambda x: f"{x:.2f}"),
+    ("the learned shares average $0.43$, $0.24$ and $⟨⟩$.", "fusion_weights_corrected.json:learned_weight_shares|vlm|mean", lambda x: f"{x:.2f}"),
 ]
 
 
@@ -873,6 +877,10 @@ MAIN_ENTRIES = [
     ("that the person does not ($19$ against $⟨⟩$)", "human_judgements.json:retrieval|proxy_vs_human|proxy_not_human_relevant", integer),
     ("the semantic index reaches Precision@10 $=⟨⟩$ against $0.10$ for keyword search; proxy", "human_judgements.json:retrieval|mean|semantic_p10", lambda x: f"{x:.2f}"),
     ("the balanced accuracy falls from $0.544$ to $⟨⟩$.", "archive_scene_classes_partial.json:results|planned fit|joint mapping (the system)|all_archive_pictures_no_risk_control|balanced_accuracy_reported_classes", f3),
+    # --- final check 25 Nov 2026: effective rank of the corrected signals (predated the 3 Nov rerun)
+    ("carry an effective rank of $⟨⟩$ on all $12{,}110$ Colibri pictures", "effective_rank_gate.json:corrected|corrected|three calibrated P(scene)", lambda x: f"{x:.2f}"),
+    ("or $⟨⟩$ with the absence score added; the object and VLM", "effective_rank_gate.json:corrected|corrected + absence|three calibrated P(scene)", lambda x: f"{x:.2f}"),
+    ("the object and VLM signals alone correlate at $r=⟨⟩$.", "effective_rank_gate.json:corrected|corrected|pairwise correlation|object/vlm", lambda x: f"{x:.2f}"),
 ]
 
 

@@ -3,8 +3,10 @@
 The thesis is `presentation/thesis_v4.tex`. Which script backs which chapter is in
 [README.md](README.md), section 2. This file says how to rerun them and how to check the result.
 
-Last verified: **20 November 2026.** The four checkers report 723 of 723 cited numbers matching
-their result files, and the headline chain below reproduces exactly.
+Last verified: **25 November 2026.** The three checkers report 853 of 853 cited numbers matching
+their result files, and the headline chain below reproduces exactly. On 25 November every script
+with a `--verify` mode was rerun against the stored results; all reproduce (three result files from
+4 November were older than their inputs and were recomputed first; no thesis figure changed).
 
 ---
 
@@ -13,7 +15,7 @@ their result files, and the headline chain below reproduces exactly.
 ```bash
 cd /data/brhanu/thesis_project
 P=.venv/bin/python3
-$P scripts/thesis_v4_chapter6_check.py        # expect: 586 of 586 ... / 55 of 55 ...
+$P scripts/thesis_v4_chapter6_check.py        # expect: 662 of 662 ... / 109 of 109 ...
 $P scripts/thesis_c1_figures_check.py         # expect: 43 of 43 ...
 $P scripts/thesis_rerun_figures.py --verify   # expect: 39 of 39 ...
 ```
@@ -67,7 +69,8 @@ runs the checkers. It is resumable: finished steps are recorded under `reruns/re
 and skipped on restart. Before it starts, it backs up `results/` to `reruns/.../backup/`.
 
 The last full rerun (3 November 2026) reproduced 71 of 72 experiments. The LLaVA, Kosmos and
-retrained-student figures moved slightly, because GPU inference is not bit-exact.
+retrained-student figures moved slightly, because GPU inference is not bit-exact; the thesis reports
+the values of that run.
 
 ---
 
@@ -119,6 +122,7 @@ These are human labour. If they are lost, they must be labelled again by hand. B
 
 ```bash
 cd presentation
+cp thesis_v3_updated.tex thesis_v4.tex     # thesis_v3_updated.tex is the file to edit
 ~/.local/bin/tectonic -X compile thesis_v4.tex
 ~/.local/bin/tectonic -X compile defense_slides_v2.tex
 ~/.local/bin/tectonic -X compile defense_handout_v2.tex

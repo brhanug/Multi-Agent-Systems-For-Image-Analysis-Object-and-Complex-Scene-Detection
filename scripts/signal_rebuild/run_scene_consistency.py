@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """Does one consistent rule for "scene" change the corrected design's results?
 
+SUPERSEDED (25 Nov 2026). The 364 pictures were finally labelled inside the final check
+(self_annotation_package/final_check/labels.csv), not on this page, so this script stops at "304 of 364
+pictures are not labelled yet" and writes nothing. The analysis it planned is in
+run_scene_definition_check.py (Appendix G.1) and run_final_check.py (Section 7.1); no thesis figure
+comes from this script.
+
 In the 1,250-picture pool the expert CVAT labels count 796 of 801 pictures as scenes, sheet music,
 covers and borders included, while the 2026 relabelling rounds (449 pictures) label the same kinds of
 picture "no scene"; 191 of the 196 "no scene" labels come from those rounds. A pre-sort flagged 324
