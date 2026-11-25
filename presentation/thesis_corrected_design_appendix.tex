@@ -30,7 +30,7 @@ Random subset, same size & 0.205 & 0.198 & 0.201 & 0.182 \\
 \end{tabular}
 \end{table}
 
-The filter has no effect that this experiment can establish. The confirmed labels score $0.017$ above all labels on average, lower in one run and higher in the other, and $0.030$ above the random subset, higher in both runs ($+0.006$ and $+0.055$); two runs of one setup differ by up to $0.04$, as much as the setups differ from each other. An earlier run of the same experiment, with the same seeds, ordered the three the other way ($0.213$, $0.210$ and $0.223$ for all, confirmed and random labels), so the order is within the noise of training itself. The gain over the old student therefore comes from the better teacher, which labels the classes the old teacher never did, and not from agreement between models. With two runs per setup the experiment cannot detect a small effect in either direction; what it rules out is that the filter explains the improvement. Together with the pre-registered test of Section~\ref{sec:c4_preregistered}, this closes the question for this archive: agreement between the models neither identifies the answers to trust nor the training labels to keep.
+The filter has no effect that this experiment can establish. The confirmed labels score $0.017$ above all labels on average, lower in one run and higher in the other, and $0.030$ above the random subset, higher in both runs ($+0.006$ and $+0.055$); two runs of one setup differ by up to $0.04$, as much as the setups differ from each other. An earlier run of the same experiment, with the same seeds, ordered the three the other way ($0.213$, $0.210$ and $0.223$ for all, confirmed and random labels), so the order is within the noise of training itself. The gain over the old student therefore comes from the better teacher, which labels the classes the old teacher never did, and not from agreement between models. With two runs per setup the experiment cannot detect a small effect in either direction; what it rules out is that the filter explains the improvement. Together with the pre-registered test of Section~\ref{sec:c4_preregistered}, this closes the question for this archive: agreement between the models picks out neither the answers to trust (no better than confidence does) nor the training labels to keep.
 
 \section{Agreement on Calibrated Scores}
 \label{sec:calibrated_agreement}
@@ -102,8 +102,11 @@ Six properties were added to confidence: ink share, contrast (grey-level standar
 
 Three things follow. First, ``drawing'' is not one kind of picture but at least four recurring subjects that a cataloguer would want to find on their own: religious scenes (group 7, $8.5\%$), animals ($22.2\%$ across groups 8 to 10, from fables to natural-history plates), riders, soldiers and battles (group 11, $5.3\%$), and indoor and courtly life (group 2, $11.8\%$). Second, some of what the class holds is not a scene under the thesis's own rule: group 12 is $41$ copies of one coat of arms, which the rule calls ``no scene'', and group 1 mixes story illustrations with the text pages around them. Third, the groups cut across the existing classes rather than splitting one of them, so a better list of classes would be organised by subject first and activity second, not by adding classes beside ``drawing'' (Section~\ref{sec:limitations}). The sizes depend on the number of groups chosen; those for $8$ and $16$ groups are kept with the result.
 
+\clearpage
 \section{Planned and Added Analyses}
 \label{sec:planned_analyses}
+
+Table~\ref{tab:planned_analyses} lists, for the analyses of this thesis, whether a written plan fixed them before they were run.
 
 \begin{table}[!htbp]
 \centering
@@ -128,7 +131,7 @@ What the class ``drawing'' contains & added, exploratory & Section~\ref{sec:draw
 Links below and above a similarity of $0.94$ & added after the planned test & Section~\ref{sec:agent4_linking} \\
 Disagreement against confidence within each task & added after the registered test & Section~\ref{sec:c4_preregistered} \\
 LLaVA's object prompt, chosen in a pilot on $100$ of the $300$ annotated pictures & pilot on test pictures; checked on the other $200$ & Section~\ref{sec:objects_llava_vs_fusion} \\
-Analyses of the deployed design (Chapters~\ref{ch:spatial_collapse}--\ref{ch:triage_risk_control}) & not planned in writing & Appendices~\ref{app:deployed_details} and~\ref{app:audit_sequence} \\
+Analyses of the deployed design (Chapters~\ref{ch:spatial_collapse}--\ref{ch:triage_risk_control}) & not planned in writing & Appendices~\ref{app:audit_sequence} and~\ref{app:deployed_details} \\
 \bottomrule
 \end{tabular}
 \end{table}

@@ -92,7 +92,7 @@ ENTRIES = [
     ("Efficiency lift vs.\\ random & $⟨⟩\\times$", CRC + "test_efficiency_lift", lambda x: f"{x:.2f}"),
     # --- the error meta-classifier (AWLF)
     ("achieves a mean $\\text{ROC-AUC} = ⟨⟩$ across folds", AW + "Logistic Regression (AWLF)|mean_auc", f4),
-    ("the single fit on the full cohort scores $⟨⟩$)", "exp20_error_awlf_results.json:error_awlf_performance|roc_auc", f4),
+    ("the single fit on the full cohort scores $⟨⟩$;", "exp20_error_awlf_results.json:error_awlf_performance|roc_auc", f4),
     ("scored $⟨⟩$ and $0.9908$;", AW + "Gradient Boosting|mean_auc", f4),
     ("scored $0.9905$ and $⟨⟩$;", AW + "Random Forest|mean_auc", f4),
 
