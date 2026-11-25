@@ -233,6 +233,69 @@ A rule that approves as much as possible \emph{and} a \textbf{promise}: ``at mos
 \note{This is the decision the whole thesis is about. Every answer is either approved automatically, and then nobody looks at it, or sent to a person. Approving more saves time but lets errors through. So the archive needs a rule plus a promise about how many errors get through.}
 \end{frame}
 
+\begin{frame}{The research question, and the hypothesis tested}
+\renewcommand{\defboxfont}{\scriptsize}
+\begin{columns}[T,onlytextwidth]
+\column{0.49\textwidth}
+\begin{defbox}{The research gap (Section 1.2)}
+\begin{enumerate}\setlength\itemsep{1pt}
+\item Detectors trained automatically for such archives are graded against their teachers, not against people.
+\item No tested way to decide \textbf{how far} automatic answers on ambiguous historical pictures may be trusted.
+\end{enumerate}
+\end{defbox}
+\begin{defbox}[colframe=risk,colbacktitle=riskbg,coltitle=risk]{The hypothesis}
+Disagreement between models of different kinds signals \textbf{where} the system is wrong (from query-by-committee and deep ensembles).
+\end{defbox}
+\column{0.48\textwidth}
+\footnotesize
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}m{2.0cm}@{}}
+\toprule
+\textbf{Research question} & \textbf{Answer}\\
+\midrule
+RQ1 \;Disagreement as uncertainty? & \no{No}\\
+RQ2 \;Less work, same error recall? & \yes{Yes}, with local calibration\\
+RQ3 \;Contradictions add precision? & {\color{risk}\textbf{Partially}}\\
+RQ4 \;Retrieval, cross-archive links? & {\color{risk}\textbf{Partially}}\\
+\bottomrule
+\end{tabularx}
+\end{columns}
+\takeaway{The system is the instrument; the result is the tested answer to the hypothesis.}
+\note{The thesis is organised around a hypothesis, not around a pipeline. The gap is twofold: automatically trained detectors for these archives are graded against their teachers, not people, and there is no tested way to decide how far to trust them. The hypothesis is that disagreement between different models shows where the system is wrong; that is plausible from query-by-committee, deep ensembles and recent work on disagreement. I answer four research questions: RQ1 no, RQ2 yes with local calibration, RQ3 and RQ4 partially.}
+\end{frame}
+
+\begin{frame}{Related research (1 of 2): detection and disagreement}
+\footnotesize
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Line of research} & \textbf{What it established} & \textbf{What this thesis adds or tests}\\
+\midrule
+\textbf{Historical object detection}\newline{\scriptsize Kim, Im \& Mandl 2024} & Transfer learning and pseudo-labels find objects without manual labels (F1 0.58 over 15 types) & Grades such a student against \textbf{people}: 0.768 against its teacher, 0.146 against human boxes; the cause is the teacher; a better teacher: 0.210\\
+\textbf{Committee and ensemble disagreement}\newline{\scriptsize Seung et al.\ 1992; Lakshminarayanan et al.\ 2017} & Disagreement among models as a measure of uncertainty & Tests it with \textbf{different kinds} of model, fixed in advance: never better than confidence; 149 of 199 errors shared\\
+\textbf{Disagreement estimates error}\newline{\scriptsize Jiang et al.\ 2022; Baek et al.\ 2022} & How \emph{many} answers are wrong (same-task models) & Asks \emph{which picture} is wrong: negative here\\
+\bottomrule
+\end{tabularx}
+\takeaway{Known for models of one kind and for error \emph{rates}; tested here per picture, with models of different kinds, on historical prints.}
+\note{Where the thesis sits, part one. Kim, Im and Mandl showed that pseudo-labelling finds objects without manual labels; I grade such a student against people and trace its failure to the teacher. Committee and ensemble methods use disagreement as uncertainty; I test that with genuinely different models, in a test fixed in advance, and it does not beat confidence because most errors are shared. Jiang and Baek estimate how many answers are wrong; I ask which picture is wrong.}
+\end{frame}
+
+\begin{frame}{Related research (2 of 2): confidence, risk promises, illustrations}
+\footnotesize
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Line of research} & \textbf{What it established} & \textbf{What this thesis adds or tests}\\
+\midrule
+\textbf{Confidence and calibration}\newline{\scriptsize Hendrycks \& Gimpel 2017; Guo et al.\ 2017; Ovadia et al.\ 2019} & A model's own confidence is a strong baseline; calibration degrades under shift & Confidence is the better router on historical prints, once each agent is mapped to a probability\\
+\textbf{Conformal risk control}\newline{\scriptsize Angelopoulos et al.\ 2024, 2025; Barber et al.\ 2023} & A risk promise without model assumptions, if new data are like the calibration data & Tests the promise on \textbf{random archive pictures}: 16.2\% with pool calibration, 5.4--5.9\% with archive calibration\\
+\textbf{Multimodal models on book illustrations}\newline{\scriptsize Piper \& Jiang 2026} & Strong models match people on concrete tasks and reproduce their disagreement on others & The same limit: scene classes recognised about as reliably as people agree ($\kappa = 0.34$)\\
+\bottomrule
+\end{tabularx}
+\takeaway{Conformal guarantees assume new data are like the calibration data; this thesis checks that assumption on the archive and shows what happens when it fails.}
+\note{Part two. A model's own confidence is a known strong baseline, and calibration degrades under shift; here confidence is the better router once each agent is mapped to a probability. Conformal risk control gives a promise if new data are like the calibration data; I test exactly that on random archive pictures. Piper and Jiang see the same limit as I do: models match people only as far as people agree.}
+\end{frame}
+
 % =====================================================================================================
 \section{Words and measures}
 
@@ -1132,6 +1195,24 @@ Scene categories are interpretations, not facts. This limits what any system can
 \note{People agree only moderately on scene types: kappa 0.34 between two raters and 0.36 for the same rater twice. Most of it is about drawing. This sets a ceiling for any system and is why the thesis reports per definition.}
 \end{frame}
 
+\begin{frame}{What is new: the contributions}
+\footnotesize
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{@{}c >{\raggedright\arraybackslash}p{4.6cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+& \textbf{Contribution} & \textbf{Evidence}\\
+\midrule
+\textbf{\color{navy}1} & \textbf{Disagreement does not find errors} better than confidence, and why & Fixed in advance: 0.378 against 0.825; within task 0.78 / 0.82 against 0.84 / 0.83; 149 of 199 errors shared\\
+\textbf{\color{navy}2} & \textbf{An audit of what an uncertainty score measures} & The deployed four signals were two measurements and eight states\\
+\textbf{\color{navy}3} & \textbf{Pseudo-label scores hide failure}, traced to the teacher & 0.768 against the teacher, 0.146 against people; 126 of 128 misses never labelled; better teacher 0.123 $\to$ 0.210\\
+\textbf{\color{navy}4} & \textbf{A corrected design with a risk promise} & 76.4\% approved at 5\% against 63.0\% (199 of 200 redraws); object list of 2.8 classes, 9.2\% missed\\
+\textbf{\color{navy}5} & \textbf{The promise tested where it is used} & Random archive pictures: 16.2\% with pool calibration; 5.4--5.9\% at 80\% approved with archive calibration\\
+\bottomrule
+\end{tabularx}
+\takeaway{The result is knowledge about \emph{when} an automatic answer can be trusted: route by confidence, calibrate on the collection itself, promise what each task needs.}
+\note{If I am asked what I improved: five contributions. One, a tested negative answer to a common assumption, with the reason. Two, an audit method that showed what the deployed uncertainty score really measured. Three, the finding that pseudo-label scores hide failure, traced to the teacher. Four, a corrected design that follows from these findings and approves clearly more at the same promise. Five, the promise tested where it is used, on random archive pictures, with a practical rule: calibrate on the collection itself.}
+\end{frame}
+
 \begin{frame}{What the thesis establishes, and what it does not claim}
 \begin{columns}[T,onlytextwidth]
 \column{0.48\textwidth}
@@ -1200,6 +1281,31 @@ Scene categories are interpretations, not facts. This limits what any system can
 \section{Backup}
 \begin{frame}[plain,noframenumbering]
 \centering\vspace*{2.4cm}{\Huge\bfseries\color{navy}Backup slides}\par\vspace{6pt}{\small\color{muted}algorithms, the first design's cut-off, weights, practical value}
+\end{frame}
+
+\begin{frame}{Backup \,·\, ``Isn't this just a pipeline?''}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}
+\begin{defbox}{The short answer}
+The pipeline is the \textbf{instrument}. The thesis is a set of \textbf{tested claims}, each with a test fixed before it was run, a measure against people, and a result that could have gone either way:
+\begin{itemize}\setlength\itemsep{1pt}
+\item the main hypothesis was \textbf{rejected} (RQ1);
+\item the first design was \textbf{audited and replaced} because of what the tests showed;
+\item the risk promise was \textbf{tested off the labelled pool} and failed before it was repaired.
+\end{itemize}
+A pipeline project reports that its system works. This thesis reports where it does not, and why.
+\end{defbox}
+\column{0.48\textwidth}
+\begin{defbox}{What makes it research}
+\begin{itemize}\setlength\itemsep{2pt}
+\item A hypothesis from the literature (committee and ensemble disagreement), tested on a new kind of data.
+\item Pre-registered tests; book-disjoint splits; 200 redraws; a stated rule for ``established''.
+\item Negative results reported and explained (shared errors, eight states, teacher's missing classes).
+\item Every figure held to its result file by scripted checks; code public.
+\end{itemize}
+\end{defbox}
+\end{columns}
+\note{If someone says I only built a pipeline: the pipeline is the instrument. The research is the hypothesis it was built to test, the tests fixed in advance, and the results, including the negative ones: the main hypothesis was rejected, the first design was audited and replaced, and the promise failed on the archive before it was repaired. A pipeline project would report that its system works; this thesis reports where it does not and why.}
 \end{frame}
 
 \begin{frame}{Backup \,·\, Algorithm 1: learning the mappings (once, training books)}

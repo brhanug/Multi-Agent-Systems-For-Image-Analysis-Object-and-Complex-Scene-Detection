@@ -22,6 +22,38 @@ be trusted, with a stated risk.
 
 ## Likely questions
 
+### What is the research? What did you improve?
+
+**"You built a pipeline. A thesis is not a pipeline. What is the research?"**
+The pipeline is the instrument. The research is the hypothesis it was built to test: that disagreement
+between models of different kinds shows where an automatic answer is wrong (an idea from query-by-committee,
+Seung et al. 1992, and deep ensembles, Lakshminarayanan et al. 2017). I tested it in a test fixed in writing
+before it was run, against people's labels, and it was rejected: disagreement 0.378, confidence 0.825;
+within each task 0.78 / 0.82 against 0.84 / 0.83. I explained why (149 of 199 errors are made by all agents
+together), audited and replaced the first design because of it, and tested the risk promise on random
+archive pictures, where it failed before it was repaired. A pipeline project reports that its system works;
+this thesis reports where it does not, and why.
+
+**"What are your contributions?"** (talk slide "What is new")
+1. Disagreement between different models does not find errors better than confidence, and why (shared errors).
+2. An audit of what an uncertainty score measures: the deployed four signals were two measurements, eight states.
+3. Pseudo-label scores hide failure (0.768 against the teacher, 0.146 against people), traced to the teacher
+   (126 of 128 misses never labelled); a better teacher: 0.123 to 0.210.
+4. A corrected design with a risk promise: 76.4% approved at 5% against 63.0%; a short object list (2.8 classes,
+   9.2% missed).
+5. The promise tested where it is used: 16.2% approved and wrong with pool calibration; 5.4-5.9% at 80%
+   approved with archive calibration. Rule: calibrate on the collection itself.
+
+**"How does this relate to existing work?"** (talk slides "Related research")
+- Kim, Im & Mandl 2024 find objects in historical images with transfer learning and pseudo-labels; this thesis
+  grades such a student against people and finds the collapse.
+- Jiang et al. 2022 and Baek et al. 2022 use disagreement to estimate *how many* answers are wrong, for models of
+  the same task; this thesis asks *which picture* is wrong, with models of different kinds.
+- Hendrycks & Gimpel 2017: a model's own confidence is a strong baseline; confirmed here.
+- Angelopoulos et al. 2024 (conformal risk control) assume new data are like the calibration data; this thesis
+  tests that assumption on the archive.
+- Piper & Jiang 2026 find models match people only where people agree; the same limit here (kappa 0.34).
+
 ### The design
 
 **Why keep the old design in the thesis at all?**
