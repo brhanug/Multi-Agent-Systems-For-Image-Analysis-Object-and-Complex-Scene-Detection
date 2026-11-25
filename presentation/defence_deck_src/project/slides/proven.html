@@ -1,0 +1,28 @@
+<section id="proven" data-transition="fade" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:112px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Being precise about the claims</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:64px;font-weight:600;line-height:1.1;color:#1E2733">What is proven, what is likely, what is not shown</h2>
+<div style="display:flex;gap:24px">
+<div style="flex:1;background:#E3F0E0;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:34px;font-weight:600;color:#1E2733">Proven</h3>
+<p style="font-size:25px;line-height:1.4">Confidence at least as good as disagreement (0.825 vs 0.378 as registered; within task 0.84 vs 0.78 objects, a tie on scenes)</p>
+<p style="font-size:25px;line-height:1.4">+13.5 / +26.1 points approved over the old system</p>
+<p style="font-size:25px;line-height:1.4">Objects: 0.903 vs 0.624 (old) and 0.838 (one model)</p>
+<p style="font-size:25px;line-height:1.4">A better teacher: 0.123 → 0.210</p>
+<p style="font-size:25px;line-height:1.4">Archive calibration cuts the risk from 16.2% to 5.4–5.9%</p>
+</div>
+<div style="flex:1;background:#FBF0D9;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:34px;font-weight:600;color:#1E2733">Likely</h3>
+<p style="font-size:25px;line-height:1.4">Better ranking of scenes (0.829 → 0.866)</p>
+<p style="font-size:25px;line-height:1.4">The learned combination slightly ahead of the describer alone on scene classes (+0.037)</p>
+</div>
+<div style="flex:1;background:#F6E1DE;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:34px;font-weight:600;color:#1E2733">Not shown</h3>
+<p style="font-size:25px;line-height:1.4">Better scene / no-scene decisions</p>
+<p style="font-size:25px;line-height:1.4">Scene classes named better than the old system or one model</p>
+<p style="font-size:25px;line-height:1.4">Objects confirmed without a person</p>
+<p style="font-size:25px;line-height:1.4">Three agents clearly beating one</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7A8591">Part 5 of 5 · What it means</p>
+<aside>Here I separate what is proven from what is only likely and what is not shown. Proven, meaning the whole 95 percent range is on one side of zero: confidence beats disagreement in the registered test and on the object labels, and on scene presence the two tie; the corrected design approves 13.5 and 26.1 points more than the old system; objects are ranked far better than by the old detector and better than by one model with a linear classifier; a better teacher makes a better detector; and calibrating on archive pictures cuts the risk from 16.2 to 5.4–5.9 percent, just above the promised level. Likely but not proven: a better ranking of scenes, and the learned combination being slightly better than the describer alone. Not shown: better scene decisions themselves, better scene classes than the old system or one model, automatic confirmation of objects, and three agents clearly beating one. I want to be exact about this, because the thesis is about trusting answers.</aside>
+</section>

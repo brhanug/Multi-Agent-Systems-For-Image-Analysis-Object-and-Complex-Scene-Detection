@@ -1,0 +1,31 @@
+<section id="baselines-why" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:96px 128px 140px;display:flex;flex-direction:column;gap:22px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Result 4 · compared with what?</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:56px;font-weight:600;line-height:1.1;color:#1E2733">Four baselines, each answering one question</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+<div style="background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:24px 28px;display:flex;flex-direction:column;gap:8px">
+<h3 style="font-size:29px;font-weight:600;color:#1E2733">Old system (as deployed)</h3>
+<p style="font-size:24px;line-height:1.4">The design this work replaces: the four signals, SAA and triage score.</p>
+<p style="font-size:24px;line-height:1.4;color:#2D5F8B"><b>Asks:</b> did the work improve on what existed?</p>
+</div>
+<div style="background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:24px 28px;display:flex;flex-direction:column;gap:8px">
+<h3 style="font-size:29px;font-weight:600;color:#1E2733">Linear probe</h3>
+<p style="font-size:24px;line-height:1.4">SigLIP turns each picture into 1,152 numbers; a logistic regression is trained on them. The standard way to use one frozen model.</p>
+<p style="font-size:24px;line-height:1.4;color:#2D5F8B"><b>Asks:</b> do several agents beat one model?</p>
+</div>
+<div style="background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:24px 28px;display:flex;flex-direction:column;gap:8px">
+<h3 style="font-size:29px;font-weight:600;color:#1E2733">Describer alone (trained)</h3>
+<p style="font-size:24px;line-height:1.4">LLaVA’s 13 numbers with the same learned mapping and the same cut-off — the strongest single agent.</p>
+<p style="font-size:24px;line-height:1.4;color:#2D5F8B"><b>Asks:</b> does combining agents add anything?</p>
+</div>
+<div style="background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:24px 28px;display:flex;flex-direction:column;gap:8px">
+<h3 style="font-size:29px;font-weight:600;color:#1E2733">Zero-shot</h3>
+<p style="font-size:24px;line-height:1.4">The models as they come: SigLIP’s best-matching sentence, or LLaVA’s strongest “yes”. No training at all.</p>
+<p style="font-size:24px;line-height:1.4;color:#2D5F8B"><b>Asks:</b> what do the models give for free?</p>
+</div>
+</div>
+<div style="background:#1E2733;border-radius:16px;padding:22px 28px">
+<p style="font-size:25px;line-height:1.4;color:#F3EEE4"><b style="color:#E8B07A">Fair by construction:</b> no published system reports results on this archive’s classes, so every baseline is re-run here — same pictures, same labels, same 200 book-disjoint splits, plan written before the run.</p>
+</div>
+<p style="position:absolute;left:128px;bottom:56px;width:1664px;font-size:24px;color:#7A8591">Part 4 of 5 · Results</p>
+<aside>My advisors asked: compared with what? There is no published system for this archive and these classes, so I re-ran four baselines myself, all on the same pictures, labels and 200 splits, with the plan written before running them. Each answers one question. The old system, as it was deployed, asks whether the work improved on what existed. The linear probe is the standard way to use one frozen foundation model: SigLIP turns each picture into 1,152 numbers and a logistic regression is trained on them; it asks whether several agents beat one model. The describer alone, with the same learned mapping and cut-off, is the strongest single agent; it asks whether combining agents adds anything. And zero-shot — SigLIP’s best-matching sentence or LLaVA’s strongest yes, with no training — asks what the models give for free.</aside>
+</section>

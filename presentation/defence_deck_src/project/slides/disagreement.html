@@ -1,0 +1,18 @@
+<section id="disagreement" style="display:flex; flex-direction:column; gap:36px; padding:112px 128px 160px; background:#1e2733">
+  <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; text-transform:uppercase; color:#e8b07a">Result 5 · the original hypothesis, tested in advance</p>
+  <h2 style="font-family:'Source Serif 4', Georgia, serif; font-size:64px; font-weight:600; line-height:1.1; color:#f3eee4">Does disagreement between models warn of mistakes?</h2>
+  <div style="display:flex; flex-direction:row; gap:48px">
+    <div style="display:flex; flex-direction:column; gap:8px; flex:1">
+      <p style="font-family:'Source Serif 4', Georgia, serif; font-size:120px; font-weight:700; line-height:1; color:#9aa3ad">0.378</p>
+      <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:30px; line-height:1.4; color:#c9d3dc">as registered: object-class disagreement ranks the scene errors (AUROC) — below chance (0.5)</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:8px; flex:1">
+      <p style="font-family:'Source Serif 4', Georgia, serif; font-size:120px; font-weight:700; line-height:1; color:#e8b07a">0.825</p>
+      <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:30px; line-height:1.4; color:#c9d3dc">the system’s own confidence ranks the same errors</p>
+    </div>
+  </div>
+  <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:30px; line-height:1.45; color:#c9d3dc">Measured within each task: disagreement 0.78 (objects) and 0.82 (scenes) — well above chance, but <b>never above confidence</b> (0.84 and 0.83).</p>
+  <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:30px; line-height:1.45; color:#f3eee4">Why: mistakes happen where the models <b>agree</b>. On 149 of the system’s 199 errors, all three agents are wrong together.</p>
+  <p style="position:absolute; bottom:64px; left:128px; width:1664px; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; color:#9aa3ad">Part 4 of 5 · Results</p>
+  <aside>Now the question the system was built on: does disagreement between the models warn us when an answer is wrong? I wrote the test down before running it, on 19 September. On the 300 hand-annotated pictures, disagreement over the object classes ranks the errors of the scene call with an AUROC of 0.378; the system’s own confidence ranks the same errors at 0.825. By the rule I fixed, the answer is no. But that test asked object disagreement about scene errors — two different tasks — so its below-chance value says more about the mismatch than about disagreement. Measured within each task, disagreement does carry information: 0.78 for object labels and 0.82 for scene presence. It is still never better than confidence: 0.84 and 0.83. So the answer stays no — disagreement adds nothing over confidence. The reason is that the errors are not where the models disagree — they are where all of them are wrong together: on 149 of 199 errors, all three agents make the same mistake. Disagreement cannot see an error that everyone shares.</aside>
+</section>

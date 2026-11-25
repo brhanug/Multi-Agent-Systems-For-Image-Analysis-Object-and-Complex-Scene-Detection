@@ -1,0 +1,24 @@
+<section id="old-signals" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:104px 128px 150px;display:flex;flex-direction:column;gap:24px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Old design · level 1: how the four numbers were computed</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:60px;font-weight:600;line-height:1.1;color:#1E2733">The describer’s answer was turned into four numbers</h2>
+<table style="font-size:25px;color:#3E4A57;width:1664px">
+<tr><th style="width:13%">Signal</th><th style="width:32%">Taken from</th><th style="width:25%">Rule</th><th style="width:30%">Possible values</th></tr>
+<tr><td><b>A-object</b></td><td>how many objects the describer listed</td><td>count ÷ 3, at most 1</td><td>0 objects → 0 · 1 → ⅓ · 2 → ⅔ · 3 or more → 1</td></tr>
+<tr><td><b>A-scene</b></td><td>the describer’s scene confidence</td><td>as given, kept between 0 and 1</td><td>in practice only 0.5 or 1</td></tr>
+<tr><td><b>A-vlm</b></td><td>did the describer list any object?</td><td>yes → 1, no → 0</td><td>0 or 1</td></tr>
+<tr><td><b>A-agree</b></td><td>not measured: computed from two above</td><td>1 − | A-object − A-vlm |</td><td>fixed once the two are known</td></tr>
+</table>
+<div style="display:flex;gap:24px">
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:26px">
+<p style="font-size:25px;line-height:1.4"><b>Why ÷ 3?</b> A fixed rule set when the system was built: three or more objects count as full evidence. The thesis did not choose it; it audited it.</p>
+</div>
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:26px">
+<p style="font-size:25px;line-height:1.4"><b>Example:</b> “a man and a horse” → 2 objects → A-object = ⅔, A-vlm = 1, A-agree = 1 − |⅔ − 1| = ⅔.</p>
+</div>
+<div style="flex:1;background:#F7E6DA;border-radius:16px;padding:26px">
+<p style="font-size:25px;line-height:1.4;color:#1E2733"><b>The audit:</b> despite their names, all four came from <b>one</b> model’s answer — the describer.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:56px;width:1664px;font-size:24px;color:#7A8591">Part 2 of 5 · The first design and why it failed</p>
+<aside>How were these four numbers made? All four came from the describer’s answer about the picture. A-object counts how many objects it listed and divides by three, with a maximum of one. So zero objects give 0, one object gives one third, two give two thirds, and three or more give 1. Why three? That rule was fixed when the system was built — three or more objects counted as full evidence; I did not choose it, I audited it. A-scene is the describer’s own confidence that the picture shows a scene, and in practice it was only ever 0.5 or 1. A-vlm is 1 if the describer listed any object at all, otherwise 0. And A-agree is not measured: it is computed from A-object and A-vlm. For example, if the describer says “a man and a horse”, that is two objects, so A-object is two thirds, A-vlm is 1, and A-agree is two thirds. The audit found that, despite their names, all four numbers came from that one model.</aside>
+</section>

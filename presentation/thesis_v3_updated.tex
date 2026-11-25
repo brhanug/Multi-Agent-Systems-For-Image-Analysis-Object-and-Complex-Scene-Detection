@@ -70,7 +70,8 @@
     pdfpagemode=UseOutlines,
 }
 
-\setlength{\headheight}{14pt}
+\setlength{\headheight}{14.5pt}
+\addtolength{\topmargin}{-0.5pt}
 \pagestyle{fancy}
 \fancyhf{}
 \rhead{Brhanu Atsbaha}
@@ -682,7 +683,7 @@ Off-the-shelf detection is weak on this archive but not absent. Pseudo-labelling
 \label{fig:yolo_detection_examples}
 \end{figure}
 
-\section{The Pseudo-Label Collapse Paradox: $0.768 \rightarrow 0.146$}
+\section{The Pseudo-Label Collapse Paradox: \texorpdfstring{$0.768 \rightarrow 0.146$}{0.768 to 0.146}}
 \label{sec:collapse_paradox}
 To train deployable student detectors without manual annotation, common self-training pipelines \cite{pseudo_labeling2013,noisy_student2020} leverage vision-language teacher ensembles to generate pseudo-labels. When evaluated against the automated teacher pseudo-labels on a held-out validation split, the distilled student model achieves seemingly strong performance:
 \begin{itemize}
@@ -1110,7 +1111,7 @@ Of these, the rows of low annotation effort are the ones a continuation of this 
 \label{app:example_pictures}
 \input{../latex_assets/failure_gallery.tex}
 
-\chapter{Supplementary Cross-Style Benchmark: PeopleArt ($n=4{,}778$)}
+\chapter{Supplementary Cross-Style Benchmark: PeopleArt (\texorpdfstring{$n=4{,}778$}{n = 4,778})}
 \label{app:peopleart}
 To assess cross-depiction performance across stylised visual regimes outside the Colibri illustrations, a COCO-pretrained YOLOv11m detector was evaluated on the PeopleArt benchmark \cite{westlake2016} ($n=4{,}778$ images across 43 distinct artistic styles), for the one class PeopleArt annotates, person, at a confidence threshold of $0.25$. 
 
@@ -1135,7 +1136,7 @@ Cartoon & 0.706 & 0.680 & 0.673 \\
 \end{adjustbox}
 \end{table}
 
-\chapter[Cross-Institutional Transfer Pilot: Europeana ($C_5$, $n=24$)]{Supplementary Cross-Institutional Transfer Pilot: Europeana API ($C_5$, $n=24$)}
+\chapter[Cross-Institutional Transfer Pilot: Europeana (\texorpdfstring{$C_5$}{C5}, \texorpdfstring{$n=24$}{n = 24})]{Supplementary Cross-Institutional Transfer Pilot: Europeana API ($C_5$, $n=24$)}
 \label{app:europeana}
 
 \paragraph{Pilot design.} This section reports $n=24$ images obtained from the Europeana Open Culture API across 10 institutions (including the Royal Institute for Cultural Heritage, University of Edinburgh, Athens School of Fine Arts, and the LWL Museum for Art and Culture), manually spot-checked to confirm historical content. All four Tier 1 signals were computed on these images, using the deployed model weights and prompts: YOLOv11-seg+SAM (object), SigLIP (scene), Kosmos-2.5 (grounded OCR), and LLaVA-OneVision (VQA). One difference from the Colibri run matters: here the object signal is the detector's own score, whereas on Colibri it was read from the vision-language model's object count (Section~\ref{sec:canonical_saa}). The two fusion scores below are therefore built from differently sourced object and scene signals (on Colibri the scene signal, too, was the vision-language model's stored confidence), and their difference is not only an effect of the new archive.
@@ -1256,7 +1257,7 @@ $1$            & $1$ & $1$            & $6{,}734$ & identical \\
 
 This is the whole of the structural problem in one line: for $88.4\%$ of the corpus the Agreement term simply repeats $A^{\text{object}}$, so the spread is taken over the object value counted twice; and on the remaining $11.6\%$ it inverts discontinuously, becoming a maximal outlier exactly where the ensemble is unanimous that nothing is present.
 
-\section{Level 3: why $U_{\text{SAA}}$ takes exactly eight values}
+\section{Level 3: why \texorpdfstring{$U_{\text{SAA}}$}{U(SAA)} takes exactly eight values}
 
 The uncertainty proxy is the sample standard deviation over the four terms:
 \begin{equation}

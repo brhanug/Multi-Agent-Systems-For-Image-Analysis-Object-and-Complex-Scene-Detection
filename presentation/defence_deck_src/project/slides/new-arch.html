@@ -1,0 +1,39 @@
+<section id="new-arch" data-transition="fade" style="background:#ECE7DC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:96px 128px 140px;display:flex;flex-direction:column;gap:20px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">The corrected design · overview</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:56px;font-weight:600;line-height:1.1;color:#1E2733">Six steps from a scan to a decision</h2>
+<div style="display:flex;gap:36px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px">
+<p style="font-size:24px;background:#FFFDF8;border:1px solid #BFB6A5;border-radius:12px;padding:10px 28px;color:#1E2733"><b>①</b> Scan, restored once</p>
+<x-shape kind="arrow-down" style="background:#7A8591;width:22px;height:26px"></x-shape>
+<div style="display:flex;gap:14px">
+<p style="font-size:24px;background:#FFFDF8;border:1px solid #2D5F8B;border-radius:12px;padding:10px 16px;text-align:center;line-height:1.3"><b>Object finder</b><br>8 class scores + boxes</p>
+<p style="font-size:24px;background:#FFFDF8;border:1px solid #2D5F8B;border-radius:12px;padding:10px 16px;text-align:center;line-height:1.3"><b>Scene matcher</b><br>5 scene + 1 “no scene”</p>
+<p style="font-size:24px;background:#FFFDF8;border:1px solid #2D5F8B;border-radius:12px;padding:10px 16px;text-align:center;line-height:1.3"><b>Describer</b><br>13 yes-strengths</p>
+</div>
+<p style="font-size:24px;color:#5D6874"><b>②</b> three agents, never see each other</p>
+<x-shape kind="arrow-down" style="background:#7A8591;width:22px;height:26px"></x-shape>
+<p style="font-size:24px;background:#E7EEF5;border:1px solid #2D5F8B;border-radius:12px;padding:10px 24px;text-align:center;color:#1E2733"><b>③</b> each report → probabilities (learned on training books)</p>
+<x-shape kind="arrow-down" style="background:#7A8591;width:22px;height:26px"></x-shape>
+<div style="display:flex;gap:14px">
+<p style="font-size:24px;background:#E7EEF5;border:1px solid #2D5F8B;border-radius:12px;padding:10px 16px;text-align:center;line-height:1.3"><b>Objects</b><br>which of 8</p>
+<p style="font-size:24px;background:#E7EEF5;border:1px solid #2D5F8B;border-radius:12px;padding:10px 16px;text-align:center;line-height:1.3"><b>Scene class</b><br>one of 6</p>
+<p style="font-size:24px;background:#E7EEF5;border:1px solid #2D5F8B;border-radius:12px;padding:10px 16px;text-align:center;line-height:1.3"><b>Scene at all</b><br>yes / no</p>
+</div>
+<p style="font-size:24px;color:#5D6874"><b>④</b> three answers, each with its <b>⑤</b> uncertainty</p>
+<x-shape kind="arrow-down" style="background:#7A8591;width:22px;height:26px"></x-shape>
+<p style="font-size:24px;background:#F7E6DA;border:1px solid #A2461B;border-radius:12px;padding:10px 24px;text-align:center;color:#1E2733"><b>⑥</b> conformal risk control: approve, give a short list, or send to a person</p>
+</div>
+<div style="width:420px;display:flex;flex-direction:column;gap:18px">
+<div style="background:#FFFDF8;border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:10px">
+<h3 style="font-size:30px;font-weight:600;color:#1E2733">What changed</h3>
+<p style="font-size:25px;line-height:1.4">Each agent reports what it <b>measures</b>. No derived Agreement term. The text reader is not used to decide. <b>Confidence</b>, not disagreement, routes.</p>
+</div>
+<div style="background:#FFFDF8;border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:10px">
+<h3 style="font-size:30px;font-weight:600;color:#1E2733">Unchanged</h3>
+<p style="font-size:25px;line-height:1.4">Tier 2 helpers still run beside the decision on every picture.</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:56px;width:1664px;font-size:24px;color:#7A8591">Part 3 of 5 · The corrected design</p>
+<aside>This is the corrected design, the system the thesis proposes. It has six steps, and the next slides take them one at a time. One: the scan is restored once. Two: three agents look at it independently — the object finder gives eight class scores plus boxes, the scene matcher gives five scene scores and one “no scene” score, and the describer gives thirteen yes-strengths. They never see each other’s output. Three: each report is turned into probabilities by a small learned mapping. Four and five: the probabilities are combined into three answers — which objects, which scene class, and is there a scene at all — and each answer gets an uncertainty. Six: conformal risk control decides whether to approve, to give a person a short list, or to send the picture to a person. The differences from the old design: real measurements, no derived Agreement term, and confidence instead of disagreement.</aside>
+</section>

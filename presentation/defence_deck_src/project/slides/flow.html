@@ -1,0 +1,37 @@
+<section id="flow" style="background:#ECE7DC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:96px 128px 140px;display:flex;flex-direction:column;gap:18px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">How the pieces are orchestrated</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:56px;font-weight:600;line-height:1.1;color:#1E2733">Learned once, then the same steps for every picture</h2>
+<div style="display:flex;gap:40px">
+<div style="width:560px;display:flex;flex-direction:column;gap:10px;background:#E7EEF5;border-radius:16px;padding:24px">
+<p style="font-size:26px;color:#2D5F8B"><b>ONCE, before use</b></p>
+<p style="font-size:24px;background:#FFFDF8;border-radius:10px;padding:10px 16px">Training books (60%)</p>
+<x-shape kind="arrow-down" style="background:#2D5F8B;width:20px;height:22px;align-self:center"></x-shape>
+<p style="font-size:24px;background:#FFFDF8;border:2px solid #2D5F8B;border-radius:10px;padding:10px 16px"><b>Algorithm 1</b>: learn the mappings → <b>weights</b></p>
+<p style="font-size:24px;background:#FFFDF8;border-radius:10px;padding:10px 16px;margin-top:6px">Calibration books (20%)</p>
+<x-shape kind="arrow-down" style="background:#2D5F8B;width:20px;height:22px;align-self:center"></x-shape>
+<p style="font-size:24px;background:#FFFDF8;border:2px solid #2D5F8B;border-radius:10px;padding:10px 16px"><b>Algorithm 3</b>: choose the cut-offs → <b>λ̂</b></p>
+<p style="font-size:24px;background:#FFFDF8;border-radius:10px;padding:10px 16px">Test books (20%): only to measure</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;background:#FFFDF8;border-radius:16px;padding:24px">
+<p style="font-size:26px;color:#A2461B"><b>EVERY picture — Algorithm 2</b></p>
+<p style="font-size:24px;background:#F6F3EC;border-radius:10px;padding:8px 20px">① restore the scan</p>
+<x-shape kind="arrow-down" style="background:#7A8591;width:18px;height:18px"></x-shape>
+<p style="font-size:24px;background:#F6F3EC;border-radius:10px;padding:8px 20px">② three agents, side by side → 27 numbers</p>
+<x-shape kind="arrow-down" style="background:#7A8591;width:18px;height:18px"></x-shape>
+<p style="font-size:24px;background:#E7EEF5;border:2px solid #2D5F8B;border-radius:10px;padding:8px 20px">③ map to probabilities, using the <b>weights</b></p>
+<x-shape kind="arrow-down" style="background:#7A8591;width:18px;height:18px"></x-shape>
+<p style="font-size:24px;background:#F6F3EC;border-radius:10px;padding:8px 20px">④ three answers · ⑤ their uncertainty u</p>
+<x-shape kind="arrow-down" style="background:#7A8591;width:18px;height:18px"></x-shape>
+<p style="font-size:24px;background:#E7EEF5;border:2px solid #2D5F8B;border-radius:10px;padding:8px 20px">⑥ compare u with <b>λ̂</b></p>
+<x-shape kind="arrow-down" style="background:#7A8591;width:18px;height:18px"></x-shape>
+<div style="display:flex;gap:14px">
+<p style="font-size:24px;background:#E3F0E0;border-radius:10px;padding:8px 18px">approve</p>
+<p style="font-size:24px;background:#FBF0D9;border-radius:10px;padding:8px 18px">short list</p>
+<p style="font-size:24px;background:#F6E1DE;border-radius:10px;padding:8px 18px">a person</p>
+</div>
+</div>
+</div>
+<p style="font-size:24px;line-height:1.4;color:#5D6874">Blue = learned once and reused. No agent talks to another. Tier 2 helpers read the stored outputs beside this flow.</p>
+<p style="position:absolute;left:128px;bottom:56px;width:1664px;font-size:24px;color:#7A8591">Part 3 of 5 · The corrected design</p>
+<aside>This diagram shows how everything fits together. There are two lanes. On the left, the work done once, before the system is used: the labelled books are split. Training books go into Algorithm 1, which learns the mappings — the weights. Calibration books go into Algorithm 3, which chooses the cut-offs, lambda-hat. Test books are only used to measure. On the right, what happens to every single picture, Algorithm 2: restore it, run the three agents side by side, map their numbers to probabilities using the learned weights, form the three answers and their uncertainty, and compare with the cut-off — approve, give a short list, or send to a person. Everything in blue is learned once and reused; nothing is learned while a picture is processed, and the agents never talk to each other. The next three slides show the three algorithms.</aside>
+</section>

@@ -1,0 +1,21 @@
+<section id="faq-promise" style="background:#ECE7DC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:112px 128px 160px;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Backup · why a risk promise?</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:60px;font-weight:600;line-height:1.1;color:#1E2733">Why conformal risk control, not a hand-picked threshold</h2>
+<div style="display:flex;gap:24px">
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:32px;font-weight:600;color:#1E2733">A hand-picked threshold</h3>
+<p style="font-size:26px;line-height:1.4">Says nothing about how many wrong answers get through.</p>
+</div>
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:32px;font-weight:600;color:#1E2733">Conformal risk control</h3>
+<p style="font-size:26px;line-height:1.4">Turns a target (e.g. 5% approved and wrong) into the threshold, with a guarantee that needs only calibration pictures <b>like</b> the new ones.</p>
+</div>
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:32px;font-weight:600;color:#1E2733">The published alternative</h3>
+<p style="font-size:26px;line-height:1.4">Selective classification bounds the error <i>among approved</i> pictures — stricter, so at the same 5% it approves 16% instead of 63%.</p>
+</div>
+</div>
+<p style="font-size:26px;line-height:1.4;color:#5D6874">The guarantee is an average over calibration sets. Learn then Test makes it hold per set with high probability (sets over the level: 41.5% → 17.5%).</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7A8591">Backup B</p>
+<aside>Why a risk promise instead of a threshold I choose? A hand-picked threshold says nothing about how many wrong answers slip through. Conformal risk control turns the target into the threshold, using calibration pictures, and gives a guarantee that only needs those pictures to be like the new ones. I compared it with the published alternative, selective classification with guaranteed risk: that method bounds the error among the approved pictures, which is stricter, so at the same stated five percent it approves only 16 percent instead of 63. At a matched approval rate they land on the same point. And because conformal risk control holds on average, I also tested Learn then Test, which makes the promise hold for a given calibration set with high probability.</aside>
+</section>

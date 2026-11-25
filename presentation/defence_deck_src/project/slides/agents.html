@@ -1,0 +1,20 @@
+<section id="agents" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:112px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Step ② · the agents</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:64px;font-weight:600;line-height:1.1;color:#1E2733">Three agents, each reporting what it measures</h2>
+<table style="font-size:26px;color:#3E4A57;width:1664px">
+<tr><th style="width:20%">Agent (model)</th><th style="width:30%">What it is asked</th><th style="width:30%">What it reports</th><th style="width:20%">Numbers</th></tr>
+<tr><td><b>Object finder</b><br>YOLOv11m, retrained</td><td>Where are objects of the 8 classes?</td><td>its best box score per class (plus the boxes)</td><td><b>8</b></td></tr>
+<tr><td><b>Scene matcher</b><br>SigLIP</td><td>“a historical illustration of a family scene” (one per class) and 7 “not a scene” sentences, e.g. “a page of sheet music”</td><td>a score per scene sentence, plus the best “not a scene” score</td><td><b>5 + 1</b></td></tr>
+<tr><td><b>Describer</b><br>LLaVA-OneVision 7B</td><td>“Does this picture show a building? Answer yes or no.” (one per class)</td><td>how strongly it leans to yes: P(yes) ÷ (P(yes) + P(no))</td><td><b>5 + 8</b></td></tr>
+</table>
+<div style="display:flex;gap:28px">
+<div style="flex:1;background:#E7EEF5;border-radius:16px;padding:28px">
+<p style="font-size:28px;line-height:1.4;color:#1E2733"><b>27 numbers</b> per picture, all between 0 and 1. The agents never see each other’s numbers.</p>
+</div>
+<div style="flex:1;background:#E7EEF5;border-radius:16px;padding:28px">
+<p style="font-size:28px;line-height:1.4;color:#1E2733">The scene matcher scores each sentence <b>on its own</b>, so it can say “none fits” — the old forced choice could not.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7A8591">Part 3 of 5 · The corrected design</p>
+<aside>Step two: the three agents. The object finder is the retrained detector; for each of the eight classes it reports its best box score, and it also gives the boxes. The scene matcher, SigLIP, compares the picture with one sentence per scene class and with “not a scene” sentences; it reports five scene scores plus the best “not a scene” score. Important: it scores each sentence on its own with a sigmoid, so it can say that no sentence fits; the old version used a forced choice that always picked a scene. The describer, LLaVA, is asked one yes/no question per class — five scene classes and eight object classes — and I read how strongly it leans towards “yes” from its probabilities for the first word. That gives 27 numbers per picture. The yes/no questions are only how the describer is read; the decision between classes uses all numbers together.</aside>
+</section>

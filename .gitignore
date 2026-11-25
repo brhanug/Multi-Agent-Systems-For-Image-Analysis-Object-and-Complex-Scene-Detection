@@ -119,3 +119,5 @@ self_annotation_package/confirm_check/cache/
 *.blg
 *.pid
 self_annotation_package/archive_classes/cache/
+self_annotation_package/retrieval_judgements/cache/
+self_annotation_package/agent4_links/cache/

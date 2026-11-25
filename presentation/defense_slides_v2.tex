@@ -101,7 +101,7 @@ Random archive samples & 400 + 300 pictures drawn at random from the rest of the
 All three combined & 0.903 & 0.704\\
 Scene matcher (SigLIP) & 0.846 & 0.560\\
 Retrained object finder & 0.803 & 0.550\\
-Old object finder & 0.621 & --\\
+Old object finder & 0.624 & --\\
 \bottomrule
 \end{tabular}
 \column{0.44\textwidth}\small
@@ -475,7 +475,7 @@ Better ranking & +0.038 & [$-0.023$, +0.098] & 88\%\\
 \toprule
 \h{Version} & \h{Ranking} & \h{Wrong} & \h{Approved at 5 in 100} & \h{Worse in \% of splits}\\
 \midrule
-\textbf{Full system} & \textbf{0.866} & \textbf{15.7\%} & \textbf{76.4\%} & --\\
+\textbf{Full system} & \textbf{0.866} & \textbf{15.6\%} & \textbf{76.4\%} & --\\
 \midrule
 without ``no scene'' score & 0.850 & 15.5\% & 75.3\% & 89\%\\
 without object finder & 0.858 & 15.7\% & 75.8\% & 80\%\\
@@ -499,7 +499,7 @@ Removing the object finder, the scene matcher or the ``no scene'' score lowers r
 \toprule
 \h{Warning signal (AUROC, 0.5 = coin flip)} & \h{300 pictures} & \h{164 not in training} & \h{Test split}\\
 \midrule
-Per-class disagreement (tested) & \no{0.378} & 0.467 & 0.366\\
+Per-class disagreement (tested) & \no{0.378} & 0.466 & 0.366\\
 Per-class entropy & 0.286 & 0.402 & 0.252\\
 Global disagreement & 0.484 & 0.458 & 0.578\\
 Old disagreement signal & 0.799 & 0.646 & 0.860\\
@@ -580,7 +580,7 @@ One rule for ``scene'' & 0.5 & \no{8.5\%} & 94\%\\
 \midrule
 \h{Calibrated on archive pictures} & & & \\
 One rule, half of the 400* & 0.5 & \yes{4.8\%} & \textbf{81\%}\\
-One rule, 300 new pictures (fixed in advance) & 0.5 & 5.9\% & \textbf{80\%}\\
+One rule, 294 new pictures (fixed in advance) & 0.5 & 5.9\% & \textbf{80\%}\\
 \quad same, promise set to 2.5\% & 0.5 & \no{4.6\%} & 64\%\\
 \bottomrule
 \end{tabular}
@@ -638,9 +638,9 @@ The system, balanced* & 0.625 & 55\% & 55\% & 86\%\\
 \end{frame}
 
 \begin{frame}{What the thesis establishes}
-\footnotesize\renewcommand{\arraystretch}{0.92}\begin{tabular}{@{}L{2.2cm} L{11.0cm}@{}}
+\footnotesize\renewcommand{\arraystretch}{0.88}\begin{tabular}{@{}L{2.2cm} L{11.0cm}@{}}
 \toprule
-\yes{Proven} & Disagreement does not warn of mistakes; confidence does (0.378 against 0.825).\\
+\yes{Proven} & Disagreement no better than confidence (0.378 vs 0.825; per task 0.78--0.82 vs 0.83--0.84).\\
  & Scene or not, inside the pool: +13.5 points approved at a 5\% promise, +26.1 at 10\% (vs the old triage score).\\
  & Objects: a list of 2.8 classes per picture missing 9.2\% per picture, as promised at 10\% (10.8\% of all objects).\\
  & Archive, calibrated on archive pictures: just above the promised level (5.4--5.9\% at 80\% approved).\\
@@ -677,7 +677,7 @@ The system, balanced* & 0.625 & 55\% & 55\% & 86\%\\
   \item A second rater on the 400 random archive pictures.
   \item A model trained on archive drawings for the shared blind spot.
   \item The same design on a second archive.
-  \item Scene classes on random archive pictures; a promise per scene class (needs more rare-class labels).
+  \item Scene classes learned on archive pictures (on the archive the pool's mapping reaches 0.351, not 0.544); a promise per scene class (needs more rare-class labels).
 \end{itemize}
 \end{columns}
 \end{frame}
@@ -906,7 +906,7 @@ Describer & person $+3.10$, animal $+2.12$, text $-0.35$\\
 \h{Helper (Tier 2)} & \h{Rule} & \h{Checked by a person}\\
 \midrule
 Contradiction checker & Describer names an object the finder did not find $\to$ flag & 56\% of flags name an absent object (68\% with the retrained finder); the rest are finder misses\\
-Reprint finder & Picture embeddings compared across books; link if similarity $\ge 0.92$ & all checked pairs at 0.92+ were reprints (archive-wide links unchecked)\\
+Reprint finder & Picture embeddings compared across books; link if similarity $\ge 0.92$ & all checked pairs at 0.92+ were reprints; 38 of 50 random archive-wide links (76\%) are\\
 Inscription reader & Reads text; sorted by length and repetition & 52.5\% of its ``real text'' is real\\
 \bottomrule
 \end{tabular}
@@ -941,7 +941,7 @@ Scenes and non-scenes in that cell get the \textbf{same answer}, decided by the 
 \toprule
 \h{How the three are combined} & \h{Ranking} & \h{Wrong} & \h{Approved at 5}\\
 \midrule
-0.6 / 0.2 / 0.2 & 0.866 & 15.7\% & 76.4\%\\
+0.6 / 0.2 / 0.2 & 0.866 & 15.6\% & 76.4\%\\
 Equal thirds & 0.865 & 15.7\% & 76.3\%\\
 Learned (0.42 / 0.24 / 0.34) & 0.863 & 15.7\% & 75.6\%\\
 Object finder alone & 0.852 & 15.8\% & 72.9\%\\

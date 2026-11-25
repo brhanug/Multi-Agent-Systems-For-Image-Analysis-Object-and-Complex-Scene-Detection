@@ -1,0 +1,27 @@
+<section id="eight-states" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:104px 128px 150px;display:flex;flex-direction:column;gap:24px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Old design · what “8 states” means</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:60px;font-weight:600;line-height:1.1;color:#1E2733">The whole archive fits in eight rows</h2>
+<div style="display:flex;gap:36px">
+<table style="font-size:26px;color:#3E4A57;width:980px">
+<tr><th style="width:22%">A-object</th><th style="width:22%">A-scene</th><th style="width:20%">A-vlm</th><th style="width:36%">Pictures in the archive</th></tr>
+<tr><td>0</td><td>0.5</td><td>0</td><td>1,208 (10.0%)</td></tr>
+<tr><td>0</td><td>1</td><td>0</td><td>195 (1.6%)</td></tr>
+<tr><td>⅓</td><td>0.5</td><td>1</td><td>2,217 (18.3%)</td></tr>
+<tr><td>⅓</td><td>1</td><td>1</td><td>222 (1.8%)</td></tr>
+<tr><td>⅔</td><td>0.5</td><td>1</td><td>969 (8.0%)</td></tr>
+<tr><td>⅔</td><td>1</td><td>1</td><td>565 (4.7%)</td></tr>
+<tr><td>1</td><td>0.5</td><td>1</td><td>2,580 (21.3%)</td></tr>
+<tr><td>1</td><td>1</td><td>1</td><td>4,154 (34.3%)</td></tr>
+</table>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<div style="background:#1E2733;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:10px">
+<p style="font-size:24px;color:#E8B07A">WHY EXACTLY 8</p>
+<p style="font-size:27px;line-height:1.4;color:#F3EEE4">A-object: 4 values × A-scene: 2 values = <b>8</b></p>
+<p style="font-size:25px;line-height:1.4;color:#C9D3DC">A-vlm adds nothing: it is 1 whenever A-object is above 0. A-agree follows from both.</p>
+</div>
+<div style="background:#F7E6DA;border-radius:16px;padding:26px"><p style="font-size:26px;line-height:1.4;color:#1E2733">Every picture in a row gets the <b>same decision</b> and the <b>same uncertainty</b>. 1,208 + 195 + … + 4,154 = 12,110.</p></div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:56px;width:1664px;font-size:24px;color:#7A8591">Part 2 of 5 · The first design and why it failed</p>
+<aside>Where do the eight rows come from? A-object can take four values — 0, a third, two thirds, 1 — and A-scene only two, 0.5 or 1. Four times two is eight. A-vlm cannot make more combinations, because it is always 1 when A-object is above zero and 0 when it is zero. A-agree is computed from those two. So each of the 12,110 pictures falls into one of these eight rows; the right column shows how many. All pictures in the same row get exactly the same decision and exactly the same uncertainty, so the system cannot tell them apart. That is the core weakness of the old design.</aside>
+</section>

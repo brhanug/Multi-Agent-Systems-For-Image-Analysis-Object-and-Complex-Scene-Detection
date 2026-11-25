@@ -1,0 +1,24 @@
+<section id="old-flaw" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:112px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Old design · what went wrong</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:64px;font-weight:600;line-height:1.1;color:#1E2733">The disagreement score was not measuring disagreement</h2>
+<div style="display:flex;gap:28px">
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:36px;display:flex;flex-direction:column;gap:14px">
+<p style="font-family:'Source Serif 4', Georgia, serif;font-size:72px;font-weight:700;color:#A2461B;line-height:1">8</p>
+<h3 style="font-size:32px;font-weight:600;color:#1E2733">states for the whole archive</h3>
+<p style="font-size:27px;line-height:1.4">With so few states no formula can rank pictures finely. 0.6/0.2/0.2 is already the best of the 6 rules any weighting can make.</p>
+</div>
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:36px;display:flex;flex-direction:column;gap:14px">
+<p style="font-family:'Source Serif 4', Georgia, serif;font-size:72px;font-weight:700;color:#A2461B;line-height:1">0.98 → 0.75</p>
+<h3 style="font-size:32px;font-weight:600;color:#1E2733">without the derived term</h3>
+<p style="font-size:27px;line-height:1.4">The score ranked errors at 0.979, but only because of the computed “Agreement” term. Plain confidence, with no disagreement in it, reaches 0.978.</p>
+</div>
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:36px;display:flex;flex-direction:column;gap:14px">
+<p style="font-family:'Source Serif 4', Georgia, serif;font-size:72px;font-weight:700;color:#A2461B;line-height:1">0.48</p>
+<h3 style="font-size:32px;font-weight:600;color:#1E2733">“doubt” when all agree</h3>
+<p style="font-size:27px;line-height:1.4">When every model says “nothing here”, the derived term makes the score near its maximum (0.48, against 0.25 when all say “scene”).</p>
+</div>
+</div>
+<p style="font-size:30px;line-height:1.4;color:#1E2733">Conclusion: the old score was a confidence score in disguise. The fix is to <b>measure each agent properly</b> and to <b>route by confidence</b> openly.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7A8591">Part 2 of 5 · The first design and why it failed</p>
+<aside>Three problems sink the old score. First, the archive has only eight states, so no formula can rank pictures finely; I checked every weighting with linear programming, and 0.6/0.2/0.2 is already the best of the six possible decision rules. Second, the score’s good-looking AUROC of 0.979 comes from the computed Agreement term; without it, it drops to 0.75, and plain confidence — no disagreement at all — reaches 0.978. Third, when every model agrees there is nothing in the picture, the derived term makes the “disagreement” score almost maximal. So the old score was a confidence score in disguise, and a bad one. The corrected design measures each agent properly and uses confidence openly.</aside>
+</section>

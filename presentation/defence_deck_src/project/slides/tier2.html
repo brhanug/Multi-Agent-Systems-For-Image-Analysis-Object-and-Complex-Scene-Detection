@@ -1,0 +1,24 @@
+<section id="tier2" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:112px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Tier 2 · helpers beside the decision</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:64px;font-weight:600;line-height:1.1;color:#1E2733">Three curation helpers, checked against people</h2>
+<div style="display:flex;gap:24px">
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:32px;font-weight:600;color:#1E2733">Contradiction checker</h3>
+<p style="font-size:25px;line-height:1.4"><b>Rule:</b> the describer names an object the detector did not find → a flag.</p>
+<p style="font-size:25px;line-height:1.4"><b>Checked:</b> 56% of flags name an object that is not there (68% with the retrained finder), against 36.5% of all claims. Useful, but a third are detector misses.</p>
+</div>
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:32px;font-weight:600;color:#1E2733">Cross-archive linker</h3>
+<p style="font-size:25px;line-height:1.4"><b>Rule:</b> compare picture embeddings across books; link if similarity ≥ 0.92.</p>
+<p style="font-size:25px;line-height:1.4"><b>Checked:</b> all 41 checked pairs at 0.92 or above were real reprints. Across the archive, 38 of 50 random links (76%) are real reprints; the rest share only the style.</p>
+</div>
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:32px;font-weight:600;color:#1E2733">Inscription reader</h3>
+<p style="font-size:25px;line-height:1.4"><b>Rule:</b> Kosmos-2.5 reads text and places it.</p>
+<p style="font-size:25px;line-height:1.4"><b>Checked:</b> not usable — about half its outputs loop; of its “real text”, only 52.5% comes from pictures with text.</p>
+</div>
+</div>
+<p style="font-size:26px;line-height:1.4;color:#5D6874">None of them changes a decision; they add flags and links for a cataloguer.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7A8591">Part 5 of 5 · What it means</p>
+<aside>Beside the decision run three helpers. The contradiction checker flags objects the describer names but the detector did not find. Checked against my annotations, 56 percent of its flags name an object that is not in the picture — 68 percent with the retrained finder — compared with 36.5 percent of all the describer’s claims. So a flag means something, but a third of the flags are really detector misses. The cross-archive linker finds reprints by comparing picture embeddings across books: every checked pair with similarity 0.92 or more was a real reprint, but across the whole archive it finds 2,434 links, and of 50 drawn at random and judged blind, 38 — about three in four — are real reprints; the other 12 only share the style. The inscription reader, built on Kosmos-2.5, is not usable on these old prints. None of them changes a decision.</aside>
+</section>

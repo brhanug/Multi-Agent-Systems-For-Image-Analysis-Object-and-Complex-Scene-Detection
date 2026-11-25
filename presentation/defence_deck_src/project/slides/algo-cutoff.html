@@ -1,0 +1,29 @@
+<section id="algo-cutoff" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:104px 128px 150px;display:flex;flex-direction:column;gap:24px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#2D5F8B">Algorithm 3 · done once, on the calibration books</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:60px;font-weight:600;line-height:1.1;color:#1E2733">Choosing the cut-off (conformal risk control)</h2>
+<div style="display:flex;gap:32px">
+<div style="flex:1;background:#1E2733;border-radius:16px;padding:30px;display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;color:#E8B07A">INPUT: n calibration pictures, each with its uncertainty u and whether its answer was wrong (e = 1) or right (e = 0); the promise α</p>
+<p style="font-size:27px;line-height:1.45;color:#F3EEE4"><b>1</b>  for each candidate cut-off λ from 0.001 to 1:</p>
+<p style="font-size:27px;line-height:1.45;color:#F3EEE4;padding-left:40px"><b>2</b>  rate(λ) = share of pictures with u &lt; λ and e = 1</p>
+<p style="font-size:27px;line-height:1.45;color:#F3EEE4;padding-left:40px">(would be approved, and are wrong)</p>
+<p style="font-size:27px;line-height:1.45;color:#F3EEE4"><b>3</b>  keep the largest λ with</p>
+<p style="font-size:27px;line-height:1.45;color:#E8B07A;padding-left:40px">(n ÷ (n+1)) · rate(λ) + 1 ÷ (n+1) ≤ α</p>
+<p style="font-size:27px;line-height:1.45;color:#F3EEE4"><b>4</b>  if no λ qualifies, approve nothing</p>
+<p style="font-size:24px;color:#E8B07A">OUTPUT: the cut-off λ̂, one per answer</p>
+</div>
+<div style="width:520px;display:flex;flex-direction:column;gap:18px">
+<div style="background:#E7EEF5;border-radius:16px;padding:26px">
+<p style="font-size:25px;line-height:1.4;color:#1E2733"><b>In one sentence:</b> approve as much as possible while the labelled examples show the promise is kept, with a small safety margin.</p>
+</div>
+<div style="background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:6px">
+<p style="font-size:24px;color:#A2461B">WORKED OUT, α = 5%</p>
+<p style="font-size:25px;line-height:1.4">n = 252 → at most 11 approved and wrong</p>
+<p style="font-size:25px;line-height:1.4">λ̂ = 0.829 → approve if p is more than 0.171 from 0.5</p>
+<p style="font-size:25px;line-height:1.4">test: 70.7% approved, real risk 0.036</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:56px;width:1664px;font-size:24px;color:#7A8591">Part 3 of 5 · The corrected design · the algorithms</p>
+<aside>Algorithm three chooses the cut-off, once, on the calibration books. Each calibration picture has an uncertainty and we know whether the system’s answer was wrong. For every possible cut-off, count the share of pictures that would be approved — uncertainty below the cut-off — and are wrong. Keep the largest cut-off whose share, with the small correction n over n plus one and the extra one over n plus one, stays at or below alpha. That correction is what makes the promise hold for new pictures, not just the calibration ones. If no cut-off works, nothing is approved. In one sentence: approve as much as possible while the labelled examples show the promise is kept, with a safety margin. With 252 calibration pictures and alpha five percent, at most 11 may be approved and wrong; the cut-off is 0.829, and on the test pictures 70.7 percent are approved with a real risk of 3.6 percent.</aside>
+</section>

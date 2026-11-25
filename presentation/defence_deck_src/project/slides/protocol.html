@@ -1,0 +1,27 @@
+<section id="protocol" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:112px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">How it was tested</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:64px;font-weight:600;line-height:1.1;color:#1E2733">Labelled pictures, split by book, 200 times</h2>
+<div style="display:flex;gap:28px">
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:32px;font-weight:600;color:#1E2733">The labels</h3>
+<p style="font-size:26px;line-height:1.45"><b>1,250</b> pictures (550 books) for scene at all</p>
+<p style="font-size:26px;line-height:1.45"><b>992</b> with a known scene class</p>
+<p style="font-size:26px;line-height:1.45"><b>300</b> with hand-drawn object boxes</p>
+<p style="font-size:26px;line-height:1.45"><b>400 + 300</b> drawn at random from the archive</p>
+</div>
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:32px;font-weight:600;color:#1E2733">The splits</h3>
+<p style="font-size:26px;line-height:1.45">Books split <b>60 / 20 / 20</b> into training, calibration and test</p>
+<p style="font-size:26px;line-height:1.45">No book on two sides</p>
+<p style="font-size:26px;line-height:1.45">Redrawn <b>200 times</b>; every figure is a mean</p>
+</div>
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:32px;font-weight:600;color:#1E2733">The rules</h3>
+<p style="font-size:26px;line-height:1.45"><b>Established</b> = the whole 95% range of a difference lies on one side of zero</p>
+<p style="font-size:26px;line-height:1.45">Key tests <b>written down before running</b></p>
+<p style="font-size:26px;line-height:1.45">Errors defined by <b>people</b>, never by the agents</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7A8591">Part 3 of 5 · The corrected design · how it was tested</p>
+<aside>How was all this tested? There are 1,250 labelled pictures from 550 books for the scene/no-scene level, 992 of them with a known scene class, 300 pictures where I drew object boxes by hand, and two samples drawn at random from the archive, 400 and 300 pictures. The books are split into training, calibration and test books, 60/20/20, so no book appears on two sides, and this split is redrawn 200 times; every figure I show is a mean over those 200. I call a difference “established” only if its whole 95 percent range is on one side of zero — that is stricter than the standard corrected t-test. The key tests were written down before they were run, and an error is always defined by a person’s label, never by the agents themselves.</aside>
+</section>

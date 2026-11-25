@@ -1,0 +1,24 @@
+<section id="objects" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:112px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Result 3 · the eight object classes (300 pictures)</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:64px;font-weight:600;line-height:1.1;color:#1E2733">Objects: ranked well, promised as a short list</h2>
+<div style="display:flex;gap:28px">
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:36px;display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'Source Serif 4', Georgia, serif;font-size:88px;font-weight:700;color:#A2461B;line-height:1">0.903</p>
+<p style="font-size:27px;line-height:1.4">mean AUROC: pictures with a class are ranked above those without it</p>
+</div>
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:36px;display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'Source Serif 4', Georgia, serif;font-size:88px;font-weight:700;color:#A2461B;line-height:1">2.8</p>
+<p style="font-size:27px;line-height:1.4">classes on each picture’s list, promising at most 10% of its objects missed</p>
+</div>
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:36px;display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'Source Serif 4', Georgia, serif;font-size:88px;font-weight:700;color:#A2461B;line-height:1">1.56</p>
+<p style="font-size:27px;line-height:1.4">wrong classes per picture for a person to strike out</p>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:28px;line-height:1.4">The list leaves out 9.2% of a picture’s objects on average, as promised (10.8% of all objects, because pictures without objects miss nothing).</p>
+<p style="font-size:28px;line-height:1.4">Single objects cannot be confirmed automatically; boxes reach a mean AP50 of 0.210, so rare classes need a person.</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7A8591">Part 4 of 5 · Results</p>
+<aside>Third result: the eight object classes, on the 300 pictures where I drew boxes by hand. The system ranks pictures that contain a class above those that do not with a mean AUROC of 0.903 — good. The risk promise here is different: at most ten percent of a picture’s objects may be missing from its list. That gives a list of 2.8 classes per picture, of which on average 1.56 are wrong and a person strikes them out. Careful wording: the list misses 9.2 percent of a picture’s objects on average, which is what is promised; counted over all objects it is 10.8 percent, because pictures without objects cannot miss anything. Automatic confirmation of single objects is not possible at a useful level, and the boxes are still weak for rare classes.</aside>
+</section>

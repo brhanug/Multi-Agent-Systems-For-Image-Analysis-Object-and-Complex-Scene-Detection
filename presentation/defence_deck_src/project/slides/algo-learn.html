@@ -1,0 +1,28 @@
+<section id="algo-learn" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:104px 128px 150px;display:flex;flex-direction:column;gap:24px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#2D5F8B">Algorithm 1 · done once, on the training books</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:60px;font-weight:600;line-height:1.1;color:#1E2733">Learning the mappings</h2>
+<div style="display:flex;gap:32px">
+<div style="flex:1;background:#1E2733;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;color:#E8B07A">INPUT: training pictures with a human label; each agent’s numbers for them</p>
+<p style="font-size:27px;line-height:1.45;color:#F3EEE4"><b>1</b>  for each agent (object finder, scene matcher, describer):</p>
+<p style="font-size:27px;line-height:1.45;color:#F3EEE4;padding-left:40px"><b>2</b>  collect its numbers for every training picture</p>
+<p style="font-size:27px;line-height:1.45;color:#F3EEE4;padding-left:40px"><b>3</b>  fit a logistic regression: label ← its numbers</p>
+<p style="font-size:27px;line-height:1.45;color:#F3EEE4;padding-left:40px"><b>4</b>  keep the bias and one weight per number</p>
+<p style="font-size:27px;line-height:1.45;color:#F3EEE4"><b>5</b>  scene class: one regression on all 27 numbers → 6 answers</p>
+<p style="font-size:27px;line-height:1.45;color:#F3EEE4"><b>6</b>  objects: per class, one regression per agent</p>
+<p style="font-size:24px;color:#E8B07A">OUTPUT: the weights, used for every picture afterwards</p>
+</div>
+<div style="width:560px;display:flex;flex-direction:column;gap:18px">
+<div style="background:#E7EEF5;border-radius:16px;padding:28px">
+<p style="font-size:26px;line-height:1.4;color:#1E2733"><b>In one sentence:</b> the system learns from labelled examples how much each number is evidence for each answer.</p>
+</div>
+<div style="background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:8px">
+<p style="font-size:24px;color:#A2461B">LEARNED, FOR THE OBJECT FINDER</p>
+<p style="font-size:26px;line-height:1.4">bias 0.41 · person +3.52 · animal +2.40 · text −0.18</p>
+<p style="font-size:24px;line-height:1.4;color:#5D6874">A person counts strongly towards “scene”; text slightly against.</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:56px;width:1664px;font-size:24px;color:#7A8591">Part 3 of 5 · The corrected design · the algorithms</p>
+<aside>Algorithm one is done once, before the system is used, on the training books only. For each agent, collect its numbers for every training picture and fit a logistic regression that predicts the human label from those numbers. What we keep is a bias and one weight per number. For the scene class there is one regression on all 27 numbers with six possible answers; for objects, one small regression per class and agent. In one sentence: the system learns from labelled examples how much each number counts as evidence. On the right are the real learned weights of the object finder for “is there a scene”: a person counts strongly for a scene, an animal too, and text slightly against. Nobody set these numbers by hand.</aside>
+</section>

@@ -1,0 +1,21 @@
+<section id="baselines" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:88px 128px 136px;display:flex;flex-direction:column;gap:18px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Result 4 · the numbers, task by task</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:52px;font-weight:600;line-height:1.1;color:#1E2733">Clearly better for objects; level with one model for scenes</h2>
+<table style="font-size:24px;color:#3E4A57;width:1664px">
+<tr><th style="width:28%">Task · measure</th><th style="width:12%">Our system</th><th style="width:12%">Old system</th><th style="width:12%">Linear probe</th><th style="width:12%">Describer alone</th><th style="width:12%">Zero-shot SigLIP</th><th style="width:12%">Zero-shot LLaVA</th></tr>
+<tr><td><b>Scene at all</b> · AUROC</td><td><b>0.866</b></td><td>0.829</td><td>0.859</td><td>0.835</td><td>—</td><td>—</td></tr>
+<tr><td><b>Scene at all</b> · approved at 5%</td><td><b>76.4%</b></td><td>63.0%</td><td>74.0%</td><td>74.3%</td><td>—</td><td>—</td></tr>
+<tr><td><b>Scene class</b> · % correct</td><td>82.1%</td><td>77.4%</td><td><b>82.2%</b></td><td>80.0%</td><td>75.7%</td><td>44.2%</td></tr>
+<tr><td><b>Scene class</b> · balanced accuracy</td><td>0.544</td><td><b>0.576</b></td><td>0.504</td><td>0.507</td><td>0.571</td><td>0.252</td></tr>
+<tr><td><b>Scene class</b> · approved (wrong)</td><td><b>69.1%</b> (7.0%)</td><td>—</td><td>68.0% (7.2%)</td><td>64.9% (7.6%)</td><td>50.7% (9.0%)</td><td>—</td></tr>
+<tr><td><b>Objects</b> · mean AUROC</td><td><b>0.903</b></td><td>0.624</td><td>0.838</td><td><b>0.903</b></td><td>—</td><td>0.91</td></tr>
+<tr><td><b>Objects</b> · list length at 10%</td><td>2.8</td><td>—</td><td>4.0</td><td><b>2.6</b></td><td>—</td><td>—</td></tr>
+</table>
+<p style="font-size:24px;line-height:1.3;color:#5D6874">— = this baseline cannot give that answer (no probability for the promise, or no object list).</p>
+<div style="display:flex;gap:20px">
+<div style="flex:1;background:#E3F0E0;border-radius:14px;padding:16px 22px"><p style="font-size:24px;line-height:1.35;color:#1E2733"><b>Established:</b> objects +0.28 / +0.06 AUROC; scene at all +13.5 points over the old system.</p></div>
+<div style="flex:1;background:#F6E1DE;border-radius:14px;padding:16px 22px"><p style="font-size:24px;line-height:1.35;color:#1E2733"><b>Not established:</b> any scene gain over the probe, the describer alone, or the old system’s class.</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:52px;width:1664px;font-size:24px;color:#7A8591">Part 4 of 5 · Results</p>
+<aside>Here are all the numbers, task by task. Bold marks the best in each row. For scene at all, the system ranks best, 0.866, and approves the most at five percent risk, 76.4 percent — 13.5 points more than the old system, and that gain is established. But the probe and the describer alone come within about two points, and those gaps are not established. For the scene class, the probe is as accurate as the system, and the old system and zero-shot SigLIP have a slightly higher balanced accuracy — the old system only because it names three of six teaching pictures. What the system adds here is a probability per class, so it can approve 69 percent of pictures with about seven percent of those wrong; the old system and zero-shot scores cannot do that at all. For objects the gain is clear: 0.903 against 0.624 for the old detector and 0.838 for the probe. The describer alone matches the system, and even zero-shot LLaVA’s raw yes-strength ranks objects at about 0.91. A dash means the baseline cannot produce that answer.</aside>
+</section>

@@ -1,0 +1,23 @@
+<section id="why-agents" data-transition="fade" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:112px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Why several agents? The original reasoning</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:64px;font-weight:600;line-height:1.1;color:#1E2733">One model had no way to check itself</h2>
+<div style="display:flex;gap:20px;align-items:stretch">
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:30px;font-weight:600;color:#1E2733">1 · One detector is weak</h3>
+<p style="font-size:26px;line-height:1.4">Off the shelf, a modern detector finds person, animal and vehicle at only 0.79, 0.74 and 0.75 AUROC on these prints.</p>
+</div>
+<x-shape kind="arrow-right" style="background:#A2461B;width:48px;height:28px;align-self:center"></x-shape>
+<div style="flex:1;background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:30px;font-weight:600;color:#1E2733">2 · Training it hides failure</h3>
+<p style="font-size:26px;line-height:1.4">Trained on a teacher’s labels it looked good (0.768) but was poor against people (0.146) — and <b>nothing inside the pipeline noticed</b>.</p>
+</div>
+<x-shape kind="arrow-right" style="background:#A2461B;width:48px;height:28px;align-self:center"></x-shape>
+<div style="flex:1;background:#E7EEF5;border:1px solid #2D5F8B;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:30px;font-weight:600;color:#1E2733">3 · The idea</h3>
+<p style="font-size:26px;line-height:1.4">Ask several models that share <b>neither architecture nor training data</b>. Where they disagree, a person should look.</p>
+</div>
+</div>
+<p style="font-size:30px;line-height:1.4;color:#1E2733">So the first design had three parts: <b>independent agents</b>, a <b>measure of their disagreement</b>, and a <b>risk promise</b> that decides who checks. The thesis tests the middle part.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7A8591">Part 2 of 5 · The first design and why it failed</p>
+<aside>Why build a system with several agents at all? It started from two observations. First, one detector taken off the shelf is weak on old prints: 0.79, 0.74 and 0.75 AUROC for person, animal and vehicle. Second, when we trained a detector on another model’s labels, it looked good by its own measure, 0.768, but was poor against people, 0.146 — and nothing inside the pipeline noticed. A single model has no independent signal to check itself against. So the idea was: use several models that share neither architecture nor training data, and where they disagree, let a person look. That gave the first design its three parts: independent agents, a measure of disagreement, and a risk promise. The middle part, disagreement, is the hypothesis this thesis tests.</aside>
+</section>

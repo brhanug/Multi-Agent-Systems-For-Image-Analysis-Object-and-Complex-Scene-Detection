@@ -1,0 +1,16 @@
+<section id="faq-weights" style="background:#ECE7DC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:112px 128px 160px;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Backup · why these weights?</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:60px;font-weight:600;line-height:1.1;color:#1E2733">Every weight was also learned from data</h2>
+<table style="font-size:26px;color:#3E4A57;width:1664px">
+<tr><th style="width:26%">Where</th><th style="width:44%">Hand-set vs learned</th><th style="width:30%">What the system uses</th></tr>
+<tr><td>Old SAA 0.6 / 0.2 / 0.2</td><td>8 states allow only 6 rules; 0.6/0.2/0.2 is already the best</td><td>— (old design)</td></tr>
+<tr><td>Old routing 0.6 / 0.4</td><td>every weight 0–0.6 gives the same decisions (63.0%)</td><td>— (old design)</td></tr>
+<tr><td>Old design, all learned</td><td>63.8% approved at 5% (deployed 63.0%), ranking unchanged</td><td>still 12.6 points behind</td></tr>
+<tr><td>Scene at all</td><td>learned 0.864 / 75.2% vs fixed 0.866 / 76.4%: the same</td><td>fixed (archive tests used it)</td></tr>
+<tr><td>Scene class</td><td>learned 0.544 vs fixed 0.401; chosen on training books in 196 of 200 splits</td><td><b>learned</b></td></tr>
+<tr><td>Objects</td><td>learning does not help (0.903 either way)</td><td>average</td></tr>
+</table>
+<p style="font-size:26px;line-height:1.4;color:#5D6874">The gain of the corrected design comes from what the agents measure, not from how the numbers are weighted.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7A8591">Backup A</p>
+<aside>If asked about the weights: every hand-set weight was also learned. In the old design, the signals take only eight states, so any weighting can only produce six different rules, and 0.6/0.2/0.2 is already the best of them. The routing weight 0.6/0.4 gives identical decisions for any weight from 0 to 0.6. Learning every variable of the old design at once still leaves it 12.6 points behind. In the corrected design, for scene at all, learned and fixed weights give the same result, so I kept the fixed ones because the archive tests were fixed with them. For the scene classes, learning is clearly better, so the system learns them — and when the choice itself is made inside each split, on training books only, the learned mapping wins 196 of 200 times. For objects, learning does not help.</aside>
+</section>

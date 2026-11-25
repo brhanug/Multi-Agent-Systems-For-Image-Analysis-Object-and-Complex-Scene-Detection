@@ -1,0 +1,29 @@
+<section id="classes" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:112px 128px 160px;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Result 2 · the five scene classes (992 pictures)</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:64px;font-weight:600;line-height:1.1;color:#1E2733">Scene classes: shortlisted, not decided</h2>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:14px">
+<table style="font-size:27px;color:#3E4A57;width:900px">
+<tr><th style="width:52%">Combination</th><th style="width:24%">Balanced accuracy</th><th style="width:24%">Correct</th></tr>
+<tr><td><b>Learned (the system)</b></td><td><b>0.544</b></td><td><b>82.1%</b></td></tr>
+<tr><td>Fixed 0.6 / 0.2 / 0.2</td><td>0.401</td><td>78.0%</td></tr>
+<tr><td>Describer alone</td><td>0.507</td><td>80.0%</td></tr>
+</table>
+<p style="font-size:26px;line-height:1.45">Found: landscape 62% · family 44% · playing 27% · teaching never (only 6 pictures).</p>
+<p style="font-size:26px;line-height:1.45">People agree on these classes only moderately (κ = 0.337).</p>
+<p style="font-size:26px;line-height:1.45"><b>On random archive pictures</b> (179 of 444 labelled): mostly playing (43%), not drawing (21%); balanced accuracy falls to <b>0.351</b>.</p>
+</div>
+<div style="width:700px;display:flex;flex-direction:column;gap:20px">
+<div style="background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:10px">
+<h3 style="font-size:30px;font-weight:600;color:#1E2733">At a 5% promise</h3>
+<p style="font-size:26px;line-height:1.4">69.1% approved — almost all <b>“no scene”</b> (1.6% wrong) or <b>“drawing”</b> (16% wrong). Family, playing, landscape → <b>a person</b>.</p>
+</div>
+<div style="background:#FFFDF8;border:1px solid #DDD6C8;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:10px">
+<h3 style="font-size:30px;font-weight:600;color:#1E2733">As a short list (10%)</h3>
+<p style="font-size:26px;line-height:1.4">The right class is on the list for <b>90.4%</b> of pictures, with <b>1.28</b> classes on average.</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7A8591">Part 4 of 5 · Results</p>
+<aside>Second result: the five scene classes, on 992 pictures with a known class. The learned combination reaches a balanced accuracy of 0.544 — that means each class counts equally — and 82 percent correct. The inherited fixed weights only reached 0.401, and the describer alone 0.507. Landscapes are found 62 percent of the time, family 44, playing 27; teaching has only six pictures and is never found. Under a five percent promise the system approves 69 percent of pictures, but almost all of them are “no scene” or “drawing”; the specific classes go to a person. As a short list, the right class is on the list 90 percent of the time with just 1.3 classes on average. And note: people themselves agree on these classes only moderately, kappa 0.34, so no system can be measured more precisely than that. On the archive itself the picture changes: in a planned test on random archive pictures, of which I labelled 179 of 444, most scenes are children playing, not drawings, and the mapping learned on the pool drops to a balanced accuracy of 0.35. So on the archive the classes stay a shortlist for a person.</aside>
+</section>

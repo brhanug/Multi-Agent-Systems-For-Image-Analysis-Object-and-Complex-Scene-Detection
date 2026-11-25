@@ -1,0 +1,15 @@
+<section id="limits" style="background:#F6F3EC;color:#3E4A57;font-family:'IBM Plex Sans', Arial, sans-serif;padding:112px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#A2461B">Limits and next steps</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:64px;font-weight:600;line-height:1.1;color:#1E2733">What would make the results stronger</h2>
+<table style="font-size:27px;color:#3E4A57;width:1664px">
+<tr><th style="width:40%">Limit</th><th style="width:44%">What would resolve it</th><th style="width:16%">Effort</th></tr>
+<tr><td>The archive labels come from one person</td><td>A second rater on the 400 random archive pictures</td><td>low</td></tr>
+<tr><td>Scene classes do not carry over to the archive (0.351 vs 0.544)</td><td>A class mapping learned on archive pictures</td><td>moderate</td></tr>
+<tr><td>Rare classes have few pictures (teaching: 6)</td><td>More labelled pictures of the rare classes</td><td>moderate</td></tr>
+<tr><td>The promise holds on average, not per batch</td><td>Learn then Test (tested: batches over the level 41.5% → 17.5%)</td><td>done</td></tr>
+<tr><td>One archive only</td><td>A second collection carried end to end</td><td>high</td></tr>
+</table>
+<p style="font-size:26px;line-height:1.4;color:#5D6874">Tier 3 (two paid models before a person) was designed but not run; uncertain pictures go to a person.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7A8591">Part 5 of 5 · What it means</p>
+<aside>The honest limits. The biggest one: the archive labels come from one person, me; a second rater on the 400 random pictures would make the archive result much stronger, and it is low effort. Second, the scene classes do not carry over to the archive: on random archive pictures most scenes are children playing, and the mapping learned on the pool falls from 0.544 to 0.351 balanced accuracy; a mapping learned on archive pictures would be needed. Third, the rare classes have few examples, teaching only six. Fourth, the promise holds on average, not for every batch; I tested the standard remedy, Learn then Test, which reduces batches over the level from 41.5 to 17.5 percent at a small cost in approvals. And everything is on one archive. Tier 3 was designed but not run.</aside>
+</section>
