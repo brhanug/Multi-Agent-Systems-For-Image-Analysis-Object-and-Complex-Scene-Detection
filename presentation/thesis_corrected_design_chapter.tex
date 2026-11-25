@@ -39,19 +39,23 @@ Risk control & Conformal risk control & Unchanged \\
 
 \begin{figure}[!htbp]
 \centering
-\resizebox{0.9\linewidth}{!}{%
+\resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[
   font=\small, >={Stealth[length=2.2mm]},
   box/.style={draw=black!60, rounded corners=3pt, align=center, inner sep=4pt, fill=white, minimum height=10mm},
   agent/.style={box, fill=gray!8, minimum width=38mm},
   mapb/.style={box, fill=blue!6, minimum width=124mm},
   outb/.style={box, fill=blue!3, minimum width=38mm},
-  arr/.style={->, black!65, thick}]
+  arr/.style={->, black!65, thick},
+  tier/.style={draw=black!35, dashed, rounded corners=5pt, inner sep=7pt},
+  lab/.style={font=\footnotesize\bfseries, text=black!65}]
 \node[box, minimum width=34mm] (scan) {Scan, restored once};
 \node[agent, below=11mm of scan] (sig) {\textbf{Scene matcher}\\{\footnotesize SigLIP: 5 scene scores and}\\{\footnotesize 1 ``no scene'' score}};
 \node[agent, left=5mm of sig] (det) {\textbf{Object finder}\\{\footnotesize YOLOv11m, retrained:}\\{\footnotesize 8 class scores and boxes}};
 \node[agent, right=5mm of sig] (vlm) {\textbf{Describer}\\{\footnotesize LLaVA-OneVision: 13}\\{\footnotesize yes/no strengths}};
 \foreach \a in {det,sig,vlm} \draw[arr] (scan.south) -- ++(0,-4mm) -| (\a.north);
+\node[box, right=9mm of vlm, minimum width=27mm, draw=black!35, text=black!60] (ocr) {Text reader\\{\footnotesize Kosmos-2.5}};
+\draw[arr, black!40, dashed] (scan.east) -| (ocr.north);
 \node[mapb, below=9mm of sig] (map) {\textbf{Each agent's report mapped to probabilities} and combined\\{\footnotesize mappings fitted on the training books; the agents never see each other's output}};
 \foreach \a in {det,sig,vlm} \draw[arr] (\a.south) -- (\a.south |- map.north);
 \node[outb, below=9mm of map.south -| det] (ob) {\textbf{Object classes}\\{\footnotesize which of the eight}};
@@ -64,9 +68,15 @@ Risk control & Conformal risk control & Unchanged \\
 \node[box, fill=red!7, minimum width=46mm, below=9mm of crc.south, xshift=30mm] (per) {A person checks\\{\footnotesize or confirms the short list}};
 \draw[arr] (crc.south -| ok.north) -- (ok.north);
 \draw[arr] (crc.south -| per.north) -- (per.north);
+\node[box, below=7mm of $(ok.south)!0.5!(per.south)$, minimum width=124mm, fill=gray!5] (t2) {\textbf{Tier 2, beside the decision}: contradiction checker $\cdot$ cross-archive linker $\cdot$ inscription reader\\{\footnotesize reads the stored outputs of every picture, the text reader's included; its flags help curation and never change a decision}};
+\begin{scope}[on background layer]
+\node[tier, fit=(det)(sig)(vlm), label={[lab, anchor=south west]north west:Tier 1}] (t1frame) {};
+\end{scope}
+\draw[arr, black!55, dashed] (t1frame.west) -- ([xshift=-5mm]t1frame.west -| crc.west) -- node[pos=0.45, above, sloped, font=\scriptsize, text=black!55]{every picture} ([xshift=-5mm]t2.north -| crc.west);
+\draw[arr, black!40, dashed] (ocr.south) -- (ocr.south |- t2.north);
 \end{tikzpicture}
 }
-\caption[The corrected design]{The corrected design, drawn like Figure~\ref{fig:full_pipeline_flow}. Three agents report what they measure, without seeing each other's output; their reports are mapped to probabilities and combined into three answers, and conformal risk control decides which answers are approved and which a person checks. There is no Agreement term, and the text reader takes no part in the decision. As in Figure~\ref{fig:full_pipeline_flow}, Tier~2 runs beside the decision on the agents' stored outputs, and pictures the design is unsure of go to a person (Tier~3 was not run).}
+\caption[The corrected design]{The corrected design, drawn like Figure~\ref{fig:full_pipeline_flow}. Three agents report what they measure, without seeing each other's output; their reports are mapped to probabilities and combined into three answers, and conformal risk control decides which answers are approved and which a person checks. There is no Agreement term, and the text reader takes no part in the decision. As in Figure~\ref{fig:full_pipeline_flow}, Tier~2 runs beside the decision on the stored outputs of every picture, the text reader's included, and pictures the design is unsure of go to a person (Tier~3 was not run).}
 \label{fig:corrected_architecture}
 \end{figure}
 

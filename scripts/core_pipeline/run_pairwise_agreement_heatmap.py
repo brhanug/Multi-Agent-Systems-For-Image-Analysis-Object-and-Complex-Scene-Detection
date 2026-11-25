@@ -57,7 +57,7 @@ def main() -> None:
             val = corr[i, j]
             ax.text(j, i, f"{val:.2f}", ha="center", va="center",
                      color="white" if val > 0.6 else "black", fontsize=11)
-    ax.set_title(f"Pairwise Inter-Agent Consensus Agreement Matrix\n"
+    ax.set_title(f"Correlation between the deployed agent signals\n"
                  f"(Pearson $r$, $C_0$, $n={len(df):,}$)", fontsize=12)
     fig.colorbar(im, ax=ax, shrink=0.85)
     plt.tight_layout()
