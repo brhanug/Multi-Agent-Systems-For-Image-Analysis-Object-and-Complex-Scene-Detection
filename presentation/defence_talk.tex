@@ -1,7 +1,6 @@
 % =====================================================================================================
 %  Defence talk: "When can an automatic answer be trusted?"  (Brhanu Atsbaha, University of Hildesheim)
 %  Build:   cd presentation && ~/.local/bin/tectonic -X compile defence_talk.tex
-%  Notes:   ~/.local/bin/tectonic -X compile defence_talk_notes.tex   (every slide followed by its notes)
 %  Every figure on these slides is taken from the thesis (thesis_v4.pdf) or its result files.
 % =====================================================================================================
 \documentclass[aspectratio=169,10pt]{beamer}
@@ -114,13 +113,7 @@
   io/.style={font=\scriptsize\bfseries,text=muted},
 }
 
-% ---------- speaker notes (shown only in defence_talk_notes.tex) ----------
-\ifdefined\withnotes
-  \setbeameroption{show notes}
-  \setbeamertemplate{note page}{%
-    \vskip4pt{\centering\insertslideintonotes{0.42}\par}\vskip6pt
-    {\small\setlength{\parskip}{4pt}\insertnote}}
-\fi
+
 
 \title{When Can an Automatic Answer Be Trusted?}
 \subtitle{Confidence, not disagreement, under a risk promise for historical illustrations}
