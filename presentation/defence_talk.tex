@@ -139,30 +139,6 @@
 \note{Good morning. My thesis asks one question about a system that labels pictures in a historical archive: which of its answers can be used without a person checking them? I will show the archive, the models, the first design and why it failed, the corrected design, and what the results allow us to claim.}
 \end{frame}
 
-% =====================================================================================================
-\begin{frame}{The question and the answer in one slide}
-\begin{columns}[T,onlytextwidth]
-\column{0.47\textwidth}
-\begin{defbox}{The question}
-An archive has 12,110 old book illustrations and no time to check every automatic label.
-\textbf{Which automatic answers can be trusted without a person?}
-\end{defbox}
-\vspace{4pt}
-\begin{defbox}{The idea I tested}
-Ask several different models. Where they \textbf{disagree}, a person should look.
-\end{defbox}
-\column{0.49\textwidth}
-\begin{defbox}{What I found}
-\begin{itemize}\setlength\itemsep{2pt}
-\item Disagreement does \no{not} find the errors better than the system's own \textbf{confidence}: most errors are made by all models together.
-\item A corrected design routes by confidence and gives a \textbf{risk promise}: ``at most 5 in 100 pictures approved and wrong''.
-\item It approves \yes{76.4\%} of pictures automatically (old design: 63.0\%) inside the labelled pool. On the wider archive the promise only holds when it is calibrated on archive pictures.
-\end{itemize}
-\end{defbox}
-\end{columns}
-\takeaway{The contribution is not a better detector, but a tested answer to \emph{when} an automatic answer can be trusted, with a stated risk.}
-\note{This is the whole talk on one slide. The thesis started from the idea that disagreement between models signals doubt. That idea fails here. What works is plain confidence plus a statistical promise, conformal risk control, and that promise has to be calibrated on pictures like the ones it is applied to.}
-\end{frame}
 
 % =====================================================================================================
 \section{The problem}
