@@ -403,11 +403,11 @@ Role & Model & Takes in & Gives out & Time\\
 \column{0.58\textwidth}
 \centering
 \begin{tikzpicture}
-\node[inner sep=0] (in) {\includegraphics[height=3.6cm]{restoration_input_1.png}};
-\node[inner sep=0,right=12mm of in] (out) {\includegraphics[height=3.6cm]{restoration_output_1.png}};
+\node[inner sep=0] (in) {\includegraphics[height=3.4cm]{restoration_input_2_new.jpg}};
+\node[inner sep=0,right=12mm of in] (out) {\includegraphics[height=3.4cm]{restoration_output_2_new.jpg}};
 \draw[arr,line width=1.5pt] (in.east)--node[below=2pt,font=\scriptsize,text=muted]{ESRGAN}(out.west);
 \node[io,above=1mm of in] {INPUT: raw scan};
-\node[io,above=1mm of out] {OUTPUT: restored, $2\times$ size};
+\node[io,above=1mm of out] {OUTPUT: same picture, restored ($2\times$)};
 \end{tikzpicture}
 \column{0.40\textwidth}
 \small
