@@ -150,7 +150,7 @@ For the example, $p = 0.6 \times 0.98 + 0.2 \times 0.94 + 0.2 \times 0.99 = 0.97
 \State for each class $c$: $p_c \gets$ mean of the three agents' mapped probabilities for $c$
 \State list $\gets \{c : p_c \ge t\}$; a person confirms the list, with boxes from the object finder
 \Statex \textit{Scene at all (first level)}
-\For{each agent $k$} \State $p_k \gets 1/(1 + e^{-(b_k + w_k \cdot z_k)})$ \EndFor
+\For{each agent $k$} \State $p_k \gets 1/(1 + e^{-(b_k + w_k \cdot z_k)})$ \Comment{describer: its 8 object strengths} \EndFor
 \State $p \gets 0.6\,p_{\text{object}} + 0.2\,p_{\text{scene}} + 0.2\,p_{\text{describer}}$; scene if $p \ge 0.5$
 \State $u \gets 1 - |p - 0.5|$
 \If{$u < \hat\lambda$} approve automatically \Else\ send to a person \EndIf

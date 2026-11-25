@@ -1769,7 +1769,7 @@ Algorithm~\ref{alg:conformal_risk_control} is the conformal risk control procedu
 \Require Calibration split $C_{\text{cal}} = \{(\mathbf{I}_j, y_j)\}_{j=1}^{n_{\text{cal}}}$, Target upper risk bound $\alpha = 0.05$, Held-out test set $C_{\text{test}}$.
 \Ensure Risk-controlling threshold $\hat{\lambda}$ satisfying $\mathbb{E}[\mathcal{R}(\hat{\lambda})] \le \alpha$ relative to the calibration distribution $C_{\text{cal}}$ (Sections~\ref{sec:risk_promise_explained} and~\ref{sec:archive_check} show how this guarantee behaves when new pictures differ from $C_{\text{cal}}$).
 \State For each sample $j$: compute $\text{error}_j \leftarrow \mathbb{I}(\mathbb{I}[S_{\text{fusion}, j} \ge 0.5] \neq y_j)$ and $U_{\text{triage}, j} \leftarrow 0.6 \cdot \sigma_{\text{agents}, j} + 0.4 \cdot (1 - \bar{c}_j)$
-\State For each threshold candidate $\lambda \in [0, 1]$ with step size $\delta = 0.001$:
+\State For each threshold candidate $\lambda \in [0, 1]$ in steps of $0.001$:
 \State \quad For each calibration sample $j \in C_{\text{cal}}$:
 \State \qquad Compute non-conformity loss: $L_j(\lambda) \leftarrow \text{error}_j \cdot \mathbb{I}(U_{\text{triage}, j} < \lambda)$ \Comment{loss on auto-approved images only}
 \State \quad Compute empirical calibration risk: $\hat{R}(\lambda) \leftarrow \frac{1}{n_{\text{cal}}} \sum_{j=1}^{n_{\text{cal}}} L_j(\lambda)$
