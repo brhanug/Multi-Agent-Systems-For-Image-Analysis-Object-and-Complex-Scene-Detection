@@ -1452,6 +1452,36 @@ A pipeline project reports that its system works. This thesis reports where it d
 \note{If someone says I only built a pipeline: the pipeline is the instrument. The research is the hypothesis it was built to test, the tests fixed in advance, and the results, including the negative ones: the main hypothesis was rejected, the first design was audited and replaced, and the promise failed on the archive before it was repaired. A pipeline project would report that its system works; this thesis reports where it does not and why.}
 \end{frame}
 
+\begin{frame}{Backup \,·\, Does training the agents on the archive help?}
+\begin{columns}[T,onlytextwidth]
+\column{0.58\textwidth}
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.4cm} c c c@{}}
+\toprule
+Balanced accuracy / measure & Zero-shot & Trained & Difference\\
+\midrule
+Scene class, the system & 0.543 & 0.570 & $+0.027$\\
+Scene matcher alone & 0.329 & \textbf{0.517} & $\mathbf{+0.189}$\\
+Describer alone & 0.505 & 0.507 & $+0.003$\\
+Scene presence, AUROC & 0.866 & 0.864 & $-0.003$\\
+Presence approved at 5\% & 76.4\% & 75.8\% & $-0.6$\\
+\bottomrule
+\end{tabular}\par\vspace{3pt}
+{\scriptsize Range of the difference over the redraws (2.5--97.5\%): the system $[-0.059, 0.122]$, includes zero; the scene matcher $[0.085, 0.290]$, positive in every redraw.}\par\vspace{2pt}
+{\scriptsize\color{muted}Planned in writing before the run (25 Nov). Cross-fitted over 5 book folds; 200 book-disjoint redraws.}
+\column{0.39\textwidth}
+\begin{defbox}{How}
+SigLIP: last 4 vision blocks, head, scale and bias trained on the 992 scene-class labels.\\[2pt]
+LLaVA-OneVision: LoRA (rank 16) on the language model; yes/no answers from the labels.
+\end{defbox}\vspace{3pt}
+\begin{keybox}[fontupper=\scriptsize\raggedright]
+Training makes SigLIP much better \emph{alone}, but the system already learns from the same labels: no established gain. Scene classes stay a shortlist.
+\end{keybox}
+\end{columns}
+\note{If asked why I did not train the models on the archive: I did, in a test fixed before it was run, cross-fitted by book. SigLIP alone improves a lot, from 0.329 to 0.517 balanced accuracy, in every redraw. But the system already learns from the same labels in its mappings, so the combination only moves from 0.543 to 0.570, and the range includes zero. LLaVA does not change, and scene presence does not change. So the conclusion stands.}
+\end{frame}
+
 \begin{frame}{Backup \,·\, Algorithm 1: learning the mappings (once, training books)}
 \begin{columns}[T,onlytextwidth]
 \column{0.55\textwidth}

@@ -56,6 +56,13 @@ this thesis reports where it does not, and why.
 
 ### The design
 
+**"Why didn't you train SigLIP and LLaVA on the archive?"** (Section 7.7, backup slide)
+I did, in a test fixed in writing before it ran (25 Nov), cross-fitted over five book folds and evaluated on the
+same 200 redraws. SigLIP alone improves a lot (balanced accuracy 0.329 to 0.517, every redraw), but the system
+only moves from 0.543 to 0.570 and the range includes zero; LLaVA does not change (0.505 to 0.507), nor does scene
+presence (0.866 to 0.864). The system's mappings already learn from the same labels, and the rare classes are too
+small (6 teaching, 32 playing, 51 family pictures). The scene classes stay a shortlist for a person.
+
 **Why keep the old design in the thesis at all?**
 Because the thesis is a test of its idea. The old design is what was built and run over all 12,110
 pictures; Chapters 2–5 show what it measured and why it fails. Chapter 6 is the design that follows

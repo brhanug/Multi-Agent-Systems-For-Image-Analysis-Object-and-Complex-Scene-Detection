@@ -20,7 +20,7 @@ describe the earlier, deployed design and why it was replaced.
 | Thesis ([PDF](presentation/thesis_v4.pdf)) | [presentation/thesis_v4.tex](presentation/thesis_v4.tex) (a copy of `thesis_v3_updated.tex`, which is the file to edit), which includes [thesis_corrected_design_chapter.tex](presentation/thesis_corrected_design_chapter.tex) (Ch. 6–7), [thesis_corrected_design_appendix.tex](presentation/thesis_corrected_design_appendix.tex) (App. G) and [latex_assets/failure_gallery.tex](latex_assets/failure_gallery.tex) (App. A) | `cd presentation && cp thesis_v3_updated.tex thesis_v4.tex && ~/.local/bin/tectonic -X compile thesis_v4.tex` |
 | Defence slides, Beamer (48 pages) | [presentation/defense_slides_v2.tex](presentation/defense_slides_v2.tex) | same, with `defense_slides_v2.tex` |
 | Defence slides for the talk (26 slides and 25 backup slides) | [presentation/defence_deck_src/](presentation/defence_deck_src/) (the HTML slides of the online deck) | export a PDF from the deck page |
-| Defence talk, Beamer (16:9, 45 talk slides + 7 backup; every model's input and output, definitions, diagrams, one picture followed through) | [presentation/defence_talk.tex](presentation/defence_talk.tex) | `tectonic -X compile defence_talk.tex` (example pictures in `presentation/defence_assets/`, not in git) |
+| Defence talk, Beamer (16:9, 45 talk slides + 8 backup; every model's input and output, definitions, diagrams, one picture followed through) | [presentation/defence_talk.tex](presentation/defence_talk.tex) | `tectonic -X compile defence_talk.tex` (example pictures in `presentation/defence_assets/`, not in git) |
 | Defence preparation: likely questions and the numbers to quote | [presentation/defense_prep_sheet.md](presentation/defense_prep_sheet.md) | |
 | Handout (2 pages) | [presentation/defense_handout_v2.tex](presentation/defense_handout_v2.tex) | same, with `defense_handout_v2.tex` |
 
@@ -74,6 +74,7 @@ which ties every number in these sections to its result file.
 | 7.4 A pre-registered test of disagreement | `run_c4_preregistered.py`, `run_c4_task_aligned.py` (disagreement within each task) |
 | 7.5 Scene agreement: systems and people | `run_scene_agreement.py` |
 | 7.6 Does restoration help? | `run_restoration_ablation.py` |
+| 7.7 Does training the agents on the archive help? | `run_finetune_agents.py` (cross-fitted training and scoring, GPU), `evaluate_finetune.py` |
 
 ### Appendices
 

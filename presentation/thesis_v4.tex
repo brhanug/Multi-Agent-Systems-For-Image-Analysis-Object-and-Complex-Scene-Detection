@@ -1071,6 +1071,10 @@ Rare scene classes are not covered by the short list (Section~\ref{sec:scene_cla
 Tested: a promise per class (Mondrian conformal prediction) covers at least $91\%$ of every class, but with $3.5$ of six classes listed (Section~\ref{sec:scene_classes}); shorter lists need more labelled pictures of the rare classes. &
 Moderate (annotation) \\
 \addlinespace
+The scene matcher and the describer are used without training on the archive &
+Tested: trained on the archive's labels, the scene matcher alone improves (balanced accuracy $0.329$ to $0.517$), but the system does not by an established margin ($0.543$ to $0.570$; Section~\ref{sec:finetune_agents}). More pictures of the rare classes would be needed. &
+Moderate (annotation) \\
+\addlinespace
 Transfer to a new archive is unproven &
 The Europeana pilot is $n=24$ with no negative controls. Roughly $200$ images including confirmed negatives would make the error-detection question answerable, provided the heterogeneity precondition (Section~\ref{sec:heterogeneity_precondition}) passes first. &
 Moderate (annotation) \\

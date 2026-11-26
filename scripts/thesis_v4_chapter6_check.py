@@ -756,6 +756,24 @@ ENTRIES = [
     ("the learned shares average $⟨⟩$, $0.24$ and $0.33$.", "fusion_weights_corrected.json:learned_weight_shares|object|mean", lambda x: f"{x:.2f}"),
     ("the learned shares average $0.43$, $⟨⟩$ and $0.33$.", "fusion_weights_corrected.json:learned_weight_shares|scene|mean", lambda x: f"{x:.2f}"),
     ("the learned shares average $0.43$, $0.24$ and $⟨⟩$.", "fusion_weights_corrected.json:learned_weight_shares|vlm|mean", lambda x: f"{x:.2f}"),
+    # --- training the agents on the archive (PLAN_finetune.md, 25 Nov 2026)
+    ('Scene class, the system (joint mapping), balanced accuracy & ⟨⟩ & 0.570', "finetune/finetune_results.json:scene_class|zero-shot (same code as fine-tuned)|joint mapping|balanced_accuracy|mean", f3),
+    ('Scene class, the system (joint mapping), balanced accuracy & 0.543 & ⟨⟩ &', "finetune/finetune_results.json:scene_class|fine-tuned|joint mapping|balanced_accuracy|mean", f3),
+    ('Scene class, scene matcher alone & ⟨⟩ & 0.517', "finetune/finetune_results.json:scene_class|zero-shot (same code as fine-tuned)|scene matcher alone|balanced_accuracy|mean", f3),
+    ('Scene class, scene matcher alone & 0.329 & ⟨⟩ &', "finetune/finetune_results.json:scene_class|fine-tuned|scene matcher alone|balanced_accuracy|mean", f3),
+    ('Scene class, describer alone & ⟨⟩ & 0.507', "finetune/finetune_results.json:scene_class|zero-shot (same code as fine-tuned)|describer alone|balanced_accuracy|mean", f3),
+    ('Scene class, describer alone & 0.505 & ⟨⟩ &', "finetune/finetune_results.json:scene_class|fine-tuned|describer alone|balanced_accuracy|mean", f3),
+    ('Scene class approved at $\\alpha=0.05$ & ⟨⟩\\% & 71.8', "finetune/finetune_results.json:scene_class|zero-shot (same code as fine-tuned)|joint mapping|approved@0.05|mean", lambda x: f"{100 * x:.1f}"),
+    ('Scene class approved at $\\alpha=0.05$ & 68.9\\% & ⟨⟩\\%', "finetune/finetune_results.json:scene_class|fine-tuned|joint mapping|approved@0.05|mean", lambda x: f"{100 * x:.1f}"),
+    ('Scene presence, ranking AUROC & ⟨⟩ & 0.864', "finetune/finetune_results.json:presence|zero-shot (same code as fine-tuned)|scene_auroc|mean", f3),
+    ('Scene presence, ranking AUROC & 0.866 & ⟨⟩ &', "finetune/finetune_results.json:presence|fine-tuned|scene_auroc|mean", f3),
+    ('Scene presence approved at $\\alpha=0.05$ & ⟨⟩\\% & 75.8', "finetune/finetune_results.json:presence|zero-shot (same code as fine-tuned)|approved@0.05|mean", lambda x: f"{100 * x:.1f}"),
+    ('Scene presence approved at $\\alpha=0.05$ & 76.4\\% & ⟨⟩\\%', "finetune/finetune_results.json:presence|fine-tuned|approved@0.05|mean", lambda x: f"{100 * x:.1f}"),
+    ('$[⟨⟩, 0.122]$ (73\\%)', "finetune/finetune_results.json:fine_tuned_minus_zero_shot|PRIMARY scene class, joint mapping, balanced accuracy|p2.5", f3),
+    ('$[-0.059, ⟨⟩]$ (73\\%)', "finetune/finetune_results.json:fine_tuned_minus_zero_shot|PRIMARY scene class, joint mapping, balanced accuracy|p97.5", f3),
+    ('$[⟨⟩, 0.290]$ (100\\%)', "finetune/finetune_results.json:fine_tuned_minus_zero_shot|scene class, scene matcher alone, balanced accuracy|p2.5", f3),
+    ('With only the scene matcher trained the system reaches ⟨⟩,', "finetune/finetune_results.json:scene_class|SigLIP fine-tuned only|joint mapping|balanced_accuracy|mean", f3),
+    ('with only the describer trained ⟨⟩.', "finetune/finetune_results.json:scene_class|LLaVA fine-tuned only|joint mapping|balanced_accuracy|mean", f3),
 ]
 
 
@@ -881,6 +899,11 @@ MAIN_ENTRIES = [
     ("carry an effective rank of $⟨⟩$ on all $12{,}110$ Colibri pictures", "effective_rank_gate.json:corrected|corrected|three calibrated P(scene)", lambda x: f"{x:.2f}"),
     ("or $⟨⟩$ with the absence score added; the object and VLM", "effective_rank_gate.json:corrected|corrected + absence|three calibrated P(scene)", lambda x: f"{x:.2f}"),
     ("the object and VLM signals alone correlate at $r=⟨⟩$.", "effective_rank_gate.json:corrected|corrected|pairwise correlation|object/vlm", lambda x: f"{x:.2f}"),
+    # --- limitations row on training the agents (25 Nov 2026)
+    ('the scene matcher alone improves (balanced accuracy $⟨⟩$ to $0.517$)', "finetune/finetune_results.json:scene_class|zero-shot (same code as fine-tuned)|scene matcher alone|balanced_accuracy|mean", f3),
+    ('the scene matcher alone improves (balanced accuracy $0.329$ to $⟨⟩$)', "finetune/finetune_results.json:scene_class|fine-tuned|scene matcher alone|balanced_accuracy|mean", f3),
+    ('by an established margin ($⟨⟩$ to $0.570$;', "finetune/finetune_results.json:scene_class|zero-shot (same code as fine-tuned)|joint mapping|balanced_accuracy|mean", f3),
+    ('by an established margin ($0.543$ to $⟨⟩$;', "finetune/finetune_results.json:scene_class|fine-tuned|joint mapping|balanced_accuracy|mean", f3),
 ]
 
 

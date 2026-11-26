@@ -711,3 +711,32 @@ The rater also rated 143 of the pictures a second time, without seeing the first
 
 Every scan was restored with Real-ESRGAN before any agent saw it (Section~\ref{sec:corrected_agents}). Whether this helps was tested for the scene matcher, in a comparison planned before it was run. SigLIP scored the original and the restored scans of the $992$ pictures of the scene-class task and the $693$ labelled archive pictures, with the same prompts and the same code; recomputed scores on the restored scans match the stored ones to within $0.003$. Over the 200 redraws of the scene-class task, restoration changes nothing that can be established, and if anything the original scans do slightly better. The scene matcher alone reaches a balanced accuracy of $0.329$ on the restored and $0.342$ on the original scans (difference $-0.014$, $[-0.054, 0.017]$), and $0.567$ against $0.589$ without training (Table~\ref{tab:scene_classes} gives $0.571$ from the stored scores; here both conditions were scored afresh with the same code). Scene presence is ranked at $0.956$ on both, and on the archive pictures at $0.920$ restored against $0.921$ original. Only the scene matcher was re-scored; the describer and the object finder were not, so the result says that restoration is not needed for the zero-shot scene agent, not that it is useless for every agent. It does mean that restoration is not a source of the results in this chapter.
 
+\section{Does Training the Agents on the Archive Help?}
+\label{sec:finetune_agents}
+
+The scene matcher and the describer are used without training on the archive; only the mappings on their reports are learned (Section~\ref{sec:corrected_translation}). Whether training the two models themselves on the archive's labelled pictures improves the system was tested in a comparison fixed in writing before it was run (Table~\ref{tab:planned_analyses}).
+
+\paragraph{Design.} Training cannot be repeated for each of the 200 redraws, so it was cross-fitted by book: the $550$ books of the labelled pool were split once into five folds, and for each fold a model was trained on the class-labelled pictures of the other four folds and scored the pool pictures of the held-out fold. Every picture's report therefore comes from a model that never saw its book, and the mappings, the combination and conformal risk control then run over the same 200 redraws as before. For SigLIP, the last four blocks of the vision transformer, its pooling head and the learned scale and bias were trained on the $992$ scene-class labels, with a binary cross-entropy loss on the five scene sentences and on the highest ``not a scene'' sentence (five epochs). LLaVA-OneVision was trained with low-rank adapters (rank $16$) on the attention of its language model, with one example per picture and scene question and the answer ``yes'' or ``no'' from the label (one epoch). Both report the same numbers as before. The reference is the untrained models scored with the same code; it reproduces the figures of this chapter (Table~\ref{tab:finetune}).
+
+\begin{table}[!htbp]
+\centering
+\caption[Training the agents on the archive]{Training the scene matcher and the describer on the archive, cross-fitted over five book folds and evaluated over the same 200 book-disjoint redraws. Zero-shot: the untrained models scored with the same code. Range: the 2.5th and 97.5th percentiles of the paired difference over the redraws, with the share of redraws in which it is positive.}
+\label{tab:finetune}
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{5.0cm} c c c c}
+\toprule
+Measure & Zero-shot & Trained & Difference & Range (share $>0$) \\
+\midrule
+Scene class, the system (joint mapping), balanced accuracy & 0.543 & 0.570 & $+$0.027 & $[-0.059, 0.122]$ (73\%) \\
+Scene class, scene matcher alone & 0.329 & 0.517 & $+$0.189 & $[0.085, 0.290]$ (100\%) \\
+Scene class, describer alone & 0.505 & 0.507 & $+$0.003 & $[-0.072, 0.086]$ (51\%) \\
+Scene class approved at $\alpha=0.05$ & 68.9\% & 71.8\% & $+$2.9 & $[-13.9, 17.9]$ (67\%) \\
+Scene presence, ranking AUROC & 0.866 & 0.864 & $-$0.003 & $[-0.033, 0.023]$ (42\%) \\
+Scene presence approved at $\alpha=0.05$ & 76.4\% & 75.8\% & $-$0.6 & $[-9.3, 6.0]$ (46\%) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Result.} Training helps the scene matcher on its own: its balanced accuracy over the six scene answers rises from 0.329 to 0.517, in every redraw. It does not help the describer, and it does not clearly help the system: the joint mapping rises from 0.543 to 0.570, but the range of the difference includes zero, and scene presence is unchanged. With only the scene matcher trained the system reaches 0.574, with only the describer trained 0.529.
+
+\paragraph{What it means.} The system already learns from the same labels, in the mappings on the agents' reports; training the scene matcher moves into the model much of what the joint mapping already does with its output, so the matcher's own gain does not carry over to the combination by an established margin. The rare classes remain too small to learn from ($6$ teaching, $32$ playing and $51$ family pictures). The conclusion of Section~\ref{sec:scene_classes} therefore stands: the scene classes are a shortlist for a person. Two limits apply. Cross-fitting is not a refit per redraw: a test picture's report may come from a model trained on other books of that redraw's calibration or test part. And the archive tests of Section~\ref{sec:archive_check} were not repeated with the trained models.
