@@ -139,7 +139,7 @@
   \fill[soft] ($(current page.south west)+(0,0)$) rectangle ($(current page.south east)+(0,2.0)$);
 \end{tikzpicture}
 \vspace{0.9cm}
-{\small\color{muted}MULTI AGENT SYSTEMS FOR IMAGE ANALYSIS: OBJECT AND COMPLEX SCENE DETECTION}\par\vspace{6pt}
+{\small\bfseries\color{navy}MULTI AGENT SYSTEMS FOR IMAGE ANALYSIS: OBJECT AND COMPLEX SCENE DETECTION}\par\vspace{6pt}
 {\fontsize{26}{30}\selectfont\bfseries\color{navy}\inserttitle}\par\vspace{6pt}
 {\large\color{ink}\insertsubtitle}\par\vspace{0.9cm}
 {\bfseries\insertauthor}\par\vspace{2pt}
@@ -200,6 +200,33 @@ First level: is there a scene \emph{at all}? (yes / no). ``Drawing'' = figurativ
 \end{columns}
 \takeaway{For every picture the system gives three answers: \textbf{scene presence}, \textbf{scene class}, \textbf{object classes}.}
 \note{The tasks were fixed at the start of the thesis. Scene: five classes plus no scene; the first level is simply scene or no scene. Objects: eight classes, several per picture. Drawing is the catch-all class for figurative pictures that fit none of the four specific classes.}
+\end{frame}
+
+\begin{frame}{The labelled data, and what each set is used for}
+\scriptsize
+\renewcommand{\arraystretch}{1.07}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.9cm} r >{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Set} & \textbf{Pictures} & \textbf{Labels} & \textbf{Used for}\\
+\midrule
+Colibri archive & 12,110 & none & all agents; answers across the archive\\
+\rowcolor{soft}\textbf{Labelled pool} (550 books) & \textbf{1,250} & scene / no scene & scene presence, risk guarantee, ablations, baselines\\
+\quad expert-reviewed ($C_1$) & 801 & scene, scene class & deployed design (Ch.~4--5)\\
+\quad negative controls rechecked & 449 & scene / no scene & corrected pool (57.5\% were scenes)\\
+\rowcolor{soft}\textbf{Scene-class set} & \textbf{992} & 5 classes + none & scene classification; fine-tuning test\\
+\rowcolor{soft}\textbf{Hand-drawn boxes} ($C_2$) & \textbf{300} & boxes, 8 classes & detection, object classes, disagreement test\\
+Scene-rule relabelling & 364 & scene / no scene & one definition of a scene\\
+\rowcolor{soft}\textbf{Random archive test} + confirmation & \textbf{399 + 294} & scene / no scene & the guarantee on the real archive\\
+Earlier outside-pool audits & 247 + 260 & scene / no scene & deployed auto-approvals; ``no scene'' pages\\
+Archive scene classes (partial) & 179 of 444 & scene class & scene classes on the archive\\
+Second rating / second rater & 143 / 124 & scene type & annotator agreement ($\kappa$)\\
+Tier 2 checks & 101 / 79 / 50 / 53 & flags, pairs, links, text & the three Tier 2 helpers\\
+Retrieval judgements (partial) & 94 of 196 & relevant or not & Precision@10, 4 queries\\
+External: Europeana / PeopleArt & 24 / 4,778 & scene; person boxes & transfer\\
+\bottomrule
+\end{tabularx}\par\vspace{2pt}
+{\tiny\color{muted}All splits keep whole books together; 285 further pictures outside the pool add 123 confirmed negatives (319 in all).}
+\note{Before the models, the data. Everything runs on 12,110 pictures from the Colibri archive. Three labelled sets carry most results: the pool of 1,250 pictures from 550 books for scene presence and the risk guarantee; 992 pictures with a scene class; and 300 pictures with hand-drawn boxes for detection and objects. A random sample of 399 archive pictures plus 294 new ones tests the guarantee on the archive itself. Smaller sets check the Tier 2 helpers, retrieval and agreement between people, and two external sets test transfer. All splits keep whole books together.}
 \end{frame}
 
 \begin{frame}{Why ``trust'' is the real problem}
