@@ -519,31 +519,38 @@ Crisp lines, but the faces are \textbf{redrawn}. Scene matcher: 0.329 restored v
 \note{Step one. Real-ESRGAN restores every scan once, at twice the size, and all agents see the restored version. This is one of the scans it changes most, zoomed in on four faces, from the pipeline's own files: a soft grey scan becomes crisp black lines. But look at the faces: eyes and mouths are redrawn, so the restorer invents detail. On a typical scan the change is much smaller. I tested whether it helps the scene matcher: it does not measurably, so no result depends on restoration.}
 \end{frame}
 
-\begin{frame}{How YOLOv11m works: from image to 8 numbers}
+\begin{frame}{How YOLOv11m works: the real tensors on the running example}
 \centering
-\begin{tikzpicture}[st/.style={box,text width=2.55cm,minimum height=1.25cm,font=\scriptsize,align=center},
-  sh/.style={font=\tiny,text=muted,align=center,text width=2.6cm},
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[im/.style={inner sep=0,draw=line},
+  lb/.style={font=\tiny,align=center,text width=2.3cm,text=ink},
+  st/.style={box,font=\scriptsize,align=center,text width=2.5cm},
   ar/.style={->,thick,color=muted}]
-\node[st] (a) at (0,0) {\textbf{Input}\\restored picture};
-\node[st] (b) at (3.05,0) {\textbf{Letterbox resize}\\to $640\times640$};
-\node[st,draw=agent,fill=agentbg] (c) at (6.1,0) {\textbf{Backbone}\\convolutions\\(C3k2, SPPF, C2PSA)};
-\node[st,draw=agent,fill=agentbg] (d) at (9.15,0) {\textbf{Neck}\\feature pyramid\\(FPN + PAN)};
-\node[st,draw=agent,fill=agentbg] (e) at (9.15,-2.2) {\textbf{Detection head}\\anchor-free; per cell: box + 8 class scores};
-\node[st] (f) at (6.1,-2.2) {\textbf{Filter}\\score $\geq 0.01$, then NMS (IoU 0.7)};
-\node[st] (g) at (3.05,-2.2) {\textbf{Detections}\\class, score, box};
-\node[st,draw=mapc,fill=mapbg] (h) at (0,-2.2) {\textbf{Our report}\\best score per class $\to$ 8 numbers};
-\draw[ar] (a)--(b); \draw[ar] (b)--(c); \draw[ar] (c)--(d); \draw[ar] (d)--(e); \draw[ar] (e)--(f); \draw[ar] (f)--(g); \draw[ar] (g)--(h);
-\node[sh,below=0.5mm of b] {$640\times640\times3$};
-\node[sh,below=0.5mm of d] {3 scales: $80^2, 40^2, 20^2$ cells};
-\node[sh,below=0.5mm of e] {8,400 candidate boxes};
-\node[sh,below=0.5mm of g] {here: person 0.97, person 0.90, animal 0.01};
-\node[sh,below=0.5mm of h] {person 0.97, animal 0.01, 6 classes 0};
-\end{tikzpicture}
+\node[im] (in) at (0,0) {\includegraphics[height=2.2cm]{yolo_internals_input.png}};
+\node[im] (p3) at (3.1,0) {\includegraphics[height=2.2cm]{yolo_internals_p3.png}};
+\node[im] (p4) at (5.7,0) {\includegraphics[height=2.2cm]{yolo_internals_p4.png}};
+\node[im] (p5) at (8.3,0) {\includegraphics[height=2.2cm]{yolo_internals_p5.png}};
+\node[st,draw=agent,fill=agentbg,minimum height=2.2cm] (hd) at (11.5,0) {\textbf{Detection head}\\[2pt]output $1\times12\times8{,}400$\\[2pt]per candidate: 4 box values + 8 class scores};
+\node[lb,below=1mm of in] {\textbf{input} $1\times3\times640\times640$\\(scan $1958\times1990$, letterboxed)};
+\node[lb,below=1mm of p3] {\textbf{P3} $1\times72\times80\times80$\\stride 8};
+\node[lb,below=1mm of p4] {\textbf{P4} $1\times72\times40\times40$\\stride 16};
+\node[lb,below=1mm of p5] {\textbf{P5} $1\times72\times20\times20$\\stride 32};
+\node[font=\tiny,text=muted,above=1mm of p4] {backbone + neck: feature maps (mean activation over 72 channels)};
+\draw[ar] (in)--(p3); \draw[ar] (p5)--(hd);
+\node[font=\tiny,text=muted,below=1mm of hd] {$80^2 + 40^2 + 20^2 = 8{,}400$};
+\node[st] (c) at (0,-3.4) {\textbf{23 candidates}\\with a class score $\geq 0.01$};
+\node[st] (n) at (3.1,-3.4) {\textbf{NMS} at IoU 0.7\\$\to$ \textbf{3 boxes}};
+\node[box,font=\scriptsize,text width=5.3cm,align=left] (t) at (7.25,-3.4) {\begin{tabular}{@{}l r l@{}}
+person & 0.9715 & box (617, 655, 1105, 1834)\\
+person & 0.9016 & box (625, 307, 1638, 1892)\\
+animal & 0.0125 & box (1393, 1605, 1633, 1844)\end{tabular}};
+\node[st,draw=mapc,fill=mapbg] (o) at (11.5,-3.4) {\textbf{Our 8 numbers}\\best score per class:\\person 0.97, animal 0.01, child 0, \dots};
+\draw[ar] (hd.south) |- ++(0,-0.75) -| (c.north);
+\draw[ar] (c)--(n); \draw[ar] (n)--(t); \draw[ar] (t)--(o);
+\end{tikzpicture}}
 \vfill
-\begin{keybox}
-\textbf{Training:} YOLOv11m, pre-trained on COCO, fine-tuned at 640 px on 11,028 archive pictures with boxes from a Grounding DINO teacher, 8 classes (person, child, animal, building, weapon, vehicle, tree, text).
-\end{keybox}
-\note{YOLO in steps. The picture is letterboxed to 640 by 640. The convolutional backbone extracts features, the neck combines them at three scales, 80 by 80, 40 by 40 and 20 by 20 cells, and the anchor-free head predicts at every cell a box and eight class scores: 8,400 candidates. Candidates under 0.01 are dropped and non-maximum suppression at IoU 0.7 removes duplicates. What remains are detections with class, score and box. Our report keeps the best score per class: eight numbers. For the example: person 0.97 for the boy, 0.90 for the woman, animal 0.01 for the hen.}
+{\scriptsize\color{muted}Recorded from the model on this picture; the 8 numbers equal the stored scores. Boxes in scan pixels: the boy, the woman, the hen.}
+\note{These are the real tensors for our picture. The scan of 1958 by 1990 pixels is letterboxed to 640 by 640. The backbone and neck produce three feature maps with 72 channels, at 80 by 80, 40 by 40 and 20 by 20 cells; you can see the coarse map light up where the people are. The head predicts for each of the 8,400 cells four box values and eight class scores, a tensor of 12 by 8,400. Only 23 candidates have a class score of at least 0.01; non-maximum suppression leaves three boxes: the boy at 0.97, the woman at 0.90 and the hen at 0.01. Our report keeps the best score per class.}
 \end{frame}
 
 \begin{frame}{Agent 1 \,·\, The object finder (YOLOv11m)}
@@ -573,31 +580,46 @@ Crisp lines, but the faces are \textbf{redrawn}. Scene matcher: 0.329 restored v
 \note{The object finder is a YOLOv11 detector. It proposes boxes with a class and a score; for each class we keep the score of its best box, so 8 numbers. In our running example you see its real boxes: the boy as a person at 0.97, the woman as a person at 0.90, but neither as a child, and the hen under the bench only at 0.01. So the child score is 0 and the animal score 0.01. It was retrained on boxes from a stronger teacher model.}
 \end{frame}
 
-\begin{frame}{How SigLIP works: from image and sentences to 6 numbers}
+\begin{frame}{How SigLIP works: the real embeddings and scores}
+\begin{columns}[T,onlytextwidth]
+\column{0.46\textwidth}
 \centering
-\resizebox{\linewidth}{!}{%
-\begin{tikzpicture}[st/.style={box,text width=2.55cm,minimum height=1.25cm,font=\scriptsize,align=center},
-  sh/.style={font=\tiny,text=muted,align=center,text width=2.6cm},
-  ar/.style={->,thick,color=muted}]
-\node[st] (a) at (0,0) {\textbf{Image}\\restored picture};
-\node[st] (b) at (3.05,0) {\textbf{Resize}\\to $384\times384$};
-\node[st] (c) at (6.1,0) {\textbf{Patches}\\$27\times27 = 729$ of $14\times14$ px};
-\node[st,draw=agent,fill=agentbg] (d) at (9.15,0) {\textbf{Vision transformer}\\27 layers $\to$ image embedding $v$};
-\node[st] (e) at (0,-2.2) {\textbf{Sentence}\\``a historical illustration of a family scene''};
-\node[st] (f) at (3.05,-2.2) {\textbf{Tokenise}\\pad to 64 tokens};
-\node[st,draw=agent,fill=agentbg] (g) at (6.1,-2.2) {\textbf{Text transformer}\\27 layers $\to$ text embedding $u$};
-\node[st,draw=mapc,fill=mapbg,minimum height=3.45cm,text width=2.3cm] (h) at (12.1,-1.1) {\textbf{Score}\\[3pt]$s = \sigma\big(e^{t}\cos(u,v) + b\big)$\\[4pt]one score per sentence, 0 to 1};
-\draw[ar] (a)--(b); \draw[ar] (b)--(c); \draw[ar] (c)--(d); \draw[ar] (e)--(f); \draw[ar] (f)--(g);
-\draw[ar] (d.east)--(d.east -| h.west); \draw[ar] (g.east)--(g.east -| h.west);
-\node[sh,below=0.5mm of d] {$v \in \mathbb{R}^{1152}$, normalised};
-\node[sh,below=0.5mm of g] {$u \in \mathbb{R}^{1152}$, normalised};
-\node[sh,below=0.5mm of h] {$t, b$: learned scale and bias};
-\end{tikzpicture}}
-\vfill
-\begin{keybox}
-\textbf{Our report:} 12 sentences (5 scene, 7 ``not a scene'') $\to$ 12 scores; we keep the 5 scene scores and the highest ``not a scene'' score: \textbf{6 numbers}. Each score uses a sigmoid on its own (no softmax), so ``none fits'' is possible. Example: family 0.327, drawing 0.157.
+\begin{tikzpicture}[st/.style={box,font=\scriptsize,align=center,text width=4.6cm,inner sep=3pt},ar/.style={->,thick,color=muted},node distance=2.2mm]
+\node[st] (a) {\textbf{Image} resized: pixel values $1\times3\times384\times384$};
+\node[st,below=of a] (b) {\textbf{Patches}: $27\times27=729$ tokens of $14\times14$ px $\to 1\times729\times1152$};
+\node[st,draw=agent,fill=agentbg,below=of b] (c) {\textbf{Vision transformer}, 27 layers $\to 1\times729\times1152$; pooled $\to$ \textbf{$v$}: $1\times1152$};
+\node[st,below=of c] (d) {\textbf{12 sentences} $\to$ token ids $12\times64$ $\to$ text transformer $\to$ \textbf{$u$}: $12\times1152$};
+\draw[ar] (a)--(b); \draw[ar] (b)--(c);
+\end{tikzpicture}\par\vspace{3pt}
+\begin{tikzpicture}
+\node[inner sep=0,draw=line] (e) {\includegraphics[width=2.6cm]{siglip_internals_image_embedding.png}};
+\node[right=2mm of e,font=\tiny,align=left,text width=2.4cm] {the 1,152 values of $v$ (as a $32\times36$ grid)\\[2pt]first values:\\0.027, 0.022, 0.015, $-0.021$, 0.015, \dots};
+\end{tikzpicture}
+\column{0.52\textwidth}
+\footnotesize
+Score: $s = \sigma\big(112.33\cdot\cos(u,v) - 16.55\big)$\\
+{\scriptsize\color{muted}112.33 $= e^{t}$ and $-16.55 = b$ are learned by SigLIP}\par\vspace{3pt}
+\scriptsize
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{@{}l r r r@{}}
+\toprule
+Sentence & cos & logit & $\sigma$\\
+\midrule
+teaching scene & 0.120 & $-3.03$ & 0.046\\
+\textbf{family scene} & \textbf{0.141} & $\mathbf{-0.72}$ & \textbf{0.329}\\
+playing scene & 0.080 & $-7.56$ & 0.0005\\
+landscape scene & 0.070 & $-8.65$ & 0.0002\\
+drawing scene & 0.132 & $-1.68$ & 0.157\\
+\midrule
+best ``not a scene'' (border) & 0.078 & $-7.83$ & 0.0004\\
+\bottomrule
+\end{tabular}\par\vspace{3pt}
+{\scriptsize\color{muted}Scene sentences read ``a historical illustration of a \dots''.}\par\vspace{3pt}
+\begin{keybox}[fontupper=\scriptsize\raggedright]
+Scaling by 112 turns small cosine gaps into clear scores: family 0.141 $\to$ 0.33, playing 0.080 $\to$ 0.0005.
 \end{keybox}
-\note{SigLIP has two transformers. The image is resized to 384 by 384 and cut into 729 patches of 14 by 14 pixels; the vision transformer turns them into one 1,152-dimensional embedding. Each sentence is tokenised to 64 tokens and turned into a text embedding of the same size. The score is the cosine similarity, scaled and shifted by two learned numbers and passed through a sigmoid, so each sentence is scored on its own. With 12 sentences we keep five scene scores and the best not-a-scene score.}
+\end{columns}
+\note{The real numbers for our picture. The image becomes a 3 by 384 by 384 tensor, then 729 patch tokens of 1,152 dimensions; after 27 transformer layers they are pooled into one 1,152-dimensional vector v. Each of the 12 sentences is tokenised to 64 tokens and encoded to a vector u of the same size. The score multiplies the cosine by the learned scale 112.33, adds the learned bias minus 16.55 and applies a sigmoid. Family has cosine 0.141 and ends at 0.33; playing has 0.080 and ends at 0.0005. That scaling is why small cosine differences become clear scores.}
 \end{frame}
 
 \begin{frame}{Agent 2 \,·\, The scene matcher (SigLIP)}
@@ -630,31 +652,32 @@ Crisp lines, but the faces are \textbf{redrawn}. Scene matcher: 0.329 restored v
 \note{SigLIP turns the picture and a sentence into vectors and measures how similar they are. We give it five scene sentences and seven not-a-scene sentences. Each is scored on its own, so the model can say that none fits; the old design used a forced choice that could not say no scene. For our example, family scores highest.}
 \end{frame}
 
-\begin{frame}{How LLaVA-OneVision works: from image and question to a yes-strength}
+\begin{frame}{How LLaVA-OneVision works: the real tokens and next-word probabilities}
 \centering
-\begin{tikzpicture}[st/.style={box,text width=2.55cm,minimum height=1.25cm,font=\scriptsize,align=center},
-  sh/.style={font=\tiny,text=muted,align=center,text width=2.6cm},
-  ar/.style={->,thick,color=muted}]
-\node[st] (a) at (0,0) {\textbf{Image}\\long side $\leq 640$ px};
-\node[st] (b) at (3.05,0) {\textbf{AnyRes crops}\\overview + tiles, each $384\times384$};
-\node[st,draw=agent,fill=agentbg] (c) at (6.1,0) {\textbf{SigLIP encoder}\\729 tokens per crop};
-\node[st,draw=agent,fill=agentbg] (d) at (9.15,0) {\textbf{Projector}\\2-layer MLP (GELU) $\to$ word space};
-\node[st] (e) at (0,-2.2) {\textbf{Question}\\``Does this picture show a building? Answer yes or no.''};
-\node[st] (f) at (3.05,-2.2) {\textbf{Chat prompt}\\image tokens + question tokens};
-\node[st,draw=agent,fill=agentbg] (g) at (6.1,-2.2) {\textbf{Qwen2-7B}\\28 layers; next-token logits};
-\node[st,draw=mapc,fill=mapbg] (h) at (9.15,-2.2) {\textbf{Yes-strength}\\$\frac{P(\text{yes})}{P(\text{yes}) + P(\text{no})}$};
-\draw[ar] (a)--(b); \draw[ar] (b)--(c); \draw[ar] (c)--(d); \draw[ar] (e)--(f); \draw[ar] (f)--(g); \draw[ar] (g)--(h);
-\draw[ar] (d.south) -- ++(0,-0.45) -| (f.north);
-\node[sh,below=0.5mm of c] {1,152-d per token};
-\node[sh,below=0.5mm of d] {3,584-d per token};
-\node[sh,below=0.5mm of g] {softmax over 152,128 tokens};
-\node[sh,below=0.5mm of h] {sum of ``yes''/``Yes'' and ``no''/``No'' tokens};
-\end{tikzpicture}
-\vfill
-\begin{keybox}
-\textbf{Our report:} 13 questions (5 scenes, 8 objects) $\to$ \textbf{13 numbers}, read from the first answer token, not from generated text. Example: child 0.995, person 0.989, animal 0.311, drawing 0.985. Same prompt wording for every picture; no training on the archive.
+\includegraphics[width=0.62\linewidth]{llava_internals_crops.png}\par
+{\tiny\color{muted}The picture (629$\times$640 after scaling to at most 640 px) as the model receives it: an overview and $2\times2$ tiles, each $384\times384$.}\par\vspace{5pt}
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[st/.style={box,font=\scriptsize,align=center,text width=2.45cm,minimum height=1.25cm},ar/.style={->,thick,color=muted}]
+\node[st] (a) at (0,0) {\textbf{Pixel values}\\$1\times5\times3\times384\times384$};
+\node[st,draw=agent,fill=agentbg] (b) at (2.95,0) {\textbf{SigLIP encoder}\\$5\times729\times1152$};
+\node[st,draw=agent,fill=agentbg] (c) at (5.9,0) {\textbf{Projector} (MLP)\\$5\times729\times3584$};
+\node[st] (d) at (8.85,0) {\textbf{Prompt}\\3,699 image tokens + 20 text tokens = 3,719};
+\node[st,draw=agent,fill=agentbg] (e) at (11.8,0) {\textbf{Qwen2-7B}\\logits $1\times3719\times152{,}128$};
+\draw[ar] (a)--(b); \draw[ar] (b)--(c); \draw[ar] (c)--(d); \draw[ar] (d)--(e);
+\end{tikzpicture}}\par\vspace{5pt}
+\begin{columns}[T,onlytextwidth]
+\column{0.44\textwidth}
+\scriptsize Question: ``Does this picture show a child? Answer yes or no.''\par\vspace{2pt}
+Next token at the last prompt position (softmax over 152,128):\par\vspace{2pt}
+\textbf{yes} 0.9872 \;·\; \textbf{Yes} 0.0085 \;·\; \textbf{no} 0.0040 \;·\; \textbf{No} 0.0001 \;·\; others $<0.0001$
+\column{0.53\textwidth}
+\begin{keybox}[fontupper=\scriptsize\raggedright]
+$P(\text{yes}) = 0.9958$ (6 ``yes'' token variants), $P(\text{no}) = 0.0041$ (7 ``no'' variants)\\[3pt]
+yes-strength $= \frac{0.9958}{0.9958 + 0.0041} = \mathbf{0.996}$\\[3pt]
+Repeated for 13 questions $\to$ 13 numbers (stored run: child 0.995, person 0.989, drawing 0.985).
 \end{keybox}
-\note{LLaVA-OneVision in steps. The picture, at most 640 pixels on its long side, is cut into an overview and tiles of 384 by 384. A SigLIP vision encoder turns each crop into 729 tokens, and a two-layer projector maps them into the word space of the language model. The question goes into a chat prompt after the image tokens. Qwen2-7B produces logits for the next token over its 152,128-token vocabulary; after a softmax we add up the probabilities of yes and of no and take yes over yes plus no. Thirteen questions give thirteen numbers.}
+\end{columns}
+\note{The real run for our picture. Scaled to 629 by 640, it is split into an overview and four tiles of 384 by 384: five crops. The SigLIP encoder turns each crop into 729 tokens of 1,152 dimensions; the projector maps them to 3,584 dimensions, the width of the language model. With the question the prompt has 3,719 tokens, 3,699 of them for the image. Qwen2-7B gives logits over 152,128 tokens at every position; at the last position the next word is yes with 0.987 and Yes with 0.009. Adding the yes and no variants gives 0.996, the yes-strength for child.}
 \end{frame}
 
 \begin{frame}{Agent 3 \,·\, The describer (LLaVA-OneVision 7B)}

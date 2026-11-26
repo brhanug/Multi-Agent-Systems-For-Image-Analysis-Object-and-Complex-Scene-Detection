@@ -1,0 +1,357 @@
+{
+ "picture": "PPN1756648816/00000272_0",
+ "yolo": {
+  "original_size_wh": [
+   1958,
+   1990
+  ],
+  "network_input": [
+   1,
+   3,
+   640,
+   640
+  ],
+  "feature_maps": [
+   [
+    1,
+    72,
+    80,
+    80
+   ],
+   [
+    1,
+    72,
+    40,
+    40
+   ],
+   [
+    1,
+    72,
+    20,
+    20
+   ]
+  ],
+  "strides": [
+   8,
+   16,
+   32
+  ],
+  "raw_head_output": [
+   1,
+   12,
+   8400
+  ],
+  "candidates": 8400,
+  "candidates_score_ge_0.01": 23,
+  "after_nms": 3,
+  "detections": [
+   {
+    "class": "person",
+    "score": 0.9715,
+    "box_xyxy": [
+     227.1,
+     598.8,
+     947.3,
+     1804.4
+    ]
+   },
+   {
+    "class": "person",
+    "score": 0.9016,
+    "box_xyxy": [
+     624.6,
+     307.2,
+     1637.9,
+     1891.6
+    ]
+   },
+   {
+    "class": "animal",
+    "score": 0.0125,
+    "box_xyxy": [
+     1393.0,
+     1605.3,
+     1633.2,
+     1844.0
+    ]
+   }
+  ],
+  "best_score_per_class": {
+   "person": 0.9715,
+   "child": 0.0,
+   "animal": 0.0125,
+   "building": 0.0,
+   "weapon": 0.0,
+   "vehicle": 0.0,
+   "tree": 0.0,
+   "text": 0.0
+  },
+  "stored_max_conf": {
+   "person": 0.97153,
+   "child": 0.0,
+   "animal": 0.0125,
+   "building": 0.0,
+   "weapon": 0.0,
+   "vehicle": 0.0,
+   "tree": 0.0,
+   "text": 0.0
+  },
+  "classes": 8
+ },
+ "siglip": {
+  "pixel_values": [
+   1,
+   3,
+   384,
+   384
+  ],
+  "patch_embeddings": [
+   1,
+   729,
+   1152
+  ],
+  "last_hidden_state": [
+   1,
+   729,
+   1152
+  ],
+  "image_embedding": [
+   1,
+   1152
+  ],
+  "image_embedding_first8": [
+   0.0266,
+   0.0223,
+   0.0147,
+   -0.021,
+   0.0145,
+   0.002,
+   0.0255,
+   -0.0474
+  ],
+  "text_input_ids": [
+   12,
+   64
+  ],
+  "text_embeddings": [
+   12,
+   1152
+  ],
+  "text_embedding_first8_family": [
+   0.0056,
+   0.0287,
+   0.0132,
+   -0.0374,
+   0.0215,
+   0.0016,
+   -0.0015,
+   -0.0322
+  ],
+  "logit_scale_exp": 112.333,
+  "logit_bias": -16.546,
+  "per_sentence": [
+   {
+    "sentence": "a historical illustration of a teaching scene",
+    "cos": 0.1204,
+    "logit": -3.025,
+    "sigmoid": 0.0463
+   },
+   {
+    "sentence": "a historical illustration of a family scene",
+    "cos": 0.1409,
+    "logit": -0.715,
+    "sigmoid": 0.3285
+   },
+   {
+    "sentence": "a historical illustration of a playing scene",
+    "cos": 0.08,
+    "logit": -7.562,
+    "sigmoid": 0.0005
+   },
+   {
+    "sentence": "a historical illustration of a landscape scene",
+    "cos": 0.0703,
+    "logit": -8.651,
+    "sigmoid": 0.0002
+   },
+   {
+    "sentence": "a historical illustration of a drawing scene",
+    "cos": 0.1324,
+    "logit": -1.679,
+    "sigmoid": 0.1573
+   },
+   {
+    "sentence": "a page of printed text",
+    "cos": -0.0002,
+    "logit": -16.564,
+    "sigmoid": 0.0
+   },
+   {
+    "sentence": "a page of sheet music",
+    "cos": 0.0037,
+    "logit": -16.136,
+    "sigmoid": 0.0
+   },
+   {
+    "sentence": "a decorative ornamental border",
+    "cos": 0.0776,
+    "logit": -7.825,
+    "sigmoid": 0.0004
+   },
+   {
+    "sentence": "a blank page",
+    "cos": 0.0384,
+    "logit": -12.23,
+    "sigmoid": 0.0
+   },
+   {
+    "sentence": "a title page of a book",
+    "cos": 0.0149,
+    "logit": -14.872,
+    "sigmoid": 0.0
+   },
+   {
+    "sentence": "a table of numbers",
+    "cos": -0.0222,
+    "logit": -19.042,
+    "sigmoid": 0.0
+   },
+   {
+    "sentence": "a printed map",
+    "cos": -0.0117,
+    "logit": -17.866,
+    "sigmoid": 0.0
+   }
+  ],
+  "report_6": {
+   "teaching": 0.0463,
+   "family": 0.3285,
+   "playing": 0.0005,
+   "landscape": 0.0002,
+   "drawing": 0.1573,
+   "no scene (max of 7)": 0.0004
+  },
+  "stored_scene_sigmoid": {
+   "teaching": 0.045899,
+   "family": 0.327035,
+   "playing": 0.000491,
+   "landscape": 0.000173,
+   "drawing": 0.156778
+  }
+ },
+ "llava": {
+  "resized_image_wh": [
+   629,
+   640
+  ],
+  "pixel_values": [
+   1,
+   5,
+   3,
+   384,
+   384
+  ],
+  "image_sizes": [
+   [
+    640,
+    629
+   ]
+  ],
+  "vision_tower_output": [
+   5,
+   729,
+   1152
+  ],
+  "projector_output": [
+   5,
+   729,
+   3584
+  ],
+  "prompt_tokens": 3719,
+  "image_tokens_in_prompt": 3699,
+  "logits": [
+   1,
+   3719,
+   152128
+  ],
+  "vocab_size": 152128,
+  "question": "Does this picture show a child? Answer yes or no.",
+  "top10_next_tokens": [
+   {
+    "token": "yes",
+    "p": 0.9872
+   },
+   {
+    "token": "Yes",
+    "p": 0.0085
+   },
+   {
+    "token": "no",
+    "p": 0.004
+   },
+   {
+    "token": "No",
+    "p": 0.0001
+   },
+   {
+    "token": "child",
+    "p": 0.0
+   },
+   {
+    "token": " yes",
+    "p": 0.0
+   },
+   {
+    "token": "The",
+    "p": 0.0
+   },
+   {
+    "token": "to",
+    "p": 0.0
+   },
+   {
+    "token": "Child",
+    "p": 0.0
+   },
+   {
+    "token": "ans",
+    "p": 0.0
+   }
+  ],
+  "p_yes": 0.9958,
+  "p_no": 0.0041,
+  "yes_token_variants": [
+   " Yes",
+   "Yes",
+   "yes",
+   " yes",
+   "YES",
+   " YES"
+  ],
+  "no_token_variants": [
+   " no",
+   "no",
+   " No",
+   "No",
+   " NO",
+   "NO",
+   "\tno"
+  ],
+  "yes_strength": 0.9959,
+  "yes_strength_13": {
+   "teaching": 0.4381,
+   "family": 0.5007,
+   "playing": 0.0331,
+   "landscape": 0.0474,
+   "drawing": 0.9859,
+   "person": 0.9876,
+   "child": 0.9959,
+   "animal": 0.3215,
+   "building": 0.1068,
+   "weapon": 0.0852,
+   "vehicle": 0.018,
+   "tree": 0.026,
+   "text": 0.0677
+  }
+ }
+}
