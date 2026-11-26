@@ -325,7 +325,7 @@ How much the agents' numbers differ for one picture. The first design used it as
 Pictures of one book are only in training \emph{or} only in testing, never both.
 \end{defbox}
 \end{columns}
-\note{A few words I will use throughout. An agent is one model. A pseudo-label is a label made by a model, not a person. Zero-shot means the model was never trained on this archive. Uncertainty is simply how close a probability is to a coin flip. Disagreement is how much the agents differ; that was the first design's idea of uncertainty.}
+\note{A few words I will use throughout. An agent is one model. A pseudo-label is a label made by a model, not a person. Zero-shot means the model is used without training on this archive. Uncertainty is simply how close a probability is to a coin flip. Disagreement is how much the agents differ; that was the first design's idea of uncertainty.}
 \end{frame}
 
 \begin{frame}{Conformal risk control: notation}
@@ -647,7 +647,7 @@ Scaling by 112 turns small cosine gaps into clear scores: family 0.141 $\to$ 0.3
 \addplot[fill=agent,draw=none] coordinates {(0.327,family) (0.157,drawing) (0.046,teaching) (0,playing) (0,landscape) (0,no scene)};
 \end{axis}
 \end{tikzpicture}\par
-\footnotesize\emph{Zero-shot}: SigLIP was never trained on this archive; it only compares the picture with sentences.
+\footnotesize\emph{Zero-shot} in the system: SigLIP is used as it comes and only compares the picture with sentences. Training it on the archive was tested (Section 7.7): SigLIP alone improves, the system not clearly.
 \end{columns}
 \note{SigLIP turns the picture and a sentence into vectors and measures how similar they are. We give it five scene sentences and seven not-a-scene sentences. Each is scored on its own, so the model can say that none fits; the old design used a forced choice that could not say no scene. For our example, family scores highest.}
 \end{frame}
