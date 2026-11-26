@@ -720,7 +720,7 @@ The scene matcher and the describer are used without training on the archive; on
 
 \begin{table}[!htbp]
 \centering
-\caption[Training the agents on the archive]{Training the scene matcher and the describer on the archive, cross-fitted over five book folds and evaluated over the same 200 book-disjoint redraws. Zero-shot: the untrained models scored with the same code. Range: the 2.5th and 97.5th percentiles of the paired difference over the redraws, with the share of redraws in which it is positive.}
+\caption[Training the agents on the archive]{Training the scene matcher and the describer on the archive, cross-fitted over five book folds and evaluated over the same 200 book-disjoint redraws. Zero-shot: the untrained models scored with the same code. ``Alone'': one agent's report through its learned mapping, as in Table~\ref{tab:scene_classes}. Range: the 2.5th and 97.5th percentiles of the paired difference over the redraws, with the share of redraws in which it is positive.}
 \label{tab:finetune}
 \small
 \begin{tabular}{>{\raggedright\arraybackslash}p{5.0cm} c c c c}
@@ -737,6 +737,6 @@ Scene presence approved at $\alpha=0.05$ & 76.4\% & 75.8\% & $-$0.6 & $[-9.3, 6.
 \end{tabular}
 \end{table}
 
-\paragraph{Result.} Training helps the scene matcher on its own: its balanced accuracy over the six scene answers rises from 0.329 to 0.517, in every redraw. It does not help the describer, and it does not clearly help the system: the joint mapping rises from 0.543 to 0.570, but the range of the difference includes zero, and scene presence is unchanged. With only the scene matcher trained the system reaches 0.574, with only the describer trained 0.529.
+\paragraph{Result.} Training helps the scene matcher on its own: its balanced accuracy over the six scene answers rises from 0.329 to 0.517, in every redraw. It does not help the describer, and it does not clearly help the system: the joint mapping rises from 0.543 to 0.570, but the range of the difference includes zero, and scene presence is unchanged. The scene matcher is measured here as in Table~\ref{tab:scene_classes}, through a mapping learned on its six scores; read without any training, by the largest of its six scores, it reaches $0.571$ there, still above the trained version, because the mapping follows the class sizes and loses the rare classes. With only the scene matcher trained the system reaches 0.574, with only the describer trained 0.529.
 
 \paragraph{What it means.} The system already learns from the same labels, in the mappings on the agents' reports; training the scene matcher moves into the model much of what the joint mapping already does with its output, so the matcher's own gain does not carry over to the combination by an established margin. The rare classes remain too small to learn from ($6$ teaching, $32$ playing and $51$ family pictures). The conclusion of Section~\ref{sec:scene_classes} therefore stands: the scene classes are a shortlist for a person. Two limits apply. Cross-fitting is not a refit per redraw: a test picture's report may come from a model trained on other books of that redraw's calibration or test part. And the archive tests of Section~\ref{sec:archive_check} were not repeated with the trained models.

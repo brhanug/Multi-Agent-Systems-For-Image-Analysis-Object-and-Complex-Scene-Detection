@@ -3,7 +3,7 @@
 **When Can an Automatic Answer Be Trusted? Confidence, Not Disagreement, Under a Risk Promise for Historical Illustrations**
 
 Master thesis, Brhanu Atsbaha, University of Hildesheim. Advisors: Prof. Dr. Thomas Mandl and Shereen Elsayed.
-Submitted December 2026; defence on 10 December 2026. The submitted PDF is [presentation/thesis_v4.pdf](presentation/thesis_v4.pdf) (142 pages).
+Submitted December 2026; defence on 10 December 2026. The submitted PDF is [presentation/thesis_v4.pdf](presentation/thesis_v4.pdf) (143 pages).
 
 This repository holds the thesis, the defence material, and every script behind a number in them.
 The system the thesis puts forward is the **corrected design** of Chapters 6 and 7: three agents
@@ -96,12 +96,12 @@ Three checkers compare cited numbers with their result files. None of them edits
 
 ```bash
 P=.venv/bin/python3
-$P scripts/thesis_v4_chapter6_check.py        # Chapters 6–7, App. A and G: 662 numbers; scene-class and other main-file figures: 109
+$P scripts/thesis_v4_chapter6_check.py        # Chapters 6–7, App. A and G: 679 numbers; scene-class and other main-file figures: 113
 $P scripts/thesis_c1_figures_check.py         # in-sample (C1) figures: 43 numbers
 $P scripts/thesis_rerun_figures.py --verify   # figures that predate v4: 39 numbers
 ```
 
-State on 25 November 2026: **853 of 853 match** (662 + 109 + 43 + 39).
+State on 26 November 2026: **874 of 874 match** (679 + 113 + 43 + 39).
 
 ---
 

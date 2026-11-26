@@ -3,7 +3,7 @@
 The thesis is `presentation/thesis_v4.tex`. Which script backs which chapter is in
 [README.md](README.md), section 2. This file says how to rerun them and how to check the result.
 
-Last verified: **25 November 2026.** The three checkers report 853 of 853 cited numbers matching
+Last verified: **25 November 2026.** The three checkers report 874 of 874 cited numbers matching
 their result files, and the headline chain below reproduces exactly. On 25 November every script
 with a `--verify` mode was rerun against the stored results; all reproduce (three result files from
 4 November were older than their inputs and were recomputed first; no thesis figure changed).
@@ -15,7 +15,7 @@ with a `--verify` mode was rerun against the stored results; all reproduce (thre
 ```bash
 cd /data/brhanu/thesis_project
 P=.venv/bin/python3
-$P scripts/thesis_v4_chapter6_check.py        # expect: 662 of 662 ... / 109 of 109 ...
+$P scripts/thesis_v4_chapter6_check.py        # expect: 679 of 679 ... / 113 of 113 ...
 $P scripts/thesis_c1_figures_check.py         # expect: 43 of 43 ...
 $P scripts/thesis_rerun_figures.py --verify   # expect: 39 of 39 ...
 ```

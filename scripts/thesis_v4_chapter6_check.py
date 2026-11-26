@@ -900,8 +900,8 @@ MAIN_ENTRIES = [
     ("or $⟨⟩$ with the absence score added; the object and VLM", "effective_rank_gate.json:corrected|corrected + absence|three calibrated P(scene)", lambda x: f"{x:.2f}"),
     ("the object and VLM signals alone correlate at $r=⟨⟩$.", "effective_rank_gate.json:corrected|corrected|pairwise correlation|object/vlm", lambda x: f"{x:.2f}"),
     # --- limitations row on training the agents (25 Nov 2026)
-    ('the scene matcher alone improves (balanced accuracy $⟨⟩$ to $0.517$)', "finetune/finetune_results.json:scene_class|zero-shot (same code as fine-tuned)|scene matcher alone|balanced_accuracy|mean", f3),
-    ('the scene matcher alone improves (balanced accuracy $0.329$ to $⟨⟩$)', "finetune/finetune_results.json:scene_class|fine-tuned|scene matcher alone|balanced_accuracy|mean", f3),
+    ('the scene matcher with its learned mapping improves (balanced accuracy $⟨⟩$ to $0.517$', "finetune/finetune_results.json:scene_class|zero-shot (same code as fine-tuned)|scene matcher alone|balanced_accuracy|mean", f3),
+    ('the scene matcher with its learned mapping improves (balanced accuracy $0.329$ to $⟨⟩$', "finetune/finetune_results.json:scene_class|fine-tuned|scene matcher alone|balanced_accuracy|mean", f3),
     ('by an established margin ($⟨⟩$ to $0.570$;', "finetune/finetune_results.json:scene_class|zero-shot (same code as fine-tuned)|joint mapping|balanced_accuracy|mean", f3),
     ('by an established margin ($0.543$ to $⟨⟩$;', "finetune/finetune_results.json:scene_class|fine-tuned|joint mapping|balanced_accuracy|mean", f3),
 ]

@@ -1,7 +1,7 @@
 # Defence preparation sheet
 
 Thursday 10 December 2026, 08:45–10:00, online (Google Meet). Talk 25–30 minutes, then questions.
-Rebuilt 25 November 2026 against the final thesis (`presentation/thesis_v4.pdf`, 142 pages). Every
+Rebuilt 25 November 2026 against the final thesis (`presentation/thesis_v4.pdf`, 143 pages). Every
 figure below appears in the thesis or the handout and is held to its result file by the checkers.
 
 ---
@@ -58,7 +58,8 @@ this thesis reports where it does not, and why.
 
 **"Why didn't you train SigLIP and LLaVA on the archive?"** (Section 7.7, backup slide)
 I did, in a test fixed in writing before it ran (25 Nov), cross-fitted over five book folds and evaluated on the
-same 200 redraws. SigLIP alone improves a lot (balanced accuracy 0.329 to 0.517, every redraw), but the system
+same 200 redraws. SigLIP with its learned mapping improves a lot (balanced accuracy 0.329 to 0.517, every redraw;
+its untrained largest score already reaches 0.571, Table 6.4), but the system
 only moves from 0.543 to 0.570 and the range includes zero; LLaVA does not change (0.505 to 0.507), nor does scene
 presence (0.866 to 0.864). The system's mappings already learn from the same labels, and the rare classes are too
 small (6 teaching, 32 playing, 51 family pictures). The scene classes stay a shortlist for a person.
@@ -205,7 +206,7 @@ interpretation are mine.
 **Can you reproduce the results?**
 Every experiment script has a `--verify` flag that recomputes its result and fails on drift; the
 whole pipeline was rerun twice from scratch. Three checkers hold the thesis text to the result files
-(662 + 109, 43 and 39 figures). The code is public on GitHub, branch `thesis-submission`.
+(679 + 113, 43 and 39 figures). The code is public on GitHub, branch `thesis-submission`.
 
 ---
 
