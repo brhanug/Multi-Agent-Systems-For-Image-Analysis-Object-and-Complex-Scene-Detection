@@ -80,3 +80,15 @@ Two rules carry most of the weight:
    training set and a test set.
 5. When labels come back, they are merged by picture id and the affected results are re-run; the
    committed numbers stay until the new set is complete.
+
+## Labels that are not used in the thesis (checked 26 Nov 2026)
+
+Every other label set in this package is used, in full, by a script behind a thesis figure; their `--verify`
+runs reproduce from the labels as they are now. These four are not used, on purpose:
+
+| Labels | What they are | Why they are not in the thesis |
+|---|---|---|
+| Task E, `task_e_auto_approved_audit/chat_labels.csv` (45 of 465 pictures, 10 Sep) | First batch of an audit of what the deployed design approved automatically | Labelled under the earlier definition of a scene and stopped after 45; superseded by the audit of 247 deployed approvals under one rule (quick labels, Section 7.1). None of the 45 pictures is in the later sets. |
+| Task F, `task_f_pseudo_label_classes/` (20 boxes) | Which class each id in the January pseudo-labels meant | A diagnostic of the old label files (ids 2, 7, 8, 9 had two possible names); it informed how those files are read, not a reported figure. |
+| Task G and G v3, Label Studio projects 10 and 15 (42 of 548 and 11 of 306 pictures) | Mining rare classes by four search strategies | Stopped early; too few pictures to compare the strategies. |
+| Label Studio project 2, "Europeana 30-Image Evaluation" (28 labelled) | Colibri pictures copied under a misleading name by an earlier setup script | Not Europeana data; the thesis uses the genuine Europeana pilot (project 3, 23 of 24). |

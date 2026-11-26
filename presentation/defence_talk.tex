@@ -67,17 +67,17 @@
   \end{tikzpicture}}
 
 % part divider with the road map
-\AtBeginSection{\ifnum\value{section}<7%
+\AtBeginSection{\ifnum\value{section}<8%
   \begin{frame}[plain,noframenumbering]
   \centering\vspace*{1.2cm}
-  {\small\color{muted}PART \thesection\ OF 6}\par\vspace{2pt}
+  {\small\color{muted}PART \thesection\ OF 7}\par\vspace{2pt}
   {\Huge\bfseries\color{navy}\insertsection}\par\vspace{1.0cm}
   \begin{tikzpicture}
-    \foreach \n [count=\i] in {Introduction,Terms and metrics,The models,Deployed system,Corrected system,Results}{
+    \foreach \n [count=\i] in {Introduction,Terms and metrics,The models,Deployed system,Corrected system,Results,Conclusion}{
       \ifnum\i=\thesection
-        \node[draw=navy,fill=navy,text=white,rounded corners=3pt,minimum width=2.1cm,minimum height=0.8cm,font=\scriptsize\bfseries,align=center,text width=1.95cm] at (\i*2.28,0) {\n};
+        \node[draw=navy,fill=navy,text=white,rounded corners=3pt,minimum width=1.85cm,minimum height=0.8cm,font=\scriptsize\bfseries,align=center,text width=1.7cm] at (\i*1.98,0) {\n};
       \else
-        \node[draw=line,fill=soft,text=muted,rounded corners=3pt,minimum width=2.1cm,minimum height=0.8cm,font=\scriptsize,align=center,text width=1.95cm] at (\i*2.28,0) {\n};
+        \node[draw=line,fill=soft,text=muted,rounded corners=3pt,minimum width=1.85cm,minimum height=0.8cm,font=\scriptsize,align=center,text width=1.7cm] at (\i*1.98,0) {\n};
       \fi}
   \end{tikzpicture}
   \end{frame}\fi}
@@ -157,10 +157,11 @@
   3/The models/{The four models: what each takes as input and what it returns},
   4/The deployed system/{The system as first built, and three problems found in it},
   5/The corrected system/{The improved system, step by step, with one picture as example},
-  6/Results and conclusion/{Results, contributions, limitations}}{
-  \node[num] at (0,-\i*0.95) {\n};
-  \node[row] at (0.55,-\i*0.95+0.14) {\textbf{\color{navy}\t}};
-  \node[row,font=\footnotesize,text=muted] at (0.55,-\i*0.95-0.2) {\d};}
+  6/Results/{Results by research question, ablation study, baselines, archive validation, transfer},
+  7/Conclusion/{Contributions, scope of the claims, limitations}}{
+  \node[num] at (0,-\i*0.86) {\n};
+  \node[row] at (0.55,-\i*0.86+0.14) {\textbf{\color{navy}\t}};
+  \node[row,font=\footnotesize,text=muted] at (0.55,-\i*0.86-0.2) {\d};}
 \end{tikzpicture}
 \note{The talk has six parts. First the problem and the research question, then the terms and metrics I use, then the models one by one. After that the system as first deployed and what was wrong with it, the corrected system step by step, and finally the results and contributions.}
 \end{frame}
@@ -196,7 +197,7 @@ First level: is there a scene \emph{at all}? (yes / no). ``Drawing'' = figurativ
 \par\vspace{4pt}\footnotesize
 8 object classes. A picture can contain several.
 \end{columns}
-\takeaway{For every picture the system gives three answers: \textbf{scene at all}, \textbf{scene class}, \textbf{object classes}.}
+\takeaway{For every picture the system gives three answers: \textbf{scene presence}, \textbf{scene class}, \textbf{object classes}.}
 \note{The tasks were fixed at the start of the thesis. Scene: five classes plus no scene; the first level is simply scene or no scene. Objects: eight classes, several per picture. Drawing is the catch-all class for figurative pictures that fit none of the four specific classes.}
 \end{frame}
 
@@ -207,7 +208,7 @@ First level: is there a scene \emph{at all}? (yes / no). ``Drawing'' = figurativ
 \node[agentb,right=of p,minimum width=2.6cm] (s) {\textbf{the system}\\{\scriptsize gives an answer}};
 \node[riskb,right=of s,minimum width=3.0cm,minimum height=1.0cm] (q) {\textbf{sure enough?}\\{\scriptsize decided by a cut-off}};
 \node[okb,above right=2mm and 9mm of q,minimum width=3.2cm,minimum height=0.9cm] (ok) {\textbf{approved automatically}\\{\scriptsize nobody looks at it}};
-\node[persb,below right=2mm and 9mm of q,minimum width=3.2cm,minimum height=0.9cm] (pe) {\textbf{a person checks}\\{\scriptsize costs time}};
+\node[persb,below right=2mm and 9mm of q,minimum width=3.2cm,minimum height=0.9cm] (pe) {\textbf{human review}\\{\scriptsize costs time}};
 \draw[arr] (p)--(s); \draw[arr] (s)--(q);
 \draw[arr,okc] (q.east)--node[above,font=\scriptsize,sloped]{yes}(ok.west);
 \draw[arr,pers] (q.east)--node[below,font=\scriptsize,sloped]{no}(pe.west);
@@ -217,11 +218,11 @@ First level: is there a scene \emph{at all}? (yes / no). ``Drawing'' = figurativ
 \column{0.48\textwidth}
 \begin{defbox}{The trade-off}
 Approve \textbf{more} → less work, but more wrong labels slip through unseen.\\
-Approve \textbf{less} → safer, but a person checks almost everything.
+Approve \textbf{less} → safer, but almost everything goes to human review.
 \end{defbox}
 \column{0.48\textwidth}
 \begin{defbox}{What the archive needs}
-A rule that approves as much as possible \emph{and} a \textbf{promise}: ``at most 5 in 100 pictures are approved and wrong''.
+A rule that approves as much as possible \emph{and} a \textbf{risk guarantee}: ``at most 5 in 100 pictures are approved and wrong''.
 \end{defbox}
 \end{columns}
 \note{This is the decision the whole thesis is about. Every answer is either approved automatically, and then nobody looks at it, or sent to a person. Approving more saves time but lets errors through. So the archive needs a rule plus a promise about how many errors get through.}
@@ -273,13 +274,13 @@ RQ4 \;Retrieval, cross-archive links? & {\color{risk}\textbf{Partially}}\\
 \note{Where the thesis sits, part one. Kim, Im and Mandl showed that pseudo-labelling finds objects without manual labels; I grade such a student against people and trace its failure to the teacher. Committee and ensemble methods use disagreement as uncertainty; I test that with genuinely different models, in a test fixed in advance, and it does not beat confidence because most errors are shared. Jiang and Baek estimate how many answers are wrong; I ask which picture is wrong.}
 \end{frame}
 
-\begin{frame}{Related research (2 of 2): confidence, risk promises, illustrations}
+\begin{frame}{Related research (2 of 2): confidence, risk guarantees, illustrations}
 \begin{tcbraster}[raster columns=3,raster equal height,raster column skip=8pt]
 \relcard{Confidence and calibration}{Hendrycks \& Gimpel 2017; Guo et al.\ 2017; Ovadia et al.\ 2019}
   {A model's own confidence is a strong baseline for finding its errors; calibration degrades under shift.}
   {Confidence is the better router on historical prints, once each agent is mapped to a probability.}
 \relcard{Conformal risk control}{Angelopoulos et al.\ 2024, 2025; Barber et al.\ 2023}
-  {A risk promise without assumptions about the models, if new data are like the calibration data.}
+  {A risk guarantee without assumptions about the models, if new data are like the calibration data.}
   {Tests that condition on \textbf{random archive pictures}: 16.2\% approved and wrong with pool calibration, 5.4--5.9\% with archive calibration.}
 \relcard{Multimodal models on book illustrations}{Piper \& Jiang 2026}
   {Strong models match people on concrete tasks and reproduce people's disagreement on others.}
@@ -302,11 +303,11 @@ One model that looks at the picture and reports numbers. The corrected system ha
 A layer of the system. Tier 1 decides; Tier 2 helpers only add notes; Tier 3 (paid models) was designed, not run.
 \end{defbox}\vspace{3pt}
 \begin{defbox}{Label (ground truth)}
-The answer a person gave. Everything is measured against it.
+The label a human annotator gave. Everything is measured against it.
 \end{defbox}
 \column{0.32\textwidth}
 \begin{defbox}{Pseudo-label}
-A label made by a model (the \emph{teacher}) instead of a person, used to train another model (the \emph{student}).
+A label made by a model (the \emph{teacher}) instead of a human annotator, used to train another model (the \emph{student}).
 \end{defbox}\vspace{3pt}
 \begin{defbox}{Zero-shot}
 A model used without any training on this archive: we only give it sentences such as ``a family scene''.
@@ -333,7 +334,7 @@ Pictures of one book are only in training \emph{or} only in testing, never both.
 \begin{columns}[T,onlytextwidth]
 \column{0.50\textwidth}
 \begin{defbox}{Risk level $\alpha$ (alpha)}
-The promise we ask for, e.g.\ $\alpha = 0.05$: at most 5 in 100 pictures may be \emph{approved and wrong}.
+The target risk, e.g.\ $\alpha = 0.05$: at most 5 in 100 pictures may be \emph{approved and wrong}.
 \end{defbox}\vspace{3pt}
 \begin{defbox}{Cut-off $\lambda$ (lambda)}
 Approve a picture if its uncertainty $u$ is below $\lambda$. A bigger $\lambda$ approves more.
@@ -353,11 +354,11 @@ Labelled pictures kept apart, used only to choose $\lambda$.
 \scriptsize
 \tikz\fill[okc!75] circle (0.12); approved and right\quad
 \tikz\fill[pers] circle (0.12); approved and wrong\quad
-\tikz\fill[line] circle (0.12); sent to a person\par\vspace{4pt}
+\tikz\fill[line] circle (0.12); human review\par\vspace{4pt}
 \footnotesize
-\textbf{The promise counts the red dots among all 100}, not among the approved ones.\par\vspace{5pt}
+\textbf{The guarantee counts the red dots among all 100}, not among the approved ones.\par\vspace{5pt}
 \begin{defbox}{Conformal risk control (CRC)}
-A method that picks the largest $\lambda$ for which the calibration pictures show the promise is kept, with a small safety margin.
+A method that picks the largest $\lambda$ for which the calibration pictures show the guarantee holds, with a small safety margin.
 \end{defbox}
 \end{columns}
 \note{The promise has three parts. Alpha is the promised risk. Lambda is the cut-off on uncertainty. The calibration set is a held-back set of labelled pictures used only to choose lambda. Conformal risk control picks the largest lambda that keeps the promise on those pictures. Important: the promise counts approved-and-wrong among all pictures, not the error rate among the approved ones.}
@@ -444,7 +445,7 @@ Lowering the score threshold traces the precision--recall curve. \textbf{AP50} i
 \toprule
 AUROC & Area under the ROC curve: how well a score ranks errors first\\
 AP50 & Average precision at box overlap (IoU) $\geq 0.5$\\
-CRC & Conformal risk control (the risk promise)\\
+CRC & Conformal risk control (the risk guarantee)\\
 IoU & Intersection over union: overlap of two boxes\\
 $\kappa$ & Cohen's kappa: agreement between raters\\
 $\alpha$, $\lambda$, $u$ & Risk level, cut-off, uncertainty\\
@@ -482,13 +483,13 @@ $U_{\text{SAA}}$ & The first design's disagreement score\\
 Role & Model & Takes in & Gives out & Time\\
 \midrule
 \rowcolor{soft}Restorer & Real-ESRGAN & the raw scan & a cleaner scan, twice the size & once\\
-\color{agent}Object finder & YOLOv11m (retrained) & the picture & boxes with a class and a score $\to$ \textbf{8 numbers} & 0.06\,s\\
-\color{agent}Scene matcher & SigLIP & the picture + 12 sentences & a score per sentence $\to$ \textbf{6 numbers} & \\
-\color{agent}Describer & LLaVA-OneVision 7B & the picture + a yes/no question & how strongly it says ``yes'' $\to$ \textbf{13 numbers} & 1.56\,s\\
+\color{agent}Object detector & YOLOv11m (retrained) & the picture & boxes with a class and a score $\to$ \textbf{8 numbers} & 0.06\,s\\
+\color{agent}Zero-shot classifier & SigLIP & the picture + 12 sentences & a score per sentence $\to$ \textbf{6 numbers} & \\
+\color{agent}VLM & LLaVA-OneVision 7B & the picture + a yes/no question & how strongly it says ``yes'' $\to$ \textbf{13 numbers} & 1.56\,s\\
 \rowcolor{soft}\color{tiertwo}Text reader & Kosmos-2.5 & the picture & the text it reads, as markdown (no positions) & 3.23\,s\\
 \bottomrule
 \end{tabularx}
-\par\vspace{4pt}{\scriptsize\color{muted}Time per picture measured in the deployed run (object finder: the deployed detector) on one NVIDIA RTX A6000. The three blue agents decide; the text reader only feeds the Tier 2 helpers.}
+\par\vspace{4pt}{\scriptsize\color{muted}Time per picture measured in the deployed run (YOLO: the deployed detector) on one NVIDIA RTX A6000. The three blue agents decide; the text reader only feeds the Tier 2 helpers.}
 \takeaway{Three different kinds of model, trained on different data: a detector, an image--text matcher and a vision-language model. Together they report \textbf{27 numbers} per picture.}
 \note{Five models. The restorer cleans the scan once. Then three agents decide: the object finder, the scene matcher and the describer. They were chosen because they differ in architecture and training data, which is what a disagreement method needs. The text reader reads inscriptions but does not take part in the decision. Next, one slide per model: what goes in and what comes out.}
 \end{frame}
@@ -513,7 +514,7 @@ Role & Model & Takes in & Gives out & Time\\
 \item Never archival evidence: catalogue data points to the original scan.
 \end{itemize}
 \begin{exbox}
-Crisp lines, but the faces are \textbf{redrawn}. Scene matcher: 0.329 restored vs 0.342 original. No gain; no result depends on it.
+Crisp lines, but the faces are \textbf{redrawn}. SigLIP: 0.329 restored vs 0.342 original. No gain; no result depends on it.
 \end{exbox}
 \end{columns}
 \note{Step one. Real-ESRGAN restores every scan once, at twice the size, and all agents see the restored version. This is one of the scans it changes most, zoomed in on four faces, from the pipeline's own files: a soft grey scan becomes crisp black lines. But look at the faces: eyes and mouths are redrawn, so the restorer invents detail. On a typical scan the change is much smaller. I tested whether it helps the scene matcher: it does not measurably, so no result depends on restoration.}
@@ -553,7 +554,7 @@ animal & 0.0125 & box (1393, 1605, 1633, 1844)\end{tabular}};
 \note{These are the real tensors for our picture. The scan of 1958 by 1990 pixels is letterboxed to 640 by 640. The backbone and neck produce three feature maps with 72 channels, at 80 by 80, 40 by 40 and 20 by 20 cells; you can see the coarse map light up where the people are. The head predicts for each of the 8,400 cells four box values and eight class scores, a tensor of 12 by 8,400. Only 23 candidates have a class score of at least 0.01; non-maximum suppression leaves three boxes: the boy at 0.97, the woman at 0.90 and the hen at 0.01. Our report keeps the best score per class.}
 \end{frame}
 
-\begin{frame}{Agent 1 \,·\, The object finder (YOLOv11m)}
+\begin{frame}{Agent 1 \,·\, Object detector: YOLOv11m}
 \begin{columns}[T,onlytextwidth]
 \column{0.30\textwidth}
 \centering
@@ -622,7 +623,7 @@ Scaling by 112 turns small cosine gaps into clear scores: family 0.141 $\to$ 0.3
 \note{The real numbers for our picture. The image becomes a 3 by 384 by 384 tensor, then 729 patch tokens of 1,152 dimensions; after 27 transformer layers they are pooled into one 1,152-dimensional vector v. Each of the 12 sentences is tokenised to 64 tokens and encoded to a vector u of the same size. The score multiplies the cosine by the learned scale 112.33, adds the learned bias minus 16.55 and applies a sigmoid. Family has cosine 0.141 and ends at 0.33; playing has 0.080 and ends at 0.0005. That scaling is why small cosine differences become clear scores.}
 \end{frame}
 
-\begin{frame}{Agent 2 \,·\, The scene matcher (SigLIP)}
+\begin{frame}{Agent 2 \,·\, Zero-shot image--text classifier: SigLIP}
 \begin{columns}[T,onlytextwidth]
 \column{0.56\textwidth}
 \begin{tikzpicture}[e/.style={box,draw=agent,fill=agentbg,minimum width=2.1cm,minimum height=0.7cm,font=\scriptsize}]
@@ -680,7 +681,7 @@ Repeated for 13 questions $\to$ 13 numbers (stored run: child 0.995, person 0.98
 \note{The real run for our picture. Scaled to 629 by 640, it is split into an overview and four tiles of 384 by 384: five crops. The SigLIP encoder turns each crop into 729 tokens of 1,152 dimensions; the projector maps them to 3,584 dimensions, the width of the language model. With the question the prompt has 3,719 tokens, 3,699 of them for the image. Qwen2-7B gives logits over 152,128 tokens at every position; at the last position the next word is yes with 0.987 and Yes with 0.009. Adding the yes and no variants gives 0.996, the yes-strength for child.}
 \end{frame}
 
-\begin{frame}{Agent 3 \,·\, The describer (LLaVA-OneVision 7B)}
+\begin{frame}{Agent 3 \,·\, Vision-language model: LLaVA-OneVision 7B}
 \begin{columns}[T,onlytextwidth]
 \column{0.50\textwidth}
 \begin{tikzpicture}[node distance=4mm]
@@ -729,9 +730,9 @@ Repeated for 13 questions $\to$ 13 numbers (stored run: child 0.995, person 0.98
 \foreach \i in {0,...,7} \node[n] at (\i*0.42,0) {};
 \foreach \i in {0,...,5} \node[s] at (\i*0.42,-0.9) {};
 \foreach \i in {0,...,12} \node[d] at (\i*0.42,-1.8) {};
-\node[anchor=east,font=\scriptsize] at (-0.35,0) {object finder};
-\node[anchor=east,font=\scriptsize] at (-0.35,-0.9) {scene matcher};
-\node[anchor=east,font=\scriptsize] at (-0.35,-1.8) {describer};
+\node[anchor=east,font=\scriptsize] at (-0.35,0) {YOLOv11m};
+\node[anchor=east,font=\scriptsize] at (-0.35,-0.9) {SigLIP};
+\node[anchor=east,font=\scriptsize] at (-0.35,-1.8) {LLaVA-OV};
 \node[font=\scriptsize,anchor=west] at (3.2,0) {8};
 \node[font=\scriptsize,anchor=west] at (2.35,-0.9) {6};
 \node[font=\scriptsize,anchor=west] at (5.3,-1.8) {13};
@@ -754,8 +755,8 @@ Repeated for 13 questions $\to$ 13 numbers (stored run: child 0.995, person 0.98
   lab/.style={font=\scriptsize\bfseries,text=muted}]
 \node[box,text width=1.4cm,minimum height=1.1cm] (scan) at (0,0) {\textbf{Scan}\\restored once};
 \node[m] (det) at (2.85,1.65) {\textbf{Object detector}\\YOLOv11};
-\node[m] (sig) at (2.85,0.55) {\textbf{Scene matcher}\\SigLIP};
-\node[m] (vlm) at (2.85,-0.55) {\textbf{Describer}\\LLaVA-OneVision};
+\node[m] (sig) at (2.85,0.55) {\textbf{SigLIP}\\zero-shot classifier};
+\node[m] (vlm) at (2.85,-0.55) {\textbf{LLaVA-OV}\\vision-language model};
 \node[m,draw=line,fill=white,text=muted] (ocr) at (2.85,-1.65) {Text reader\\Kosmos-2.5};
 \foreach \a in {det,sig,vlm} \draw[arr] (scan.east) -- ++(0.3,0) |- (\a.west);
 \draw[dashedarr] (scan.east) -- ++(0.3,0) |- (ocr.west);
@@ -766,7 +767,7 @@ Repeated for 13 questions $\to$ 13 numbers (stored run: child 0.995, person 0.98
 \draw[arr] (saa.east) -- (route.west |- saa.east);
 \draw[arr] (usaa.east) -- (route.west |- usaa.east);
 \node[okb,text width=2.0cm,minimum height=0.8cm,font=\scriptsize] (ok) at (12.55,1.25) {\textbf{Approved}\\automatically};
-\node[persb,text width=2.0cm,minimum height=0.8cm,font=\scriptsize] (pe) at (12.55,-0.05) {\textbf{A person}\\reviews};
+\node[persb,text width=2.0cm,minimum height=0.8cm,font=\scriptsize] (pe) at (12.55,-0.05) {\textbf{Human}\\review};
 \node[box,draw=line,dashed,text=muted,text width=2.0cm,font=\scriptsize] (t3) at (12.55,-1.35) {Tier 3: two paid models (designed, not run)};
 \draw[arr,okc] (route.east) -- ++(0.3,0) |- (ok.west);
 \draw[arr,pers] (route.east) -- ++(0.3,0) |- (pe.west);
@@ -789,9 +790,9 @@ Repeated for 13 questions $\to$ 13 numbers (stored run: child 0.995, person 0.98
 \toprule
 Signal & Taken from & Rule & Possible values\\
 \midrule
-$A^{\text{object}}$ & how many objects the describer listed & count $\div$ 3, at most 1 & 0, $\tfrac13$, $\tfrac23$, 1\\
-$A^{\text{scene}}$ & the describer's scene confidence & as stored & in practice 0.5 or 1\\
-$A^{\text{vlm}}$ & did the describer list any object? & yes $\to$ 1, no $\to$ 0 & 0 or 1\\
+$A^{\text{object}}$ & how many objects the VLM listed & count $\div$ 3, at most 1 & 0, $\tfrac13$, $\tfrac23$, 1\\
+$A^{\text{scene}}$ & the VLM's scene confidence & as stored & in practice 0.5 or 1\\
+$A^{\text{vlm}}$ & did the VLM list any object? & yes $\to$ 1, no $\to$ 0 & 0 or 1\\
 $A^{\text{agree}}$ & computed from two of the above & $1 - |A^{\text{object}} - A^{\text{vlm}}|$ & fixed by them\\
 \bottomrule
 \end{tabularx}
@@ -821,7 +822,7 @@ $U_{\text{SAA}}$ = standard deviation of the four signals
 \end{defbox}\vspace{3pt}
 \begin{defbox}{Route}
 $U_{\text{triage}} = 0.6\,U_{\text{SAA}} + 0.4\,(1 - \text{mean of the four})$\\
-approve if $U_{\text{triage}} < \hat\lambda = 0.372$ (at a 5\% promise)
+approve if $U_{\text{triage}} < \hat\lambda = 0.372$ (at $\alpha = 0.05$)
 \end{defbox}
 \column{0.45\textwidth}
 \begin{exbox}
@@ -929,13 +930,13 @@ When all agents make the same mistake, they \emph{agree}, so disagreement cannot
 \midrule
 Four signals read from one model's answer & $\to$ & each agent reports what it \textbf{measures} (27 numbers)\\
 Agreement term computed from two other signals & $\to$ & \textbf{removed}\\
-Scene matcher had to pick a scene; could not say ``none'' & $\to$ & a separate \textbf{``no scene''} score\\
+SigLIP as a softmax over 5 scenes: could not say ``none'' & $\to$ & a separate \textbf{``no scene''} score\\
 Signals on different scales, mixed with hand-set weights & $\to$ & each agent \textbf{mapped to a probability}, learned from labels\\
 Routing by disagreement & $\to$ & routing by \textbf{confidence}\\
 Conformal risk control & $\to$ & \textbf{unchanged}\\
 \bottomrule
 \end{tabularx}
-\takeaway{Keep what worked (the risk promise), replace what the evidence rejected (disagreement as uncertainty).}
+\takeaway{Keep what worked (conformal risk control), replace what the evidence rejected (disagreement as uncertainty).}
 \note{Each problem leads to one change. Real measurements instead of one count; no derived agreement term; a no-scene score; a common probability scale learned from labels; and routing by confidence. The risk promise is kept.}
 \end{frame}
 
@@ -950,20 +951,20 @@ Conformal risk control & $\to$ & \textbf{unchanged}\\
   o/.style={box,draw=mapc,fill=white,text width=1.85cm,minimum height=0.95cm,font=\scriptsize},
   lab/.style={font=\scriptsize\bfseries,text=muted}]
 \node[box,text width=1.3cm,minimum height=1.1cm] (scan) at (0,0) {\stepn{1} \textbf{Scan}\\restored once};
-\node[a] (det) at (2.75,1.25) {\textbf{Object finder}\\YOLOv11m: 8 scores + boxes};
-\node[a] (sig) at (2.75,0) {\textbf{Scene matcher}\\SigLIP: 5 scenes + ``no scene''};
-\node[a] (vlm) at (2.75,-1.25) {\textbf{Describer}\\LLaVA: 13 yes-strengths};
+\node[a] (det) at (2.75,1.25) {\textbf{YOLOv11m}\\detector: 8 scores + boxes};
+\node[a] (sig) at (2.75,0) {\textbf{SigLIP}\\5 scene scores + ``no scene''};
+\node[a] (vlm) at (2.75,-1.25) {\textbf{LLaVA-OV}\\13 yes-probabilities};
 \foreach \a in {det,sig,vlm} \draw[arr] (scan.east) -- ++(0.25,0) |- (\a.west);
 \node[mapb,text width=1.85cm,minimum height=3.45cm,font=\scriptsize] (map) at (5.65,0) {\stepn{3}\\[2pt]\textbf{Mapped to probabilities}\\[2pt]learned on the training books};
 \foreach \a in {det,sig,vlm} \draw[arr] (\a.east) -- (map.west |- \a.east);
 \node[o] (ob) at (8.25,1.25) {\stepn{4} \textbf{Objects}\\which of 8};
 \node[o] (sc) at (8.25,0) {\stepn{4} \textbf{Scene class}\\one of 5, or none};
-\node[o] (sa) at (8.25,-1.25) {\stepn{4} \textbf{Scene at all}\\yes / no};
+\node[o] (sa) at (8.25,-1.25) {\stepn{4} \textbf{Scene presence}\\yes / no};
 \foreach \o in {ob,sc,sa} \draw[arr] (map.east |- \o.west) -- (\o.west);
 \node[riskb,text width=1.9cm,minimum height=3.45cm,font=\scriptsize] (crc) at (10.85,0) {\stepn{5}\,\stepn{6}\\[2pt]\textbf{Uncertainty $u$, compared with $\hat\lambda$}\\[2pt]conformal risk control};
 \foreach \o in {ob,sc,sa} \draw[arr] (\o.east) -- (crc.west |- \o.east);
 \node[okb,text width=1.75cm,minimum height=0.95cm,font=\scriptsize] (ok) at (13.45,0.9) {\textbf{Approved}\\automatically};
-\node[persb,text width=1.75cm,minimum height=0.95cm,font=\scriptsize] (pe) at (13.45,-0.75) {\textbf{A person}\\checks or confirms a short list};
+\node[persb,text width=1.75cm,minimum height=0.95cm,font=\scriptsize] (pe) at (13.45,-0.75) {\textbf{Human review}\\or confirms a prediction set};
 \draw[arr,okc] (crc.east |- ok.west) -- (ok.west);
 \draw[arr,pers] (crc.east |- pe.west) -- (pe.west);
 \node[box,draw=line,text=muted,text width=2.35cm,font=\scriptsize] (ocr) at (2.75,-2.45) {Text reader (Kosmos-2.5): not used to decide};
@@ -974,7 +975,7 @@ Conformal risk control & $\to$ & \textbf{unchanged}\\
 \node[draw=line,dashed,rounded corners=5pt,inner sep=4pt,fit=(det)(vlm),label={[lab,anchor=south west]north west:{\stepn{2} Tier 1: three agents}}] {};
 \end{scope}
 \end{tikzpicture}}
-\par\vspace{3pt}{\footnotesize\color{muted}Figure 6.1 of the thesis, left to right. No Agreement term; \textbf{confidence} decides what a person checks.}
+\par\vspace{3pt}{\footnotesize\color{muted}Figure 6.1 of the thesis, left to right. No Agreement term; \textbf{confidence} decides what goes to human review.}
 \note{The corrected design, Figure 6.1 of the thesis. Same scan, three agents reporting what they measure, each report mapped to probabilities, three answers each with an uncertainty, and conformal risk control deciding what is approved, what goes to a person, and what becomes a short list. The next slides take the six steps one at a time with our running example.}
 \end{frame}
 
@@ -1004,7 +1005,7 @@ Conformal risk control & $\to$ & \textbf{unchanged}\\
 \node[st,draw=agent,fill=agentbg,below=of a] (b) {\stepn{2} three agents, side by side $\to$ 27 numbers};
 \node[st,draw=mapc,fill=mapbg,below=of b] (c) {\stepn{3} map to probabilities, with the learned weights};
 \node[st,draw=mapc,fill=mapbg,below=of c] (d) {\stepn{4} three answers \,·\, \stepn{5} an uncertainty $u$ for each};
-\node[st,draw=risk,fill=riskbg,below=of d] (e) {\stepn{6} compare $u$ with $\hat\lambda$: approve, short list, or a person};
+\node[st,draw=risk,fill=riskbg,below=of d] (e) {\stepn{6} compare $u$ with $\hat\lambda$: auto-approve, prediction set, or human review};
 \foreach \x/\y in {a/b,b/c,c/d,d/e} \draw[arr] (\x)--(\y);
 \end{tikzpicture}
 \end{columns}
@@ -1019,8 +1020,8 @@ Each number gets a \textbf{weight}: how much it counts as evidence for ``scene''
 \centering$p = \dfrac{1}{1 + e^{-(\text{bias} + \sum \text{weight}\times\text{number})}}$
 \end{defbox}\vspace{2pt}
 \begin{exbox}
-Object finder: $0.41 + 3.52\times0.972 + 2.40\times0.013 = 3.86 \to p = \mathbf{0.98}$\\
-Scene matcher: sum $2.72 \to \mathbf{0.94}$\quad Describer: sum $4.55 \to \mathbf{0.99}$
+YOLOv11m: $0.41 + 3.52\times0.972 + 2.40\times0.013 = 3.86 \to p = \mathbf{0.98}$\\
+SigLIP: sum $2.72 \to \mathbf{0.94}$\quad LLaVA-OV: sum $4.55 \to \mathbf{0.99}$
 \end{exbox}
 \vspace{1pt}{\scriptsize Sheet music: ``no scene'' 0.89 $\to 2.01 - 2.83\times0.89 = -0.51 \to p = 0.38$.}
 \column{0.47\textwidth}
@@ -1035,7 +1036,7 @@ Scene matcher: sum $2.72 \to \mathbf{0.94}$\quad Describer: sum $4.55 \to \mathb
 \node[font=\tiny,anchor=north west,text=pers] at (axis cs:-0.2,0.3) {sheet music, 0.38};
 \end{axis}
 \end{tikzpicture}\par
-\footnotesize Learned weights, object finder: person $+3.52$, animal $+2.40$, text $-0.18$. A person counts strongly towards ``scene''; text slightly against.
+\footnotesize Learned weights, YOLOv11m: person $+3.52$, animal $+2.40$, text $-0.18$. A person counts strongly towards ``scene''; text slightly against.
 \end{columns}
 \note{Step three. Each agent's numbers go into a logistic regression learned on the training books: each number has a weight, we add them with a bias and squeeze the sum into a probability with the S-curve. For our picture the object finder's sum is 3.86, a probability of 0.98. A page of sheet music gets a strong no-scene score and ends at 0.38.}
 \end{frame}
@@ -1043,7 +1044,7 @@ Scene matcher: sum $2.72 \to \mathbf{0.94}$\quad Describer: sum $4.55 \to \mathb
 \begin{frame}{Step \stepn{4} \,·\, Three answers for every picture}
 \begin{columns}[T,onlytextwidth]
 \column{0.32\textwidth}
-\begin{defbox}{Scene at all (first level)}
+\begin{defbox}{Scene presence (first level)}
 $p = 0.6\,p_{\text{obj}} + 0.2\,p_{\text{scene}} + 0.2\,p_{\text{desc}}$\\[4pt]
 $\phantom{p} = 0.6{\times}0.98 + 0.2{\times}0.94$\\
 $\phantom{p = } + 0.2{\times}0.99$\\[2pt]
@@ -1084,30 +1085,32 @@ For each class: the mean of the three agents' probabilities.\par
 \begin{columns}[T,onlytextwidth]
 \column{0.52\textwidth}
 \begin{tikzpicture}
-\begin{axis}[width=7.2cm,height=4.8cm,xmin=0,xmax=1,ymin=0.45,ymax=1.03,
+\begin{axis}[width=7.2cm,height=4.8cm,xmin=0,xmax=1,ymin=0.45,ymax=1.1,
   xlabel={\scriptsize probability of a scene $p$},ylabel={\scriptsize uncertainty $u = 1 - |p - 0.5|$},
-  x tick label style={font=\scriptsize},y tick label style={font=\scriptsize},axis lines*=left,grid=major,grid style={line}]
+  x tick label style={font=\scriptsize},y tick label style={font=\scriptsize},axis lines*=left,grid=major,grid style={line},extra x ticks={0.329,0.671},extra x tick labels={\color{okc}0.329,\color{okc}0.671},extra x tick style={tick label style={font=\tiny,yshift=-6pt},grid=none}]
 \fill[okbg] (axis cs:0,0.45) rectangle (axis cs:0.329,1.03);
 \fill[okbg] (axis cs:0.671,0.45) rectangle (axis cs:1,1.03);
 \addplot[mapc,very thick,domain=0:1,samples=101] {1-abs(x-0.5)};
 \addplot[risk,thick,dashed,domain=0:1] {0.829};
 \addplot[only marks,mark=*,mark size=2.6pt,agent] coordinates {(0.97,0.53)};
 \node[font=\tiny,text=agent,anchor=east] at (axis cs:0.93,0.56) {example: $u = 0.53$};
-\node[font=\tiny,text=risk,fill=white,inner sep=1pt,anchor=south west] at (axis cs:0.02,0.84) {cut-off $\hat\lambda = 0.829$};
-\node[font=\tiny,text=okc] at (axis cs:0.16,0.5) {approve};
-\node[font=\tiny,text=okc] at (axis cs:0.84,0.5) {approve};
-\node[font=\tiny,text=pers] at (axis cs:0.5,0.62) {a person};
+\node[font=\tiny,text=risk,anchor=south west] at (axis cs:0.69,0.832) {cut-off $\hat\lambda = 0.829$ (step 6)};
+\node[font=\tiny,text=okc,align=center] at (axis cs:0.165,0.505) {approved as\\``no scene''};
+\node[font=\tiny,text=okc,align=center] at (axis cs:0.835,0.505) {approved as\\``scene''};
+\node[font=\tiny,text=pers] at (axis cs:0.415,0.6) {human review};
+\addplot[muted,dotted,thick] coordinates {(0.5,0.45) (0.5,1.0)};
+\node[font=\tiny,text=muted,anchor=south] at (axis cs:0.5,1.005) {scene if $p\geq0.5$};
 \end{axis}
 \end{tikzpicture}
 \column{0.45\textwidth}
-\begin{defbox}{Scene at all}
+\begin{defbox}{Scene presence}
 $u = 1 - |p - 0.5|$: highest at a coin flip ($p = 0.5$), lowest when the system is sure.
 \end{defbox}\vspace{3pt}
 \begin{defbox}{Scene class}
 $u = 1 - $ (the largest of the six probabilities). Example: $1 - 0.54 = 0.46$.
 \end{defbox}\vspace{3pt}
 \begin{defbox}{Objects}
-No single $u$: classes above a threshold $t$ form a \textbf{short list} for a person to confirm.
+No single $u$: classes above a threshold $t$ form a \textbf{prediction set} for human confirmation.
 \end{defbox}
 \end{columns}
 \note{Step five turns each answer into an uncertainty. For scene at all it is one minus the distance from 0.5. The green zones are the probabilities that will be approved at the cut-off we will choose next. Our picture, p = 0.97, sits deep in the green. For the scene class it is one minus the largest probability. Objects become a short list.}
@@ -1122,7 +1125,7 @@ No single $u$: classes above a threshold $t$ form a \textbf{short list} for a pe
 \draw[<->,thick,muted] (0,-0.55) -- (21,-0.55) node[pos=0,below=2pt,font=\scriptsize]{most sure} node[pos=1,below=2pt,font=\scriptsize]{least sure};
 \draw[risk,very thick] (13.5,0.55) -- (13.5,-0.4) node[above=17pt,font=\scriptsize\bfseries,text=risk]{$\hat\lambda$};
 \draw[decorate,decoration={brace,amplitude=5pt},thick,okc] (-0.3,0.4)--(13.3,0.4) node[midway,above=5pt,font=\scriptsize,text=okc]{approved: 14 pictures, 2 of them wrong};
-\draw[decorate,decoration={brace,amplitude=5pt},thick,pers] (13.7,0.4)--(21.3,0.4) node[midway,above=5pt,font=\scriptsize,text=pers]{to a person};
+\draw[decorate,decoration={brace,amplitude=5pt},thick,pers] (13.7,0.4)--(21.3,0.4) node[midway,above=5pt,font=\scriptsize,text=pers]{to human review};
 \end{tikzpicture}
 \par\vspace{6pt}{\scriptsize\color{muted}Illustration with 22 pictures: \tikz\fill[okc] circle (0.1); answer right \quad \tikz\fill[pers] circle (0.1); answer wrong}\par\vspace{8pt}
 \begin{columns}[T,onlytextwidth]
@@ -1130,7 +1133,7 @@ No single $u$: classes above a threshold $t$ form a \textbf{short list} for a pe
 \begin{enumerate}\small\setlength\itemsep{3pt}
 \item Move the cut-off $\lambda$ from left to right.
 \item Count the pictures that would be \textbf{approved and wrong}.
-\item Stop at the last position where that count is still within the promise (with a small safety margin).
+\item Stop at the last position where that count is still within $\alpha$ (with a small safety margin).
 \end{enumerate}
 \column{0.48\textwidth}
 \begin{defbox}{The rule (conformal risk control)}
@@ -1155,7 +1158,7 @@ largest safe cut-off: $\hat\lambda = \mathbf{0.829}$\\
 $\to$ approve if $p$ is more than 0.171 from 0.5\\[3pt]
 On the 249 test pictures: \yes{70.7\%} approved, real risk \yes{0.036}
 \end{exbox}\vspace{4pt}
-\begin{defbox}{What is promised, and what is not}
+\begin{defbox}{What is guaranteed, and what is not}
 At most 5 in 100 of \emph{all} pictures approved and wrong, \textbf{on average}, for new pictures like the calibration pictures. Not the error rate among the approved; not every batch.
 \end{defbox}
 \end{columns}
@@ -1174,43 +1177,21 @@ At most 5 in 100 of \emph{all} pictures approved and wrong, \textbf{on average},
 \toprule
 Answer & What the system computes & Decision\\
 \midrule
-Scene at all & $p = 0.97$, $u = 0.53 < \hat\lambda = 0.829$ & \yes{approved}\\
-Scene class & family 0.54 (drawing 0.32); $u = 0.46 > 0.26$ & \no{a person}\\
+Scene presence & $p = 0.97$, $u = 0.53 < \hat\lambda = 0.829$ & \yes{approved}\\
+Scene class & family 0.54 (drawing 0.32); $u = 0.46 > 0.26$ & \no{human review}\\
 Objects & person 0.93, child 0.37, animal 0.23; list $\ge 0.088$ & \no{person confirms}\\
 \bottomrule
 \end{tabularx}
 \vspace{4pt}
 \begin{keybox}
-The system is sure there is a scene, unsure which one, and lists \textbf{person, child, animal}. The animal is the hen, which the human annotator did not box: the short list was right where the label was incomplete.
+The system is sure there is a scene, unsure which one, and lists \textbf{person, child, animal}. The animal is the hen, which the human annotator did not box: the prediction set was right where the label was incomplete.
 \end{keybox}
 \end{columns}
 \note{One picture through the whole system. Scene at all: 0.97, approved automatically. Scene class: family is right, but with 0.54 it is not sure enough, so a person decides. Objects: the list is person, child and animal; a person confirms it. The animal is the hen, which the annotator did not even box.}
 \end{frame}
 
-\begin{frame}{Tier 2 \,·\, Three helpers beside the decision}
-\begin{columns}[T,onlytextwidth]
-\column{0.32\textwidth}
-\begin{defbox}{Contradiction checker}
-\textbf{Rule:} the describer names an object the object finder did not find $\to$ a flag.\\[2pt]
-\textbf{Checked:} 56\% of flags name an object that is not there (68\% with the retrained finder), against 36.5\% of all claims.
-\end{defbox}
-\column{0.32\textwidth}
-\begin{defbox}{Cross-archive linker}
-\textbf{Rule:} compare picture embeddings across books; link if similarity $\geq 0.92$.\\[2pt]
-\textbf{Checked:} 38 of 50 random links (76\%) are real reprints; the rest share only the style.
-\end{defbox}
-\column{0.32\textwidth}
-\begin{defbox}{Inscription reader}
-\textbf{Rule:} the text reader reads the text in the picture.\\[2pt]
-\textbf{Checked:} not usable as is; of its ``real text'', only 52.5\% comes from pictures with text.
-\end{defbox}
-\end{columns}
-\takeaway{None of them changes a decision. They add flags and links for a cataloguer, and each was checked against a person.}
-\note{Tier 2 runs beside the decision on every picture. The contradiction checker finds describer claims the detector cannot confirm; the linker finds reprints across books; the inscription reader is not usable yet. They never change a decision.}
-\end{frame}
-
 % =====================================================================================================
-\section{Results and conclusion}
+\section{Results}
 
 \begin{frame}{How the results were tested}
 \begin{columns}[T,onlytextwidth]
@@ -1232,7 +1213,113 @@ Every number comes from a script with a fixed seed; three checkers hold the thes
 \note{Before the results, how they were tested: 200 book-disjoint splits; a difference counts only if the whole range is on one side of zero; most tests were written down before they were run; and every number is checked against its result file.}
 \end{frame}
 
-\begin{frame}{Result 1 \,·\, More pictures approved at the same promise}
+
+\begin{frame}{Results overview}
+\scriptsize
+\renewcommand{\arraystretch}{1.22}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.1cm} >{\raggedright\arraybackslash}p{2.4cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Question} & \textbf{Answer} & \textbf{Key result}\\
+\midrule
+Detection: does pseudo-label training work? & \no{Hidden failure} & mAP50 0.768 against teacher labels, 0.146 against human boxes; better teacher 0.123 $\to$ 0.210\\
+RQ1: does disagreement detect errors? & \no{No} & Pre-registered AUROC 0.378 vs 0.825 (confidence); within task 0.78 / 0.82 vs 0.84 / 0.83\\
+RQ2: less human review at a guaranteed risk? & \yes{Yes}, with in-domain calibration & 76.4\% vs 63.0\% auto-approved at $\alpha=0.05$; on the archive 5.4--5.9\% risk at 80\% auto-approved\\
+Class tasks & Objects \yes{yes}; scenes partial & Objects: mean AUROC 0.903, prediction set of 2.8 classes; scene classes: balanced accuracy 0.544\\
+RQ3: does contradiction detection add precision? & {\color{risk}\textbf{Partially}} & 56.2\% (68.0\%) of flags correct vs 36.5\% base rate\\
+RQ4: retrieval and cross-archive linking? & {\color{risk}\textbf{Partially}} & P@10 0.60 vs 0.10 (4 queries); 76\% of random links are true reprints\\
+Transfer to other collections & \no{Not shown} & Europeana: 65.2\% of scenes missed; PeopleArt F1 0.878 $\to$ 0.673\\
+\bottomrule
+\end{tabularx}
+\note{An overview of all results before the details, by research question. Detection: pseudo-label scores hide a collapse. RQ1: disagreement does not beat confidence. RQ2: yes, with calibration on the collection itself. The class tasks: objects work as a prediction set; scene classes only partly. RQ3 and RQ4: partially. Transfer: not shown.}
+\end{frame}
+
+\begin{frame}{Object detection: baseline, pseudo-labels and a better teacher}
+\begin{columns}[T,onlytextwidth]
+\column{0.50\textwidth}
+\textbf{\color{navy}Presence detection, 300 annotated pictures (AUROC)}\par\vspace{2pt}
+\footnotesize\renewcommand{\arraystretch}{1.18}
+\begin{tabular}{@{}l c c c@{}}
+\toprule
+Class & COCO YOLO & Adapted & LLaVA-OV\\
+\midrule
+person (127) & 0.788 & 0.868 & 0.940\\
+animal (87) & 0.735 & 0.808 & 0.930\\
+vehicle (9) & 0.746 & 0.546 & 0.997\\
+\bottomrule
+\end{tabular}\par\vspace{2pt}
+{\scriptsize\color{muted}Adapted: the COCO detector after pseudo-label training. Only classes with a COCO counterpart can be scored.}
+\column{0.46\textwidth}
+\textbf{\color{navy}Box accuracy, mAP50 (8 classes)}\par\vspace{2pt}
+\footnotesize\renewcommand{\arraystretch}{1.18}
+\begin{tabular}{@{}l c c@{}}
+\toprule
+Model & 300 pictures & 164 unseen\\
+\midrule
+Deployed student & 0.123 & 0.106\\
+Teacher: Grounding DINO & 0.283 & 0.274\\
+New student (YOLOv11m) & \textbf{0.210} & 0.196\\
+\bottomrule
+\end{tabular}\par\vspace{3pt}
+{\scriptsize Same student, Ultralytics validator: 0.768 against teacher labels, \textbf{0.146} against human boxes. Label filtering by model agreement: 0.214 (all), 0.232 (confirmed), 0.201 (random thinning): no established effect.}
+\end{columns}
+\takeaway{Pseudo-label metrics hide the failure; the cause is the teacher (126 of 128 missed objects never labelled). A better teacher helps; filtering by agreement does not.}
+\note{Detection results. A COCO detector applied as-is is weak on prints; adapting it by pseudo-labelling helps person and animal but hurts vehicle, and LLaVA asked per class is better than both. For boxes, the deployed student reaches 0.123 mAP50 with the thesis evaluator, 0.146 with the Ultralytics validator, against 0.768 on the teacher's own labels. A Grounding DINO teacher lifts the student to 0.210. Filtering the labels by agreement between models has no established effect.}
+\end{frame}
+
+\begin{frame}{RQ1 \,·\, Error detection: disagreement against confidence}
+\begin{columns}[T,onlytextwidth]
+\column{0.60\textwidth}
+\footnotesize\renewcommand{\arraystretch}{1.18}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.3cm} >{\raggedright\arraybackslash}p{1.9cm} c c@{}}
+\toprule
+Setting & Signal pair & Disagr. & Conf.\\
+\midrule
+Deployed, in-sample ($C_1$, 801) & $U_{\text{SAA}}$ / $1-A^{\text{obj}}$ & 0.979 & 0.977\\
+Deployed, held out (249, book-disjoint) & $U_{\text{SAA}}$ / $1-A^{\text{obj}}$ & 0.860 & \textbf{0.872}\\
+Rebuilt signals, non-circular label & spread / mean & 0.609 & \textbf{0.623}\\
+Pre-registered (300 pictures) & class-level & 0.378 & \textbf{0.825}\\
+Within task: objects & per class & 0.781 & \textbf{0.835}\\
+Within task: scene presence & per picture & 0.815 & \textbf{0.825}\\
+\bottomrule
+\end{tabular}\par\vspace{3pt}
+{\scriptsize\color{muted}AUROC for ranking the system's errors. Held out, other baselines: AWLF meta-classifier 0.870, 6-signal spread 0.791, temperature-scaled entropy 0.701. In-sample, $U_{\text{SAA}}$ without its derived agreement term: 0.747.}
+\column{0.37\textwidth}
+\begin{defbox}{Why}
+On \textbf{149 of 199} errors all three agents are wrong together, so they agree.\\[2pt]
+In the deployed design, the high in-sample score came from a term derived from two of its own inputs.
+\end{defbox}\vspace{3pt}
+\begin{keybox}[fontupper=\scriptsize\raggedright]
+In no setting does disagreement rank errors better than the system's own confidence.
+\end{keybox}
+\end{columns}
+\note{RQ1 across every setting tested. In-sample on C1 the deployed disagreement score and plain confidence are tied, and the disagreement score drops to 0.747 without its derived term. Held out, confidence is ahead. With rebuilt signals and a label they do not define, confidence is ahead. In the pre-registered test, 0.378 against 0.825, and within each task 0.78 and 0.82 against 0.84 and 0.83. The reason is shared errors.}
+\end{frame}
+
+\begin{frame}{Calibration and risk control on the deployed design}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}
+\begin{defbox}{Platt scaling (Section 4.4)}
+Expected calibration error (ECE):\\
+$C_1$ random halves: 0.241 $\to$ \textbf{0.0044}\\
+{\scriptsize (equal to predicting the base rate: 796 of 801 are scenes)}\\[2pt]
+Book-disjoint split: 0.116 $\to$ 0.109 (marginal)
+\end{defbox}
+\column{0.48\textwidth}
+\begin{defbox}{Conformal risk control, held-out split}
+$\alpha = 0.05$: $\hat\lambda = 0.372$\\
+Realised risk \textbf{0.0201} $\leq 0.05$\\
+Auto-approved \textbf{60.6\%}, error recall 91.1\%\\
+Efficiency lift 2.31$\times$ (up to 3.09$\times$ over $\alpha$)
+\end{defbox}\vspace{3pt}
+\begin{defbox}{Complexity-tercile triage (heuristic)}
+Lift 0.98$\times$ and 1.15$\times$: close to chance.
+\end{defbox}
+\end{columns}
+\takeaway{The guarantee holds on the corrected pool; an earlier apparent failure ($R = 0.182$) came from mislabelled negative controls (57.5\% of 449 rechecked were scenes).}
+\note{For the deployed design: Platt scaling looks perfect in-sample but only because almost every picture is a scene; on a book-disjoint split it barely helps. Conformal risk control keeps its bound: realised risk 0.02 at a target of 0.05, 60.6 percent auto-approved. An earlier apparent failure came from mislabelled negative controls, which I relabelled. A complexity heuristic for triage is close to chance.}
+\end{frame}
+
+\begin{frame}{RQ2 \,·\, Scene presence: auto-approval at the same guarantee}
 \begin{columns}[c,onlytextwidth]
 \column{0.56\textwidth}
 \begin{tikzpicture}
@@ -1251,16 +1338,153 @@ Every number comes from a script with a fixed seed; three checkers hold the thes
 \small
 \begin{itemize}\setlength\itemsep{4pt}
 \item Better in \textbf{199 of 200} splits.
-\item Promise kept on average: real risk \textbf{0.0498} at $\alpha = 0.05$ (no margin: one split exceeds it 41.5\% of the time).
+\item Guarantee met on average: real risk \textbf{0.0498} at $\alpha = 0.05$ (no margin: one split exceeds it 41.5\% of the time).
 \item At the same \emph{real} error: +16 to +28 points.
 \item On the archive: about \textbf{18 hours} of annotation saved at $\alpha = 0.05$.
 \end{itemize}
 \end{columns}
-\takeaway{Inside the labelled pool, routing by confidence approves clearly more pictures than routing by disagreement, at the same promise.}
+\takeaway{Inside the labelled pool, routing by confidence approves clearly more pictures than routing by disagreement, at the same guarantee.}
 \note{The first result. At a promised 5 percent risk the corrected design approves 76 percent of pictures automatically, against 63 percent for the old triage and 61 percent by disagreement alone; better in 199 of 200 splits. The promise holds on average, but without margin.}
 \end{frame}
 
-\begin{frame}{Result 2 \,·\, On the archive the promise needs local calibration}
+
+\begin{frame}{Ablation study}
+\begin{columns}[T,onlytextwidth]
+\column{0.58\textwidth}
+\textbf{\color{navy}Corrected design, scene presence (200 redraws)}\par\vspace{2pt}
+\footnotesize\renewcommand{\arraystretch}{1.18}
+\begin{tabular}{@{}l c c c c@{}}
+\toprule
+Variant & AUROC & Error & Auto-appr. & Worse in\\
+\midrule
+\textbf{Full system} & \textbf{0.866} & 15.6\% & \textbf{76.4\%} & --\\
+$-$ ``no scene'' score & 0.850 & 15.5\% & 75.3\% & 89\%\\
+$-$ YOLOv11m & 0.858 & 15.7\% & 75.8\% & 80\%\\
+$-$ SigLIP & 0.852 & 15.8\% & 75.3\% & 86\%\\
+$-$ LLaVA-OV & 0.867 & 15.6\% & 75.6\% & 43\%\\
+\midrule
+YOLOv11m alone & 0.852 & 15.8\% & 72.9\% & 84\%\\
+SigLIP alone & 0.843 & 15.6\% & 72.1\% & 80\%\\
+LLaVA-OV alone & 0.835 & 16.1\% & 74.3\% & 96\%\\
+\bottomrule
+\end{tabular}\par\vspace{2pt}
+{\scriptsize\color{muted}``Worse in'': share of redraws with a lower AUROC than the full system. No paired difference is established.}
+\column{0.39\textwidth}
+\textbf{\color{navy}Further ablations}\par\vspace{3pt}
+\scriptsize
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X r@{}}
+\toprule
+Fusion weights 0.6/0.2/0.2 $\to$ equal / learned (AUROC) & 0.866 $\to$ 0.865 / 0.863\\
+Restoration off (SigLIP, balanced acc.) & 0.329 $\to$ 0.342\\
+Fine-tuning SigLIP + LLaVA (system, scene class) & 0.543 $\to$ 0.570\\
+Deployed design: $-$Object signal (learned AUROC) & $-0.086$\\
+Deployed design: $-$Scene signal & $-0.028$\\
+Deployed design: $-$VLM signal & $+0.011$\\
+\bottomrule
+\end{tabularx}\par\vspace{3pt}
+{\color{muted}None of these changes is established, except that SigLIP alone gains from fine-tuning (+0.189).}
+\end{columns}
+\note{The ablation study. Removing any one part of the corrected design changes little: the AUROC moves by at most 0.016, approval by about one point, and no difference is established; the describer adds nothing to scene presence once the other two are there. Any single agent alone is somewhat weaker. The fusion weights do not matter, restoration does not help, fine-tuning helps SigLIP alone but not the system, and in the deployed design the object signal carries most of the error detection.}
+\end{frame}
+
+\begin{frame}{Comparison with baselines}
+\scriptsize
+\renewcommand{\arraystretch}{1.22}
+\begin{tabular}{@{}l c c c c c@{}}
+\toprule
+Measure & \textbf{System} & Deployed & Linear probe & LLaVA-OV & Zero-shot SigLIP / LLaVA\\
+\midrule
+\multicolumn{6}{@{}l}{\emph{Scene classes (992 pictures)}}\\
+Balanced accuracy & 0.544 & 0.576 & 0.504 & 0.507 & 0.571 / 0.252\\
+Accuracy & 82.1\% & 77.4\% & 82.2\% & 80.0\% & 75.7\% / 44.2\%\\
+Auto-approved at $\alpha = 0.05$ (wrong) & 69.1\% (7.0\%) & -- & 68.0\% (7.2\%) & 64.9\% (7.6\%) & 50.7\% (9.0\%) / --\\
+\multicolumn{6}{@{}l}{\emph{Objects (300 pictures)}}\\
+Mean AUROC & \textbf{0.903} & 0.624 & 0.838 & \textbf{0.903} & --\\
+Classes in the set, $\leq 10\%$ missed & 2.80 & -- & 4.03 & \textbf{2.60} & --\\
+\multicolumn{6}{@{}l}{\emph{Scene presence (1,250 pictures)}}\\
+AUROC & \textbf{0.866} & 0.829 & 0.859 & 0.835 & --\\
+Auto-approved at $\alpha = 0.05$ & \textbf{76.4\%} & 63.0\% & 74.0\% & 74.3\% & --\\
+\bottomrule
+\end{tabular}
+\takeaway{Clearly better than the deployed design on objects (+0.279 AUROC) and scene presence (+13.5 points auto-approved); level with one strong model (LLaVA-OV) or a linear probe; scene classes: no established improvement.}
+\note{The system against all baselines on the same splits. Objects: far above the deployed detector and the linear probe, level with LLaVA alone. Scene presence: clearly above the deployed design, about level with a linear probe and with LLaVA alone. Scene classes: no established improvement; the deployed system's higher balanced accuracy rests on six teaching pictures.}
+\end{frame}
+
+\begin{frame}{Scene classification (5 classes + no scene)}
+\begin{columns}[T,onlytextwidth]
+\column{0.54\textwidth}
+\scriptsize\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}l c c c@{}}
+\toprule
+System & BA & Acc. & Auto-appr. (wrong)\\
+\midrule
+\textbf{Joint mapping (system)} & 0.544 & \textbf{82.1\%} & \textbf{69.1\%} (7.0\%)\\
+Fixed 0.6/0.2/0.2 & 0.401 & 78.0\% & 61.6\% (7.8\%)\\
+Equal weights & 0.413 & 79.3\% & 64.6\% (7.4\%)\\
+YOLOv11m alone & 0.381 & 76.1\% & 55.0\% (8.7\%)\\
+SigLIP alone & 0.329 & 67.5\% & 44.5\% (10.7\%)\\
+LLaVA-OV alone & 0.507 & 80.0\% & 64.9\% (7.6\%)\\
+SigLIP zero-shot argmax & 0.571 & 75.7\% & 50.7\% (9.0\%)\\
+Majority class & 0.174 & 48.9\% & 0.0\%\\
+\bottomrule
+\end{tabular}
+\column{0.43\textwidth}
+\scriptsize\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}l r c c@{}}
+\toprule
+Class & $n$ & Recall & Precision\\
+\midrule
+teaching & 6 & 0.0\% & --\\
+family & 51 & 44.1\% & 52.8\%\\
+playing & 32 & 27.1\% & 46.4\%\\
+landscape & 76 & 61.8\% & 72.8\%\\
+drawing & 341 & 88.7\% & 74.3\%\\
+no scene & 486 & 90.0\% & 94.7\%\\
+\bottomrule
+\end{tabular}\par\vspace{3pt}
+{\scriptsize System, per class. Prediction sets at $\alpha=0.10$: 90.4\% coverage, 1.28 classes on average. On random archive pictures: balanced accuracy 0.351.}
+\end{columns}
+\takeaway{The learned joint mapping beats fixed weights (0.544 vs 0.401); only ``no scene'' and ``drawing'' are auto-approved reliably, so the specific classes go to human review.}
+\note{Scene classification on 992 pictures. The learned joint mapping beats the planned fixed weights clearly; per class it finds landscape in 62 percent, family 44, playing 27, teaching never. At a 5 percent guarantee 69 percent are auto-approved, almost all as no scene or drawing. Note the untrained SigLIP argmax reaches 0.571 balanced accuracy but approves far less.}
+\end{frame}
+
+\begin{frame}{Object classification (8 classes, multi-label)}
+\begin{columns}[T,onlytextwidth]
+\column{0.58\textwidth}
+\scriptsize\renewcommand{\arraystretch}{1.13}
+\begin{tabular}{@{}l r c c c c@{}}
+\toprule
+Class & $n$ & YOLOv11m & SigLIP & LLaVA-OV & Combined\\
+\midrule
+person & 127 & 0.920 & 0.920 & 0.938 & \textbf{0.953}\\
+child & 42 & 0.685 & 0.795 & \textbf{0.864} & 0.830\\
+animal & 87 & 0.865 & 0.886 & \textbf{0.930} & 0.924\\
+building & 17 & 0.826 & 0.902 & 0.955 & \textbf{0.960}\\
+weapon & 25 & 0.648 & 0.762 & 0.812 & \textbf{0.827}\\
+vehicle & 9 & 0.863 & 0.919 & \textbf{0.987} & 0.984\\
+tree & 49 & 0.814 & 0.812 & 0.858 & \textbf{0.878}\\
+text & 58 & 0.807 & 0.774 & \textbf{0.880} & 0.866\\
+\midrule
+Mean & & 0.803 & 0.846 & 0.903 & 0.903\\
+\bottomrule
+\end{tabular}\par
+{\scriptsize\color{muted}AUROC per class, 300 hand-annotated pictures.}
+\column{0.39\textwidth}
+\begin{defbox}{Prediction sets (CRC on missed objects, $\alpha = 0.10$)}
+2.8 classes per picture\\
+9.2\% of a picture's objects missed on average (10.8\% of all objects)\\
+1.56 wrong classes per picture to remove\\
+LLaVA-OV alone: 2.6 classes
+\end{defbox}\vspace{3pt}
+\begin{keybox}[fontupper=\scriptsize\raggedright]
+A guarantee on all decisions would confirm at most 0.4\% of objects: the useful output is a prediction set, not single labels.
+\end{keybox}
+\end{columns}
+\note{Object classification per class on the 300 annotated pictures. LLaVA is the strongest single agent; the combination matches it on average and is best for person, building, weapon and tree. Under conformal risk control on missed objects each picture gets a set of about three classes that misses under ten percent of its objects, which a person confirms.}
+\end{frame}
+
+\begin{frame}{Validation on random archive pictures}
 \begin{columns}[c,onlytextwidth]
 \column{0.56\textwidth}
 \begin{tikzpicture}
@@ -1269,7 +1493,7 @@ Every number comes from a script with a fixed seed; three checkers hold the thes
   xticklabels={{calibrated on\\the pool},{one definition,\\archive calib.},{same, on 294\\new pictures}},
   x tick label style={font=\scriptsize,align=center},y tick label style={font=\scriptsize},ylabel={\scriptsize \% approved and wrong},
   nodes near coords,nodes near coords style={font=\scriptsize},axis lines*=left,ymajorgrids,grid style={line},enlarge x limits=0.25,
-  bar shift=0pt,extra y ticks={5},extra y tick labels={\color{navy}promise 5},extra y tick style={grid=major,grid style={navy,dashed,thick},tick label style={font=\tiny}}]
+  bar shift=0pt,extra y ticks={5},extra y tick labels={\color{navy}target 5},extra y tick style={grid=major,grid style={navy,dashed,thick},tick label style={font=\tiny}}]
 \addplot[fill=pers,draw=none] coordinates {(a,16.2)};
 \addplot[fill=okc,draw=none] coordinates {(b,4.8)};
 \addplot[fill=risk,draw=none] coordinates {(c,5.9)};
@@ -1279,39 +1503,17 @@ Every number comes from a script with a fixed seed; three checkers hold the thes
 \column{0.42\textwidth}
 \small
 \begin{itemize}\setlength\itemsep{4pt}
-\item 400 pictures drawn at random from the archive (test fixed before labelling): the promise \no{fails}, 16.2\%.
+\item 400 pictures drawn at random from the archive (test fixed before labelling): the guarantee \no{fails}, 16.2\%.
 \item Two causes: the labels mixed \textbf{two definitions} of a scene, and the pool was \textbf{not a random sample}.
-\item One definition + calibration on archive pictures: just above the promise, at about \textbf{80\%} approved.
+\item One definition + calibration on archive pictures: just above the target, at about \textbf{80\%} approved.
 \end{itemize}
 \end{columns}
-\takeaway{The promise transfers only to pictures like the calibration pictures. Calibrate on a random sample of the collection itself.}
+\takeaway{The guarantee transfers only to pictures like the calibration pictures. Calibrate on a random sample of the collection itself.}
 \note{The second result is the honest one. On 400 random archive pictures, with the cut-off from the labelled pool, the promise fails: 16 percent approved and wrong. Two causes: two definitions of a scene in the labels, and a pool that was not random. With one definition and calibration on archive pictures, the risk comes to just above 5 percent on new pictures, at 80 percent approved.}
 \end{frame}
 
-\begin{frame}{Result 3 \,·\, Object and scene classes}
-\begin{columns}[T,onlytextwidth]
-\column{0.48\textwidth}
-\begin{defbox}{8 object classes (300 hand-labelled pictures)}
-\begin{itemize}\setlength\itemsep{2pt}
-\item The agents rank presence well: mean AUROC \textbf{0.903} (old detector 0.624, a linear probe 0.838).
-\item A promise on missed objects: a list of \textbf{2.8 classes} per picture that misses 9.2\% of a picture's objects, as promised; about 1.6 wrong classes to strike out.
-\end{itemize}
-\end{defbox}
-\column{0.48\textwidth}
-\begin{defbox}{5 scene classes + no scene (992 pictures)}
-\begin{itemize}\setlength\itemsep{2pt}
-\item Balanced accuracy: fixed weights 0.401, describer alone 0.507, \textbf{learned 0.544}.
-\item Family, playing, landscape found in 27--62\% of cases.
-\item At a 5\% promise only ``no scene'' and ``drawing'' are approved (69.1\% of pictures); specific classes go to a person.
-\item Random archive pictures: \no{0.351}.
-\end{itemize}
-\end{defbox}
-\end{columns}
-\takeaway{Objects: a reliable short list. Scene classes: the system shortlists, a person decides. One vision-language model alone is about as good as the combination.}
-\note{On the class tasks the system is useful for objects: a short list of about three classes that misses less than one object in ten. For scene classes it can shortlist but not decide: only no scene and drawing can be approved, and on random archive pictures the balanced accuracy drops to 0.35. And the describer alone is about as good as the combination.}
-\end{frame}
 
-\begin{frame}{Result 4 \,·\, People do not fully agree either}
+\begin{frame}{Agreement between annotators}
 \begin{columns}[c,onlytextwidth]
 \column{0.52\textwidth}
 \begin{tikzpicture}
@@ -1319,7 +1521,7 @@ Every number comes from a script with a fixed seed; three checkers hold the thes
   symbolic y coords={{same person, twice},{two people}},ytick=data,
   y tick label style={font=\scriptsize},x tick label style={font=\scriptsize},xlabel={\scriptsize Cohen's $\kappa$},
   nodes near coords,nodes near coords style={font=\tiny},axis lines*=left,xmajorgrids,grid style={line},
-  legend style={font=\tiny,at={(0.5,-0.32)},anchor=north,legend columns=1,draw=none},enlarge y limits=0.5]
+  legend style={font=\tiny,at={(0.5,1.03)},anchor=south,legend columns=2,draw=none},enlarge y limits=0.5]
 \addplot[fill=navy,draw=none] coordinates {(0.337,{two people}) (0.36,{same person, twice})};
 \addplot[fill=navy!45,draw=none] coordinates {(0.50,{two people}) (0.58,{same person, twice})};
 \legend{scene type as labelled,``drawing'' counted as ``no scene''}
@@ -1339,6 +1541,51 @@ Scene categories are interpretations, not facts. This limits what any system can
 \note{People agree only moderately on scene types: kappa 0.34 between two raters and 0.36 for the same rater twice. Most of it is about drawing. This sets a ceiling for any system and is why the thesis reports per definition.}
 \end{frame}
 
+
+\begin{frame}{RQ3 and RQ4 \,·\, Tier 2 helpers and retrieval}
+\begin{columns}[T,onlytextwidth]
+\column{0.32\textwidth}
+\begin{defbox}{Contradiction checker}
+\textbf{Rule:} the VLM names an object the detector did not find $\to$ a flag.\\[2pt]
+\textbf{Checked:} 56\% of flags name an object that is not there (68\% with the retrained finder), against 36.5\% of all claims.
+\end{defbox}
+\column{0.32\textwidth}
+\begin{defbox}{Cross-archive linker}
+\textbf{Rule:} compare picture embeddings across books; link if similarity $\geq 0.92$.\\[2pt]
+\textbf{Checked:} 38 of 50 random links (76\%) are real reprints; the rest share only the style.
+\end{defbox}
+\column{0.32\textwidth}
+\begin{defbox}{Inscription reader}
+\textbf{Rule:} the text reader reads the text in the picture.\\[2pt]
+\textbf{Checked:} not usable as is; of its ``real text'', only 52.5\% comes from pictures with text.
+\end{defbox}
+\end{columns}
+\takeaway{Retrieval (judged by a person, 4 queries): P@10 \textbf{0.60} for the semantic index vs 0.10 for keyword search; proxy labels had claimed 1.000. None of the helpers changes a decision.}
+\note{Tier 2 runs beside the decision on every picture. The contradiction checker finds describer claims the detector cannot confirm; the linker finds reprints across books; the inscription reader is not usable yet. They never change a decision.}
+\end{frame}
+
+
+\begin{frame}{Transfer to other collections}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}
+\begin{defbox}{PeopleArt (4,778 images, 43 styles)}
+COCO YOLOv11m, class person, confidence 0.25:\\[2pt]
+photographic and painterly styles F1 0.83--0.88\\
+Cubism 0.831 \;·\; Academicism 0.754 \;·\; Cartoon 0.673\\[2pt]
+Degradation does not simply follow abstraction.
+\end{defbox}
+\column{0.48\textwidth}
+\begin{defbox}{Europeana pilot (24 images, 10 institutions)}
+23 labelled, all scenes: \textbf{65.2\%} missed by the unchanged pipeline; YOLO finds no object in 12 images.\\[2pt]
+Effective rank of the agents: \textbf{1.37} (Colibri: 2.50) $\to$ the ensemble behaves like one signal.
+\end{defbox}
+\end{columns}
+\takeaway{No transfer without recalibration. Before relying on agreement between models on a new collection, check that the agents still differ (effective rank $\geq 2$).}
+\note{Two transfer pilots. On PeopleArt a COCO detector degrades with style, but not simply with abstraction. On 24 Europeana images the unchanged pipeline misses about two thirds of the scenes, and its agents collapse to about one independent signal, so disagreement cannot even be measured there.}
+\end{frame}
+
+\section{Conclusion}
+
 \begin{frame}{What is new: the contributions}
 \footnotesize
 \renewcommand{\arraystretch}{1.3}
@@ -1349,11 +1596,11 @@ Scene categories are interpretations, not facts. This limits what any system can
 \textbf{\color{navy}1} & \textbf{Disagreement does not find errors} better than confidence, and why & Fixed in advance: 0.378 against 0.825; within task 0.78 / 0.82 against 0.84 / 0.83; 149 of 199 errors shared\\
 \textbf{\color{navy}2} & \textbf{An audit of what an uncertainty score measures} & The deployed four signals were two measurements and eight states\\
 \textbf{\color{navy}3} & \textbf{Pseudo-label scores hide failure}, traced to the teacher & 0.768 against the teacher, 0.146 against people; 126 of 128 misses never labelled; better teacher 0.123 $\to$ 0.210\\
-\textbf{\color{navy}4} & \textbf{A corrected design with a risk promise} & 76.4\% approved at 5\% against 63.0\% (199 of 200 redraws); object list of 2.8 classes, 9.2\% missed\\
-\textbf{\color{navy}5} & \textbf{The promise tested where it is used} & Random archive pictures: 16.2\% with pool calibration; 5.4--5.9\% at 80\% approved with archive calibration\\
+\textbf{\color{navy}4} & \textbf{A corrected design with a risk guarantee} & 76.4\% approved at 5\% against 63.0\% (199 of 200 redraws); object list of 2.8 classes, 9.2\% missed\\
+\textbf{\color{navy}5} & \textbf{The guarantee tested where it is used} & Random archive pictures: 16.2\% with pool calibration; 5.4--5.9\% at 80\% approved with archive calibration\\
 \bottomrule
 \end{tabularx}
-\takeaway{The result is knowledge about \emph{when} an automatic answer can be trusted: route by confidence, calibrate on the collection itself, promise what each task needs.}
+\takeaway{The result is knowledge about \emph{when} an automatic answer can be trusted: route by confidence, calibrate on the collection itself, guarantee what each task needs.}
 \note{If I am asked what I improved: five contributions. One, a tested negative answer to a common assumption, with the reason. Two, an audit method that showed what the deployed uncertainty score really measured. Three, the finding that pseudo-label scores hide failure, traced to the teacher. Four, a corrected design that follows from these findings and approves clearly more at the same promise. Five, the promise tested where it is used, on random archive pictures, with a practical rule: calibrate on the collection itself.}
 \end{frame}
 
@@ -1365,17 +1612,17 @@ Scene categories are interpretations, not facts. This limits what any system can
 \item Disagreement never ranks errors better than confidence here; most errors are shared.
 \item The first design's signals were two measurements (8 states).
 \item Pseudo-label scores hide a collapse (0.768 vs 0.146).
-\item Confidence routing approves more at the same promise (pool).
-\item The promise holds on new pictures only when calibrated on similar pictures.
+\item Confidence routing auto-approves more at the same guarantee (pool).
+\item The guarantee holds on new pictures only when calibrated on similar pictures.
 \end{itemize}
 \end{defbox}
 \column{0.48\textwidth}
 \begin{defbox}[colframe=pers,colbacktitle=persbg,coltitle=pers]{Not claimed}
 \begin{itemize}\setlength\itemsep{2pt}
 \item That disagreement beats confidence.
-\item A guarantee for every batch: the promise is an average.
+\item A guarantee for every batch: the guarantee holds on average.
 \item That the accuracy gains transfer to other label sources ($\kappa = 0.41$ between sources).
-\item Automatic scene classes: they need a person.
+\item Automatic scene classes: they need human review.
 \item That several agents clearly beat one.
 \end{itemize}
 \end{defbox}
@@ -1399,7 +1646,7 @@ Scene categories are interpretations, not facts. This limits what any system can
 \begin{itemize}\setlength\itemsep{2pt}
 \item Calibrate on a random, labelled sample of each new collection.
 \item Written definitions for the scene classes, and a second rater.
-\item A promise per class or per batch (e.g.\ Learn then Test).
+\item A guarantee per class or per batch (e.g.\ Learn then Test).
 \item Before trusting disagreement anywhere: check the agents really differ (effective rank $\geq 2$).
 \end{itemize}
 \end{defbox}
@@ -1411,8 +1658,8 @@ Scene categories are interpretations, not facts. This limits what any system can
 \vspace{6pt}
 \begin{tikzpicture}[c/.style={draw=none,fill=soft,rounded corners=4pt,text width=4.0cm,minimum height=3.4cm,align=left,inner sep=8pt,anchor=north west}]
 \node[c] (a) at (0,0) {{\Huge\bfseries\color{navy}1}\par\vspace{4pt}\textbf{Route by confidence, not by agreement.}\par\vspace{3pt}\footnotesize When models fail, they fail together.};
-\node[c] (b) at (4.75,0) {{\Huge\bfseries\color{risk}2}\par\vspace{4pt}\textbf{Calibrate on the collection itself.}\par\vspace{3pt}\footnotesize A promise only holds for pictures like the calibration pictures.};
-\node[c] (c) at (9.5,0) {{\Huge\bfseries\color{okc}3}\par\vspace{4pt}\textbf{Promise what each task needs.}\par\vspace{3pt}\footnotesize A bound on missed objects; a short list of scene classes.};
+\node[c] (b) at (4.75,0) {{\Huge\bfseries\color{risk}2}\par\vspace{4pt}\textbf{Calibrate on the collection itself.}\par\vspace{3pt}\footnotesize A guarantee only holds for pictures like the calibration pictures.};
+\node[c] (c) at (9.5,0) {{\Huge\bfseries\color{okc}3}\par\vspace{4pt}\textbf{Guarantee what each task needs.}\par\vspace{3pt}\footnotesize A bound on missed objects; a prediction set of scene classes.};
 \end{tikzpicture}
 \vfill
 \centering{\Large\bfseries\color{navy}Thank you. Questions?}\par\vspace{4pt}
@@ -1435,7 +1682,7 @@ The pipeline is the \textbf{instrument}. The thesis is a set of \textbf{tested c
 \begin{itemize}\setlength\itemsep{1pt}
 \item the main hypothesis was \textbf{rejected} (RQ1);
 \item the first design was \textbf{audited and replaced} because of what the tests showed;
-\item the risk promise was \textbf{tested off the labelled pool} and failed before it was repaired.
+\item the risk guarantee was \textbf{tested off the labelled pool} and failed before it was repaired.
 \end{itemize}
 A pipeline project reports that its system works. This thesis reports where it does not, and why.
 \end{defbox}
@@ -1462,13 +1709,13 @@ A pipeline project reports that its system works. This thesis reports where it d
 Balanced accuracy / measure & Zero-shot & Trained & Difference\\
 \midrule
 Scene class, the system & 0.543 & 0.570 & $+0.027$\\
-Scene matcher alone & 0.329 & \textbf{0.517} & $\mathbf{+0.189}$\\
-Describer alone & 0.505 & 0.507 & $+0.003$\\
+SigLIP alone & 0.329 & \textbf{0.517} & $\mathbf{+0.189}$\\
+LLaVA-OV alone & 0.505 & 0.507 & $+0.003$\\
 Scene presence, AUROC & 0.866 & 0.864 & $-0.003$\\
 Presence approved at 5\% & 76.4\% & 75.8\% & $-0.6$\\
 \bottomrule
 \end{tabular}\par\vspace{3pt}
-{\scriptsize Range of the difference over the redraws (2.5--97.5\%): the system $[-0.059, 0.122]$, includes zero; the scene matcher $[0.085, 0.290]$, positive in every redraw. ``Alone'' = through its learned mapping; SigLIP's untrained largest score reaches 0.571.}\par\vspace{2pt}
+{\scriptsize Range of the difference over the redraws (2.5--97.5\%): the system $[-0.059, 0.122]$, includes zero; SigLIP $[0.085, 0.290]$, positive in every redraw. ``Alone'' = through its learned mapping; SigLIP's untrained largest score reaches 0.571.}\par\vspace{2pt}
 {\scriptsize\color{muted}Planned in writing before the run (25 Nov). Cross-fitted over 5 book folds; 200 book-disjoint redraws.}
 \column{0.39\textwidth}
 \begin{defbox}{How}
@@ -1488,7 +1735,7 @@ Training makes SigLIP much better \emph{alone} (still below its untrained larges
 \begin{defbox}{Steps}
 \textbf{Input:} 749 training pictures with a human label (scene 1 / no scene 0) and each agent's numbers.
 \begin{enumerate}\setlength\itemsep{2pt}
-\item For each agent (object finder, scene matcher, describer):
+\item For each agent (YOLOv11m, SigLIP, LLaVA-OV):
 \item \quad collect its numbers for every training picture;
 \item \quad fit a logistic regression: label $\leftarrow$ its numbers;
 \item \quad keep the bias and one weight per number.
@@ -1499,9 +1746,9 @@ Training makes SigLIP much better \emph{alone} (still below its untrained larges
 \end{defbox}
 \column{0.42\textwidth}
 \begin{defbox}{Largest learned weights}
-\textbf{Object finder:} person $+3.52$, animal $+2.40$, text $-0.18$\\[2pt]
-\textbf{Scene matcher:} drawing $+2.43$, ``no scene'' $-2.83$\\[2pt]
-\textbf{Describer:} person $+3.10$, animal $+2.12$, text $-0.35$
+\textbf{YOLOv11m:} person $+3.52$, animal $+2.40$, text $-0.18$\\[2pt]
+\textbf{SigLIP:} drawing $+2.43$, ``no scene'' $-2.83$\\[2pt]
+\textbf{LLaVA-OV:} person $+3.10$, animal $+2.12$, text $-0.35$
 \end{defbox}\vspace{3pt}
 {\footnotesize The system learns from labelled examples how much each number is evidence for each answer.}
 \end{columns}
@@ -1512,12 +1759,12 @@ Training makes SigLIP much better \emph{alone} (still below its untrained larges
 \textbf{Input:} a scan; the weights (Algorithm 1); the cut-offs $\hat\lambda$ (Algorithm 3).
 \begin{enumerate}\setlength\itemsep{2pt}
 \item Restore the scan; run the three agents $\to$ 27 numbers.
-\item \textbf{Scene class:} 6 probabilities from all 27 numbers; answer = the largest; $u = 1 - $ largest; approve if $u < \hat\lambda_{\text{class}}$, else a person.
-\item \textbf{Objects:} per class the mean of the 3 probabilities; list = classes $\geq t$; a person confirms the list.
-\item \textbf{Scene at all:} each agent $p_k = 1 / (1 + e^{-(b_k + w_k\cdot z_k)})$; $p = 0.6\,p_1 + 0.2\,p_2 + 0.2\,p_3$; scene if $p \geq 0.5$.
-\item $u = 1 - |p - 0.5|$; approve if $u < \hat\lambda$, else a person.
+\item \textbf{Scene class:} 6 probabilities from all 27 numbers; answer = the largest; $u = 1 - $ largest; auto-approve if $u < \hat\lambda_{\text{class}}$, else human review.
+\item \textbf{Objects:} per class the mean of the 3 probabilities; set = classes $\geq t$; a human confirms the set.
+\item \textbf{Scene presence:} each agent $p_k = 1 / (1 + e^{-(b_k + w_k\cdot z_k)})$; $p = 0.6\,p_1 + 0.2\,p_2 + 0.2\,p_3$; scene if $p \geq 0.5$.
+\item $u = 1 - |p - 0.5|$; auto-approve if $u < \hat\lambda$, else human review.
 \end{enumerate}
-\textbf{Output:} three answers, each approved or routed to a person.
+\textbf{Output:} three answers, each auto-approved or routed to human review.
 \end{defbox}
 \end{frame}
 
@@ -1525,7 +1772,7 @@ Training makes SigLIP much better \emph{alone} (still below its untrained larges
 \begin{columns}[T,onlytextwidth]
 \column{0.55\textwidth}
 \begin{defbox}{Steps}
-\textbf{Input:} $n$ calibration pictures, each with its uncertainty $u_i$ and whether its answer was wrong ($e_i = 1$) or right ($e_i = 0$); the promise $\alpha$.
+\textbf{Input:} $n$ calibration pictures, each with its uncertainty $u_i$ and whether its answer was wrong ($e_i = 1$) or right ($e_i = 0$); the target risk $\alpha$.
 \begin{enumerate}\setlength\itemsep{2pt}
 \item For each candidate cut-off $\lambda$ from 0.001 to 1 (steps of 0.001):
 \item \quad $\hat R(\lambda) = \tfrac1n \sum_i e_i \cdot [u_i < \lambda]$ (approved and wrong);
@@ -1553,13 +1800,13 @@ $(\tfrac23, 1, 1)$ & 0.1924 & 0.1821 & 565 & \yes{approved}\\
 $(1, 0.5, 1)$ & 0.2500 & 0.2000 & 2,580 & \yes{approved}\\
 $(\tfrac23, 0.5, 1)$ & 0.2097 & 0.2425 & 969 & \yes{approved}\\
 $(\tfrac13, 1, 1)$ & 0.3849 & 0.3643 & 222 & \yes{approved}\\
-$(\tfrac13, 0.5, 1)$ & 0.3155 & 0.3726 & 2,217 & \no{a person}\\
-$(0, 0.5, 0)$ & 0.4787 & 0.5372 & 1,208 & \no{a person}\\
-$(0, 1, 0)$ & 0.5774 & 0.5464 & 195 & \no{a person}\\
+$(\tfrac13, 0.5, 1)$ & 0.3155 & 0.3726 & 2,217 & \no{human review}\\
+$(0, 0.5, 0)$ & 0.4787 & 0.5372 & 1,208 & \no{human review}\\
+$(0, 1, 0)$ & 0.5774 & 0.5464 & 195 & \no{human review}\\
 \bottomrule
 \end{tabular}
 \par\vspace{6pt}
-{\footnotesize $U_{\text{SAA}}$ from Table D.3 of the thesis; $U_{\text{triage}} = 0.6\,U_{\text{SAA}} + 0.4\,(1 - \text{mean of the four signals})$. Passing 0.3726 would approve a row whose $SAA$ sits exactly on 0.5 and whose errors break the 5\% promise, so the largest safe cut-off is 0.372 (the same in 2,000 resamples).}
+{\footnotesize $U_{\text{SAA}}$ from Table D.3 of the thesis; $U_{\text{triage}} = 0.6\,U_{\text{SAA}} + 0.4\,(1 - \text{mean of the four signals})$. Passing 0.3726 would approve a row whose $SAA$ sits exactly on 0.5 and whose errors break the 5\% guarantee, so the largest safe cut-off is 0.372 (the same in 2,000 resamples).}
 \end{frame}
 
 \begin{frame}{Backup \,·\, Do the weights 0.6 / 0.2 / 0.2 matter?}
@@ -1569,17 +1816,17 @@ $(0, 1, 0)$ & 0.5774 & 0.5464 & 195 & \no{a person}\\
 \renewcommand{\arraystretch}{1.2}\footnotesize
 \begin{tabular}{@{}l c c c@{}}
 \toprule
-Scene at all & Ranking & Wrong & Approved\\
+Scene presence & Ranking & Wrong & Approved\\
 \midrule
 0.6 / 0.2 / 0.2 & 0.866 & 15.6\% & 76.4\%\\
 Equal thirds & 0.865 & 15.7\% & 76.3\%\\
 Learned (0.43 / 0.24 / 0.33) & 0.863 & 15.7\% & 75.6\%\\
-Object finder alone & 0.852 & 15.8\% & 72.9\%\\
+YOLOv11m alone & 0.852 & 15.8\% & 72.9\%\\
 \bottomrule
 \end{tabular}
 \column{0.40\textwidth}
 \begin{defbox}{Answer}
-For \textbf{scene at all}: no, they give the same results; the fixed ones are kept because the archive tests were fixed with them.\\[2pt]
+For \textbf{scene presence}: no, they give the same results; the fixed ones are kept because the archive tests were fixed with them.\\[2pt]
 For \textbf{scene classes}: yes, learned 0.544 against fixed 0.401 balanced accuracy, so the system uses the learned mapping.
 \end{defbox}
 \end{columns}
@@ -1602,7 +1849,7 @@ Judged by a person on 4 queries: Precision@10 \textbf{0.60} for the semantic ind
 \end{columns}
 \vspace{6pt}
 \begin{defbox}{Speed}
-Per picture on one RTX A6000: object finder 0.06\,s, describer 1.56\,s, text reader 3.23\,s. Inference is not the limit for scaling; labels are.
+Per picture on one RTX A6000: YOLOv11m 0.06\,s, LLaVA-OV 1.56\,s, Kosmos-2.5 3.23\,s. Inference is not the limit for scaling; labels are.
 \end{defbox}
 \end{frame}
 
